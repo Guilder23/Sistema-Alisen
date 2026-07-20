@@ -1,0 +1,130 @@
+{% load static %}
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-principal">
+    <div class="navbar-container">
+        <!-- IZQUIERDA: Toggle Sidebar y Logo -->
+        <div class="navbar-left">
+            <button class="sidebar-toggle-btn" id="sidebarToggle" title="Alternar menú">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="navbar-logo">
+                <a href="{% url 'dashboard' %}">
+                    <i class="fas fa-store"></i>
+                    <span class="navbar-brand-text">Sistema Inventario</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- DERECHA: Notificaciones y Usuario -->
+        <div class="navbar-right">
+            <!-- Moneda actual: -->
+            <div class="navbar-tc">
+                <i class="fas fa-money-bill-wave"></i>
+    {% if user.is_authenticated and user.perfil and user.perfil.tienda and user.perfil.tienda.tipo == 'principal' %}
+        {% if navbar_moneda_tienda_principal %}
+            <span class="tc-text">
+                <span class="tc-label">{{ navbar_moneda_tienda_principal.moneda }}</span>
+                <span class="tc-sep">-</span>
+                <span class="tc-value">Bs {{ navbar_moneda_tienda_principal.valor|stringformat:"0.2f" }}</span>
+            </span>
+        {% else %}
+            <span class="tc-text">
+                <span class="tc-label">Sin tipo de cambio</span>
+            </span>
+        {% endif %}
+    {% else %}
+        {% if navbar_moneda_general %}
+            <span class="tc-text">
+                <span class="tc-label">{{ navbar_moneda_general.moneda }}</span>
+                <span class="tc-sep">-</span>
+                <span class="tc-value">Bs {{ navbar_moneda_general.valor|stringformat:"0.2f" }}</span>
+            </span>
+        {% else %}
+            <span class="tc-text">
+                <span class="tc-label">Sin tipo de cambio</span>
+            </span>
+        {% endif %}
+    {% endif %}
+            </div>
+            <!-- Notificaciones -->
+            <div class="navbar-notificaciones">
+                <button class="navbar-icon-btn" id="notificacionesBtn" title="Notificaciones">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificacionesBadge">0</span>
+                </button>
+                <div class="navbar-dropdown notificaciones-dropdown" id="notificacionesDropdown">
+                    <div class="dropdown-header">
+                        <span>Notificaciones</span>
+                        <small class="text-muted" id="notificacionesContador">0 nuevas</small>
+                    </div>
+                    <div class="dropdown-items" id="notificacionesLista">
+                        <div class="text-center py-3 text-muted">
+                            <i class="fas fa-spinner fa-spin"></i> Cargando...
+                        </div>
+                    </div>
+                    <div class="dropdown-footer">
+                        <button id="marcarTodasBtn" type="button" class="btn-marcar-todas">Marcar todas como leídas</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuario -->
+            <div class="navbar-usuario">
+                <button class="navbar-user-btn" id="usuarioBtn" title="Mi cuenta">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">
+                            {% if user.perfil and user.perfil.nombre_ubicacion %}
+                                {{ user.perfil.nombre_ubicacion|title }}
+                            {% else %}
+                                {{ user.username|title }}
+                            {% endif %}
+                        </span>
+                        <span class="user-role">
+                            {{ user.username|title }}
+                        </span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="navbar-dropdown usuario-dropdown" id="usuarioDropdown">
+                    <div class="dropdown-user-header">
+                        <div class="user-avatar-large">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-header-text">
+                            <strong class="user-header-name">
+                                {% if user.perfil and user.perfil.nombre_ubicacion %}
+                                    {{ user.perfil.nombre_ubicacion|title }}
+                                {% else %}
+                                    {{ user.username|title }}
+                                {% endif %}
+                            </strong>
+                            <p class="user-header-email">{{ user.email }}</p>
+                        <span class="user-header-role">
+                            <i class="fas fa-user"></i> {{ user.username|title }}
+                        </span>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i> Mi Perfil
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-cog"></i> Configuración
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-question-circle"></i> Ayuda
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'logout' %}" class="dropdown-item dropdown-item-logout">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

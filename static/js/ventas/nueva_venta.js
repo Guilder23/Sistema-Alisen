@@ -1,0 +1,799 @@
+/**
+ * Lógica del carrito de compras para Nueva Venta
+ * Búsqueda AJAX de productos, carrito en memoria, y envío de la venta
+ * DEPENDE DE: La variable global URLS definida en nueva_venta.html:
+ *   const URLS = {
+ *       buscarProductos: "/ventas/api/buscar-productos/",
+ *       guardarVenta: "/ventas/guardar/",
+ *       listaVentas: "/ventas/",
+ *   };
+ */
+
+// UTILIDAD: CSRF TOKEN
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// UTILIDADES: CONVERSIÓN DE MONEDA
+function obtenerMonedaActual() {
+    return document.getElementById('inputMoneda')?.value || 'BOB';
+}
+
+function obtenerTipoCambioActual() {
+    return parseFloat(document.getElementById('tipoCambioActual')?.value || 1) || 1;
+}
+
+function convertirBsAMoneda(montoBs) {
+    const monto = parseFloat(montoBs || 0);
+    return obtenerMonedaActual() === 'USD' ? (monto / obtenerTipoCambioActual()) : monto;
+}
+
+function convertirMonedaABs(monto) {
+    const valor = parseFloat(monto || 0);
+    return obtenerMonedaActual() === 'USD' ? (valor * obtenerTipoCambioActual()) : valor;
+}
+
+function obtenerUnidadesPorCajaProducto(producto) {
+    return Math.max(parseInt(producto.unidades_por_caja || 1, 10) || 1, 1);
+}
+
+function obtenerMaximoCajasProducto(producto) {
+    const stock = parseInt(producto.stock || 0, 10) || 0;
+    const unidadesPorCaja = obtenerUnidadesPorCajaProducto(producto);
+    return Math.floor(stock / unidadesPorCaja);
+}
+
+function sincronizarCantidadDesdeCajas(item) {
+    item.cantidad = item.cajas * item.unidadesPorCaja;
+}
+
+// ESTADO GLOBAL: CARRITO
+let carrito = [];  // Array de { productoId, codigo, nombre, precioUnitario, cajas, cantidad, stock, unidadesPorCaja }
+let debounceTimer = null;
+let ultimosProductosBusqueda = [];  // Guardar últimos resultados para re-renderizar al cambiar moneda
+
+// INICIALIZACIÓN
+$(document).ready(function () {
+    initSelectorTipoPago();
+    initSelectorMoneda();
+    initSelectorvendedor();  // Cargar vendedores para almacén
+    initSelectorUsuarioVendedor();
+    initSelectorTipoPrecio();
+    initBuscadorProductos();
+    initBtnLimpiarCarrito();
+    initBtnGuardarVenta();
+});
+
+// SELECTOR TIPO DE PAGO
+function initSelectorTipoPago() {
+    $('.tipo-pago-option').on('click', function () {
+        $('.tipo-pago-option').removeClass('active');
+        $(this).addClass('active');
+        
+        // Diferenciar entre tipo de pago y moneda
+        if ($(this).data('tipo')) {
+            $('#inputTipoPago').val($(this).data('tipo'));
+        }
+    });
+}
+
+// SELECTOR MONEDA
+function initSelectorMoneda() {
+    // Manejar cambio de moneda via dropdown #selectMoneda
+    $('#selectMoneda').on('change', function () {
+        const monedaSeleccionada = $(this).val();
+        $('#inputMoneda').val(monedaSeleccionada);
+        
+        // Re-renderizar carrito Y re-renderizar resultados de búsqueda
+        renderCarrito();
+        if (ultimosProductosBusqueda.length > 0) {
+            renderResultadosBusqueda(ultimosProductosBusqueda);
+        }
+        actualizarResumen();
+    });
+}
+
+// SELECTOR VENDEDOR - Solo para usuarios de almacén
+function initSelectorvendedor() {
+    const selectVendedor = $('#selectVendedor');
+    
+    // Solo inicializar si el elemento existe (usuarios almacén)
+    if (selectVendedor.length === 0) {
+        return;
+    }
+    
+    // Cargar vendedores desde la API
+    cargarVendedores();
+    
+    // Manejar cambio de vendedor
+    selectVendedor.on('change', function () {
+        const vendedorId = $(this).val();
+        $('#inputVendedorId').val(vendedorId);
+    });
+}
+
+// FUNCIÓN PARA CARGAR VENDEDORES VÍA AJAX
+function cargarVendedores() {
+    const selectVendedor = $('#selectVendedor');
+    
+    fetch(URLS.obtenerVendedores || '/ventas/api/obtener-vendedores/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.vendedores && data.vendedores.length > 0) {
+                let html = '<option value="">-- Selecciona vendedor --</option>';
+                
+                data.vendedores.forEach(vendor => {
+                    const display = `${vendor.nombre_completo} - ${vendor.lugar}`;
+                    html += `<option value="${vendor.id}">${display}</option>`;
+                });
+                
+                selectVendedor.html(html);
+            } else {
+                selectVendedor.html('<option value="">No hay vendedores disponibles</option>');
+            }
+        })
+        .catch(err => {
+            selectVendedor.html('<option value="">Error al cargar vendedores</option>');
+        });
+}
+
+// SELECTOR USUARIO VENDEDOR (Depósito/Tienda) - Solo para usuarios tienda
+function initSelectorUsuarioVendedor() {
+    const selectUsuarioVendedor = $('#selectUsuarioVendedor');
+    
+    // Solo inicializar si el elemento existe (usuarios tienda)
+    if (selectUsuarioVendedor.length === 0) {
+        return;
+    }
+    
+    selectUsuarioVendedor.on('change', function () {
+        const tipoVendedor = $(this).val();
+        
+        if (!tipoVendedor) {
+            $('#divTipoPrecio').hide();
+            $('#selectTipoPrecio').val('');
+            return;
+        }
+
+        const opciones = tipoVendedor === 'deposito' 
+            ? [
+                { value: 'caja', text: 'Caja', help: 'Venta por cajas' }
+              ]
+            : [
+                { value: 'unidad', text: 'Unidad', help: 'Venta unitaria (1-2 productos)' },
+                { value: 'caja', text: 'Caja', help: 'Venta por cajas' },
+                { value: 'mayor', text: 'Mayor', help: 'Venta por mayor (3 a N-1 unidades)' }
+              ];
+
+        // Llenar selector tipo precio
+        let html = '<option value="">-- Selecciona modalidad --</option>';
+        opciones.forEach(op => {
+            html += `<option value="${op.value}">${op.text}</option>`;
+        });
+        
+        $('#selectTipoPrecio').html(html);
+        $('#divTipoPrecio').show();
+    });
+}
+
+// SELECTOR TIPO PRECIO (Unidad/Caja/Mayor)
+function initSelectorTipoPrecio() {
+    const selectTipoPrecio = $('#selectTipoPrecio');
+    
+    // Solo inicializar si el elemento existe (usuarios tienda)
+    if (selectTipoPrecio.length === 0) {
+        return;
+    }
+    
+    selectTipoPrecio.on('change', function () {
+        const tipoPrecio = $(this).val();
+        let helpText = '';
+
+        if (tipoPrecio === 'unidad') {
+            helpText = '<i class="fas fa-info-circle"></i> Uso: precio_unitario del producto';
+        } else if (tipoPrecio === 'caja') {
+            helpText = '<i class="fas fa-info-circle"></i> Uso: precio_caja del producto';
+        } else if (tipoPrecio === 'mayor') {
+            helpText = '<i class="fas fa-info-circle"></i> Uso: precio_mayor del producto (cantidad entre 3 y N-1)';
+        }
+
+        $('#helpTipoPrecio').html(helpText);
+    });
+}
+
+// BUSCADOR DE PRODUCTOS (AJAX con debounce)
+function initBuscadorProductos() {
+    const $input = $('#inputBuscarProducto');
+    const $resultados = $('#resultadosBusqueda');
+    const $buscando = $('#buscandoIndicador');
+
+    $input.on('input', function () {
+        const query = $(this).val().trim();
+
+        clearTimeout(debounceTimer);
+
+        if (query.length < 2) {
+            $resultados.hide().empty();
+            $buscando.hide();
+            return;
+        }
+
+        $buscando.show();
+
+        debounceTimer = setTimeout(function () {
+            buscarProductos(query);
+        }, 350);
+    });
+
+// Cerrar resultados al hacer click fuera
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('.card-buscador').length) {
+            $resultados.hide();
+        }
+    });
+
+// Re-mostrar resultados al enfocar si hay contenido
+    $input.on('focus', function () {
+        if ($resultados.children().length > 0 && $(this).val().length >= 2) {
+            $resultados.show();
+        }
+    });
+}
+
+function buscarProductos(query) {
+    const $resultados = $('#resultadosBusqueda');
+    const $buscando = $('#buscandoIndicador');
+
+    fetch(`${URLS.buscarProductos}?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+            $buscando.hide();
+            renderResultadosBusqueda(data.productos);
+        })
+        .catch(err => {
+            $buscando.hide();
+            $resultados.html(`
+                <div class="sin-resultados">
+                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                    <p>Error al buscar productos.</p>
+                </div>
+            `).show();
+            console.error('Error buscando productos:', err);
+        });
+}
+
+function renderResultadosBusqueda(productos) {
+    const $resultados = $('#resultadosBusqueda');
+    $resultados.empty();
+    
+    // Guardar para re-renderización al cambiar moneda
+    ultimosProductosBusqueda = productos;
+
+    if (productos.length === 0) {
+        $resultados.html(`
+            <div class="sin-resultados">
+                <i class="fas fa-search"></i>
+                <p>No se encontraron productos con stock disponible.</p>
+            </div>
+        `).show();
+        return;
+    }
+
+    // Obtener moneda y tipo de cambio
+    const monedaElement = document.getElementById('inputMoneda');
+    const tipoCambioElement = document.getElementById('tipoCambioActual');
+    const moneda = monedaElement ? (monedaElement.value || 'BOB') : 'BOB';
+    const tipoCambio = tipoCambioElement ? parseFloat(tipoCambioElement.value) || 1 : 1;
+
+    productos.forEach(p => {
+        // Verificar si ya está en el carrito
+        const enCarrito = carrito.find(item => item.productoId === p.id);
+        const unidadesPorCaja = obtenerUnidadesPorCajaProducto(p);
+        const cajasDisponibles = obtenerMaximoCajasProducto(p);
+        const sinCajasDisponibles = cajasDisponibles < 1;
+        const btnTexto = enCarrito
+            ? 'Ya agregado'
+            : (sinCajasDisponibles ? 'Sin cajas disponibles' : '<i class="fas fa-plus mr-1"></i>Agregar');
+        const btnDisabled = (enCarrito || sinCajasDisponibles) ? 'disabled' : '';
+        const btnClass = (enCarrito || sinCajasDisponibles) ? 'btn-secondary' : 'btn-success';
+        
+        // Calcular precios (siempre calcular ambos para poder mostrar referencia)
+        const precioUnitario = parseFloat(p.precio_unidad);
+        const precioDolares = (precioUnitario / tipoCambio).toFixed(2);
+        
+        // Mostrar precio según moneda seleccionada
+        const precioDisplay = moneda === 'BOB' 
+            ? `<div style="font-weight: bold; color: #28a745; font-size: 1rem;">Bs. ${precioUnitario.toFixed(2)}</div>`
+            : `<div style="font-weight: bold; color: #28a745; font-size: 1rem;">$ ${precioDolares}</div>`;
+        
+        // Mostrar segunda moneda en gris como referencia
+        const segundaMonedaDisplay = moneda === 'BOB'
+            ? `<div style="font-size: 0.85rem; color: #666;">$ ${precioDolares}</div>`
+            : `<div style="font-size: 0.85rem; color: #666;">Bs. ${precioUnitario.toFixed(2)}</div>`;
+
+        const item = $(`
+            <div class="resultado-item">
+                <div class="producto-info">
+                    <div class="producto-nombre">${p.nombre}</div>
+                    <div class="producto-codigo">${p.codigo}</div>
+                </div>
+                <div class="producto-meta">
+                    <div class="producto-precio">
+                        ${precioDisplay}
+                        ${segundaMonedaDisplay}
+                    </div>
+                    <div class="producto-stock">Stock: ${p.stock} uds. | ${cajasDisponibles} caja(s) de ${unidadesPorCaja}</div>
+                </div>
+                <button class="btn btn-sm ${btnClass} btn-agregar-producto"
+                        data-producto='${JSON.stringify(p).replace(/'/g, "&#39;")}'
+                        ${btnDisabled}>
+                    ${btnTexto}
+                </button>
+            </div>
+        `);
+
+        $resultados.append(item);
+    });
+
+    $resultados.show();
+
+    // Event: Agregar producto al carrito
+    $resultados.find('.btn-agregar-producto').off('click').on('click', function () {
+        if ($(this).prop('disabled')) return;
+
+        const productoData = JSON.parse($(this).attr('data-producto'));
+        agregarAlCarrito(productoData);
+
+        // Deshabilitar botón
+        $(this).prop('disabled', true)
+            .removeClass('btn-success').addClass('btn-secondary')
+            .html('Ya agregado');
+    });
+}
+
+// CARRITO: AGREGAR PRODUCTO
+function agregarAlCarrito(producto) {
+    // Verificar si ya existe
+    const existe = carrito.find(item => item.productoId === producto.id);
+    if (existe) {
+        Swal.fire({
+            icon: 'info',
+            title: 'Producto ya en el carrito',
+            text: 'Modifique la cantidad directamente en la tabla.',
+            timer: 2000,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    const unidadesPorCaja = obtenerUnidadesPorCajaProducto(producto);
+    const maximoCajas = obtenerMaximoCajasProducto(producto);
+    if (maximoCajas < 1) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Sin cajas disponibles',
+            text: `El producto "${producto.nombre}" no tiene stock suficiente para completar una caja.`,
+        });
+        return;
+    }
+
+    carrito.push({
+        productoId: producto.id,
+        codigo: producto.codigo,
+        nombre: producto.nombre,
+        precioUnitario: parseFloat(producto.precio_unidad),
+        cajas: 1,
+        cantidad: unidadesPorCaja,
+        stock: producto.stock,
+        unidadesPorCaja: unidadesPorCaja,
+        maximoCajas: maximoCajas,
+    });
+
+    renderCarrito();
+    actualizarResumen();
+}
+
+// CARRITO: RENDERIZAR TABLA
+function renderCarrito() {
+    const $body = $('#carritoBody');
+    const $vacio = $('#carritoVacio');
+    const $contenido = $('#carritoContenido');
+    const $footer = $('#carritoFooter');
+    const $btnLimpiar = $('#btnLimpiarCarrito');
+
+    $body.empty();
+
+    if (carrito.length === 0) {
+        $vacio.show();
+        $contenido.hide();
+        $footer.hide();
+        $btnLimpiar.hide();
+        return;
+    }
+
+    $vacio.hide();
+    $contenido.show();
+    $footer.show();
+    $btnLimpiar.show();
+
+    carrito.forEach((item, index) => {
+        const monedaElement = document.getElementById('inputMoneda');
+        const tipoCambioElement = document.getElementById('tipoCambioActual');
+        const moneda = monedaElement ? (monedaElement.value || 'BOB') : 'BOB';
+        const tipoCambio = tipoCambioElement ? parseFloat(tipoCambioElement.value) || 1 : 1;
+        
+        const subtotal = (item.precioUnitario * item.cantidad).toFixed(2);
+        const precioEnDolares = (item.precioUnitario / tipoCambio).toFixed(2);
+        const subtotalEnDolares = (parseFloat(subtotal) / tipoCambio).toFixed(2);
+        const maximoCajas = Math.max(item.maximoCajas || 1, 1);
+
+        const $row = $(`
+            <tr class="carrito-row-nueva" data-index="${index}">
+                <td class="pl-3">
+                    <div class="carrito-producto-nombre">${item.nombre}</div>
+                    <div class="carrito-producto-codigo">${item.codigo}</div>
+                    <small class="text-muted d-block mt-1">1 caja = ${item.unidadesPorCaja} unidad(es)</small>
+                </td>
+                <td class="text-center">
+                    <div class="input-cantidad-wrapper input-cantidad-wrapper--cajas">
+                        <button class="btn btn-outline-secondary btn-cajas-menos" data-index="${index}">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" class="input-cantidad input-cajas" value="${item.cajas}"
+                               min="1" max="${maximoCajas}" data-index="${index}">
+                        <button class="btn btn-outline-secondary btn-cajas-mas" data-index="${index}">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted d-block mt-1">Disponibles: ${maximoCajas} caja(s)</small>
+                </td>
+                <td class="text-center">
+                    <div class="precio-dual">
+                        ${moneda === 'BOB' ? `<div>Bs. ${item.precioUnitario.toFixed(2)}</div>` : `<div>$ ${precioEnDolares}</div>`}
+                        ${moneda === 'USD' ? `<div style="font-size: 0.85rem; color: #666;">Bs. ${item.precioUnitario.toFixed(2)}</div>` : `<div style="font-size: 0.85rem; color: #666;">$ ${precioEnDolares}</div>`}
+                    </div>
+                </td>
+                <td class="text-center">
+                    <strong>${item.cantidad}</strong>
+                    <small class="text-muted d-block mt-1">Stock: ${item.stock} unidad(es)</small>
+                </td>
+                <td class="text-right carrito-subtotal">
+                    <div class="subtotal-dual">
+                        ${moneda === 'BOB' ? `<div>Bs. ${subtotal}</div>` : `<div>$ ${subtotalEnDolares}</div>`}
+                        ${moneda === 'USD' ? `<div style="font-size: 0.85rem; color: #666;">Bs. ${subtotal}</div>` : `<div style="font-size: 0.85rem; color: #666;">$ ${subtotalEnDolares}</div>`}
+                    </div>
+                </td>
+                <td class="text-center pr-3">
+                    <button class="btn-eliminar-item" data-index="${index}" title="Eliminar">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>
+            </tr>
+        `);
+
+        $body.append($row);
+    });
+
+    // Eventos de cajas
+    $body.find('.btn-cajas-menos').off('click').on('click', function () {
+        const idx = $(this).data('index');
+        cambiarCajas(idx, -1);
+    });
+    $body.find('.btn-cajas-mas').off('click').on('click', function () {
+        const idx = $(this).data('index');
+        cambiarCajas(idx, 1);
+    });
+    $body.find('.input-cajas').off('change').on('change', function () {
+        const idx = $(this).data('index');
+        let val = parseInt($(this).val());
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > carrito[idx].maximoCajas) val = carrito[idx].maximoCajas;
+        carrito[idx].cajas = val;
+        sincronizarCantidadDesdeCajas(carrito[idx]);
+        renderCarrito();
+        actualizarResumen();
+    });
+
+    // Evento eliminar
+    $body.find('.btn-eliminar-item').off('click').on('click', function () {
+        const idx = $(this).data('index');
+        eliminarDelCarrito(idx);
+    });
+}
+
+// CARRITO: CAMBIAR CANTIDAD
+function cambiarCajas(index, delta) {
+    const item = carrito[index];
+    const nuevaCantidad = item.cajas + delta;
+
+    if (nuevaCantidad < 1) return;
+    if (nuevaCantidad > item.maximoCajas) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Stock insuficiente',
+            text: `Solo hay ${item.maximoCajas} caja(s) disponibles de "${item.nombre}".`,
+            timer: 2500,
+            showConfirmButton: false,
+        });
+        return;
+    }
+
+    item.cajas = nuevaCantidad;
+    sincronizarCantidadDesdeCajas(item);
+    renderCarrito();
+    actualizarResumen();
+}
+
+// CARRITO: ELIMINAR ITEM
+function eliminarDelCarrito(index) {
+    const item = carrito[index];
+    carrito.splice(index, 1);
+    renderCarrito();
+    actualizarResumen();
+
+    // Rehabilitar botón en resultados de búsqueda visible
+    const $resultados = $('#resultadosBusqueda');
+    $resultados.find('.btn-agregar-producto').each(function () {
+        try {
+            const data = JSON.parse($(this).attr('data-producto'));
+            if (data.id === item.productoId) {
+                $(this).prop('disabled', false)
+                    .removeClass('btn-secondary').addClass('btn-success')
+                    .html('<i class="fas fa-plus mr-1"></i>Agregar');
+            }
+        } catch (e) { /* ignorar */ }
+    });
+}
+
+// CARRITO: ACTUALIZAR RESUMEN
+function actualizarEtiquetasMoneda() {
+    const tipoCambioElement = document.getElementById('tipoCambioActual');
+    const monedaElement = document.getElementById('inputMoneda');
+    
+    if (!tipoCambioElement || !monedaElement) return;
+    
+    const tipoCambio = parseFloat(tipoCambioElement.value) || 1;
+    const moneda = monedaElement.value || 'BOB';
+    
+    // Actualizar todos los labels de moneda
+    document.querySelectorAll('.moneda-label').forEach(el => {
+        el.textContent = moneda === 'USD' ? '$' : 'Bs.';
+    });
+    
+    // Actualizar resumen
+    actualizarResumen();
+}
+
+function actualizarResumen() {
+    let totalItems = 0;
+    let totalPrecio = 0;
+
+    carrito.forEach(item => {
+        totalItems += item.cantidad;
+        totalPrecio += item.precioUnitario * item.cantidad;
+    });
+
+    const monedaElement = document.getElementById('inputMoneda');
+    const tipoCambioElement = document.getElementById('tipoCambioActual');
+    const moneda = monedaElement ? (monedaElement.value || 'BOB') : 'BOB';
+    const tipoCambio = tipoCambioElement ? (parseFloat(tipoCambioElement.value) || 1) : 1;
+    
+    const etiqueta = moneda === 'USD' ? '$' : 'Bs.';
+    const totalDisplay = moneda === 'USD' ? (totalPrecio / tipoCambio).toFixed(2) : totalPrecio.toFixed(2);
+
+    $('#resumenCantItems').text(totalItems);
+    $('#resumenSubtotal').text(etiqueta + ' ' + totalDisplay);
+    $('#resumenTotal').text(etiqueta + ' ' + totalDisplay);
+}
+
+// CARRITO: LIMPIAR TODO
+function initBtnLimpiarCarrito() {
+    $('#btnLimpiarCarrito').on('click', function () {
+        Swal.fire({
+            title: 'Vaciar carrito',
+            text: '¿Está seguro de eliminar todos los productos del carrito?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, vaciar',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                carrito = [];
+                renderCarrito();
+                actualizarResumen();
+
+                // Rehabilitar todos los botones de búsqueda
+                $('#resultadosBusqueda .btn-agregar-producto').each(function () {
+                    $(this).prop('disabled', false)
+                        .removeClass('btn-secondary').addClass('btn-success')
+                        .html('<i class="fas fa-plus mr-1"></i>Agregar');
+                });
+            }
+        });
+    });
+}
+
+// GUARDAR VENTA (POST AJAX)
+function initBtnGuardarVenta() {
+    $('#btnGuardarVenta').on('click', function () {
+        guardarVenta();
+    });
+}
+
+function guardarVenta() {
+    const cliente = $('#inputCliente').val().trim();
+    const telefono = $('#inputTelefono').val().trim();
+    const razonSocial = $('#inputRazonSocial').val().trim();
+    const direccion = $('#inputDireccion').val().trim();
+    const comentario = $('#inputComentario').val().trim();
+    const tipoPago = $('#inputTipoPago').val();
+
+    // Validaciones frontend
+    if (!cliente) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cliente requerido',
+            text: 'Ingrese el nombre del cliente.',
+        });
+        $('#inputCliente').focus();
+        return;
+    }
+
+    if (carrito.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Carrito vacío',
+            text: 'Agregue al menos un producto al carrito.',
+        });
+        return;
+    }
+
+    // Confirmar
+    let totalFinal = 0;
+    carrito.forEach(item => {
+        totalFinal += item.precioUnitario * item.cantidad;
+    });
+    
+    const monedaElement = document.getElementById('inputMoneda');
+    const tipoCambioElement = document.getElementById('tipoCambioActual');
+    const moneda = monedaElement ? (monedaElement.value || 'BOB') : 'BOB';
+    const tipoCambio = tipoCambioElement ? (parseFloat(tipoCambioElement.value) || 1) : 1;
+    const etiqueta = moneda === 'USD' ? '$' : 'Bs.';
+    const totalDisplay = moneda === 'USD' ? (totalFinal / tipoCambio).toFixed(2) : totalFinal.toFixed(2);
+
+    const tipoPagoTexto = tipoPago === 'contado' ? 'Al Contado' : 'A Crédito';
+
+    Swal.fire({
+        title: 'Confirmar Venta',
+        html: `
+            <div style="text-align:left;">
+                <p><strong>Cliente:</strong> ${cliente}</p>
+                ${telefono ? `<p><strong>Teléfono:</strong> ${telefono}</p>` : ''}
+                ${comentario ? `<p><strong>Comentario:</strong> ${comentario}</p>` : ''}
+                <p><strong>Tipo de pago:</strong> ${tipoPagoTexto}</p>
+                <p><strong>Moneda:</strong> ${moneda}</p>
+                <p><strong>Productos:</strong> ${carrito.length} item(s)</p>
+                <hr>
+                <p style="font-size:1.2rem;"><strong>Total: ${etiqueta} ${totalDisplay}</strong></p>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-check mr-1"></i>Confirmar Venta',
+        cancelButtonText: 'Revisar',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipoPago);
+        }
+    });
+}
+
+function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipoPago) {
+    const $btn = $('#btnGuardarVenta');
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...');
+
+    const items = carrito.map(item => ({
+        producto_id: item.productoId,
+        cantidad: item.cantidad,
+        cantidad_cajas: item.cajas,
+        modalidad: 'caja',
+        tipo_vendedor: 'almacen',
+        precio_unitario: convertirBsAMoneda(item.precioUnitario).toFixed(2),
+    }));
+    
+    const monedaElement = document.getElementById('inputMoneda');
+    const tipoCambioElement = document.getElementById('tipoCambioActual');
+    const vendedorIdElement = document.getElementById('inputVendedorId');
+    const moneda = monedaElement ? (monedaElement.value || 'BOB') : 'BOB';
+    const tipoCambio = tipoCambioElement ? parseFloat(tipoCambioElement.value) : 1;
+    const vendedorId = vendedorIdElement ? (vendedorIdElement.value || null) : null;
+
+    //OJO: Incluye telefono, razon_social, direccion, moneda/tipo_cambio y vendedor_id
+    const payload = {
+        cliente: cliente,
+        telefono: telefono,
+        razon_social: razonSocial,
+        direccion: direccion,
+        comentario: comentario,
+        tipo_pago: tipoPago,
+        moneda: moneda,
+        tipo_cambio: tipoCambio,
+        vendedor_id: vendedorId,
+        items: items,
+    };
+
+    const csrfToken = getCookie('csrftoken');
+
+    fetch(URLS.guardarVenta, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify(payload),
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Venta Registrada',
+                    html: `<p>${data.message}</p><p>Código: <strong>${data.venta_codigo}</strong></p>`,
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: 'Ir al listado',
+                }).then(() => {
+                    window.location.href = URLS.listaVentas;
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al guardar',
+                    text: data.error,
+                });
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor.',
+            });
+            console.error('Error guardando venta:', err);
+        })
+        .finally(() => {
+            $btn.prop('disabled', false).html('<i class="fas fa-check-circle mr-2"></i>Registrar Venta');
+        });
+}
+
+// Validar que teléfono solo acepte números
+document.addEventListener('DOMContentLoaded', function() {
+    const inputTelefono = document.getElementById('inputTelefono');
+    if (inputTelefono) {
+        inputTelefono.addEventListener('keypress', function(e) {
+            if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+        inputTelefono.addEventListener('paste', function(e) {
+            const text = e.clipboardData.getData('text');
+            if (!/^[0-9]*$/.test(text)) {
+                e.preventDefault();
+            }
+        });
+    }
+});

@@ -1,0 +1,97 @@
+{% load static %}
+
+<!-- MODAL: AGREGAR PRODUCTO EXISTENTE -->
+<div class="modal fade" id="modalAgregarProductoExistente" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-list"></i> Agregar Producto Existente
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formAgregarProductoExistente" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="tipo" value="existente">
+                    <input type="hidden" name="contenedor_id" id="modalContenedorId2">
+
+                    <div class="form-group mb-3">
+                        <label for="producto_id_modal" class="form-label">
+                            <i class="fas fa-box"></i> Producto
+                        </label>
+                        <!-- Campo único: búsqueda visible + input oculto para id -->
+                        <input type="text" class="form-control" id="producto_buscar_modal" placeholder="Buscar producto por código o nombre..." autocomplete="off" required>
+                        <input type="hidden" id="producto_id_modal" name="producto_id">
+                        <div class="dropdown-list mt-1" id="producto_lista_modal" style="position:relative;"></div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle"></i> Productos ya agregados quedan excluidos
+                        </small>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="unidades_por_caja_existente_modal" class="form-label">
+                            <i class="fas fa-box"></i> Unidades x Caja
+                        </label>
+                        <input 
+                            type="number" 
+                            class="form-control" 
+                            id="unidades_por_caja_existente_modal" 
+                            name="unidades_por_caja" 
+                            min="1" 
+                            value="1" 
+                            readonly
+                        >
+                        <small class="form-text text-muted">
+                            Se carga automáticamente según el producto seleccionado
+                        </small>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="cantidad_cajas_existente_modal" class="form-label">
+                            <i class="fas fa-boxes"></i> Cantidad de Cajas <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            class="form-control" 
+                            id="cantidad_cajas_existente_modal" 
+                            min="1" 
+                            value="1" 
+                            required
+                        >
+                        <small class="form-text text-muted">
+                            Número de cajas que agregará al contenedor
+                        </small>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="cantidad_existente_modal" class="form-label">
+                            <i class="fas fa-cube"></i> Unidades Totales Calculadas
+                        </label>
+                        <input 
+                            type="number" 
+                            class="form-control" 
+                            id="cantidad_existente_modal" 
+                            name="cantidad" 
+                            readonly
+                            value="1" 
+                        >
+                        <small class="form-text text-success">
+                            <i class="fas fa-info-circle"></i> Se calcula automáticamente (Cajas × Unidades x Caja)
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Agregar Producto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,131 @@
+﻿{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Gestion de Monedas{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/moneda/monedas.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid moneda-page">
+    <div class="moneda-hero">
+        <div class="moneda-hero-left">
+            <div class="moneda-hero-title">
+                <i class="fas fa-money-bill-wave"></i> Gestion de Cambios de Moneda
+            </div>
+            <div class="moneda-hero-subtitle">Administra los tipos de cambio del sistema</div>
+        </div>
+        <button type="button" class="btn btn-primary moneda-hero-btn" data-toggle="modal" data-target="#modalCrearMoneda">
+            <i class="fas fa-plus"></i> Actualizar Cambio
+        </button>
+    </div>
+
+    <!-- SISTEMA GENERAL -->
+    <div class="moneda-card moneda-section-card">
+        <div class="moneda-card-header">
+            <i class="fas fa-globe"></i>
+            <span>Tipo de Cambio - Sistema General</span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="moneda-card moneda-actual">
+                    <div class="moneda-card-header">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Tipo de Cambio Actual</span>
+                    </div>
+                    <div class="moneda-actual-body">
+                        {% if moneda_actual_general %}
+                            <div class="moneda-actual-rate">
+                                {{ moneda_actual_general.moneda }} &rarr; Bs {{ moneda_actual_general.valor|stringformat:"0.2f" }}
+                            </div>
+                            <div class="moneda-actual-date">
+                                Actualizado: {{ moneda_actual_general.fecha|date:"d/m/Y" }}
+                            </div>
+                        {% else %}
+                            <div class="moneda-actual-empty">Sin registros de tipo de cambio general</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="moneda-card moneda-actual">
+                    <div class="moneda-card-header">
+                        <i class="fas fa-history"></i>
+                        <span>Ultimo Cambio</span>
+                    </div>
+                    <div class="moneda-actual-body">
+                        {% if moneda_anterior_general %}
+                            <div class="moneda-actual-rate">
+                                {{ moneda_anterior_general.moneda }} &rarr; Bs {{ moneda_anterior_general.valor|stringformat:"0.2f" }}
+                            </div>
+                            <div class="moneda-actual-date">
+                                Registrado: {{ moneda_anterior_general.fecha|date:"d/m/Y" }}
+                            </div>
+                        {% else %}
+                            <div class="moneda-actual-empty">No hay cambios anteriores</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIENDA PRINCIPAL -->
+    <div class="moneda-card moneda-section-card mt-4">
+        <div class="moneda-card-header">
+            <i class="fas fa-store"></i>
+            <span>Tipo de Cambio - Tienda Principal</span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="moneda-card moneda-actual">
+                    <div class="moneda-card-header">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Tipo de Cambio Actual</span>
+                    </div>
+                    <div class="moneda-actual-body">
+                        {% if moneda_actual_tienda %}
+                            <div class="moneda-actual-rate">
+                                {{ moneda_actual_tienda.moneda }} &rarr; Bs {{ moneda_actual_tienda.valor|stringformat:"0.2f" }}
+                            </div>
+                            <div class="moneda-actual-date">
+                                Actualizado: {{ moneda_actual_tienda.fecha|date:"d/m/Y" }}
+                            </div>
+                        {% else %}
+                            <div class="moneda-actual-empty">Sin registros de tipo de cambio para tienda principal</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="moneda-card moneda-actual">
+                    <div class="moneda-card-header">
+                        <i class="fas fa-history"></i>
+                        <span>Ultimo Cambio</span>
+                    </div>
+                    <div class="moneda-actual-body">
+                        {% if moneda_anterior_tienda %}
+                            <div class="moneda-actual-rate">
+                                {{ moneda_anterior_tienda.moneda }} &rarr; Bs {{ moneda_anterior_tienda.valor|stringformat:"0.2f" }}
+                            </div>
+                            <div class="moneda-actual-date">
+                                Registrado: {{ moneda_anterior_tienda.fecha|date:"d/m/Y" }}
+                            </div>
+                        {% else %}
+                            <div class="moneda-actual-empty">No hay cambios anteriores</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'moneda/modals/crea.html' %}
+</div>
+{% endblock %}
