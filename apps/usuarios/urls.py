@@ -12,6 +12,12 @@ urlpatterns = [
     
     # Dashboard (solo autenticados)
     path('dashboard/', views.dashboard, name='dashboard'),
+
+    # Public product storefront pages
+    path('producto/<int:id>/', views.product_detail, name='product_detail'),
+    path('carrito/', views.carrito, name='carrito'),
+    path('nosotros/', views.nosotros, name='nosotros'),
+    path('preguntas-frecuentes/', views.preguntas_frecuentes, name='preguntas_frecuentes'),
     
     # Gestión de usuarios (solo administrador)
     path('usuarios/', views.listar_usuarios, name='listar_usuarios'),

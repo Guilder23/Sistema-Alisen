@@ -176,6 +176,19 @@
                             >
                                 <i class="fas fa-eye"></i>
                             </button>
+
+                            {% if es_tienda_online %}
+                            <button 
+                                type="button"
+                                class="btn btn-toggle-publish btn-sm"
+                                data-product-id="{{ producto.id }}"
+                                data-action="{% if producto.activo %}despublicar{% else %}publicar{% endif %}"
+                                title="{% if producto.activo %}Despublicar{% else %}Publicar{% endif %}"
+                            >
+                                <i class="fas fa-toggle-{% if producto.activo %}on{% else %}off{% endif %}"></i>
+                                {% if producto.activo %}Despublicar{% else %}Publicar{% endif %}
+                            </button>
+                            {% endif %}
                             
                             {% if es_almacen %}
                             <button 

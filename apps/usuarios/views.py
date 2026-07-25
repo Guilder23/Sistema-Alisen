@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.core.paginator import Paginator
 from decimal import Decimal
+from apps.productos.models import Categoria, Producto
 from .models import PerfilUsuario
 
 
@@ -16,10 +17,124 @@ def _es_usuario_tecnico_deposito(usuario):
     return usuario.username.startswith('deposito_auto_')
 
 def index(request):
-    """Página de inicio - redirige al dashboard si está autenticado"""
+    """Página de inicio pública con catálogo de productos"""
     if request.user.is_authenticated:
         return redirect('dashboard')
-    return render(request, 'inicio/index.html')
+
+    buscar = request.GET.get('buscar', '').strip()
+    categoria_id = request.GET.get('categoria', '').strip()
+
+    productos = Producto.objects.select_related('categoria').filter(activo=True)
+    if buscar:
+        productos = productos.filter(
+            Q(codigo__icontains=buscar) |
+            Q(nombre__icontains=buscar) |
+            Q(descripcion__icontains=buscar) |
+            Q(categoria__nombre__icontains=buscar)
+        )
+
+    if categoria_id:
+        productos = productos.filter(categoria_id=categoria_id)
+
+    productos = productos.order_by('-fecha_creacion')
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+
+    context = {
+        'productos': productos,
+        'categorias': categorias,
+        'buscar': buscar,
+        'categoria': categoria_id,
+        'tienda_nombre': 'Alicen Imports',
+        'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
+        'tienda_telefono': '+59170000000',
+        'tienda_whatsapp': '+59170000000',
+        'tienda_email': 'contacto@alicen.com',
+        'tienda_direccion': 'La Paz, Bolivia',
+    }
+    return render(request, 'inicio/index.html', context)
+
+
+def product_detail(request, id):
+    """Página pública: detalle de producto para la tienda virtual"""
+    producto = get_object_or_404(Producto, id=id, activo=True)
+    buscar = request.GET.get('buscar', '').strip()
+    categoria = request.GET.get('categoria', '').strip()
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    similares = Producto.objects.filter(
+        activo=True,
+        categoria=producto.categoria
+    ).exclude(id=producto.id).order_by('-fecha_creacion')[:4] if producto.categoria else Producto.objects.none()
+
+    context = {
+        'producto': producto,
+        'categorias': categorias,
+        'buscar': buscar,
+        'categoria': categoria,
+        'similares': similares,
+        'tienda_nombre': 'Alicen Imports',
+        'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
+        'tienda_telefono': '+59170000000',
+        'tienda_whatsapp': '+59170000000',
+        'tienda_email': 'contacto@alicen.com',
+        'tienda_direccion': 'La Paz, Bolivia',
+    }
+    return render(request, 'inicio/detalle_producto.html', context)
+
+
+def carrito(request):
+    """Página pública del carrito de compras"""
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    buscar = request.GET.get('buscar', '').strip()
+    categoria = request.GET.get('categoria', '').strip()
+    context = {
+        'categorias': categorias,
+        'buscar': buscar,
+        'categoria': categoria,
+        'tienda_nombre': 'Alicen Imports',
+        'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
+        'tienda_telefono': '+59170000000',
+        'tienda_whatsapp': '+59170000000',
+        'tienda_email': 'contacto@alicen.com',
+        'tienda_direccion': 'La Paz, Bolivia',
+    }
+    return render(request, 'inicio/carrito.html', context)
+
+
+def nosotros(request):
+    buscar = request.GET.get('buscar', '').strip()
+    categoria = request.GET.get('categoria', '').strip()
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    context = {
+        'categorias': categorias,
+        'buscar': buscar,
+        'categoria': categoria,
+        'tienda_nombre': 'Alicen Imports',
+        'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
+        'tienda_telefono': '+59170000000',
+        'tienda_whatsapp': '+59170000000',
+        'tienda_email': 'contacto@alicen.com',
+        'tienda_direccion': 'La Paz, Bolivia',
+    }
+    return render(request, 'inicio/nosotros.html', context)
+
+
+def preguntas_frecuentes(request):
+    buscar = request.GET.get('buscar', '').strip()
+    categoria = request.GET.get('categoria', '').strip()
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    context = {
+        'categorias': categorias,
+        'buscar': buscar,
+        'categoria': categoria,
+        'tienda_nombre': 'Alicen Imports',
+        'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
+        'tienda_telefono': '+59170000000',
+        'tienda_whatsapp': '+59170000000',
+        'tienda_email': 'contacto@alicen.com',
+        'tienda_direccion': 'La Paz, Bolivia',
+    }
+    return render(request, 'inicio/preguntas_frecuentes.html', context)
+
 
 def custom_logout(request):
     """Cerrar sesión del usuario - acepta GET y POST"""

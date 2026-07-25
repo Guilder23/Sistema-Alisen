@@ -1,0 +1,26 @@
+/* Estilos para la página de carrito */
+.cart-page { min-height: calc(100vh - 96px); background: linear-gradient(180deg, #eef2ff 0%, #f9fafb 100%); }
+.cart-hero-card { min-height: 240px; border-radius: 28px; border: none; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12); }
+.cart-header-panel { gap: 1rem; }
+.cart-header-panel .eyebrow { display: inline-block; margin-bottom: 0.5rem; color: #475569; letter-spacing: 0.16em; text-transform: uppercase; }
+.cart-header-panel h1 { margin-bottom: 0.35rem; color: #0f172a; }
+.cart-actions-top .btn { min-width: 140px; border-radius: 18px; }
+.cart-content { margin-top: 1rem; }
+.cart-item { display: flex; align-items: center; gap: 16px; padding: 18px; border-radius: 20px; background: #ffffff; border: 1px solid rgba(148, 163, 184, 0.15); margin-bottom: 1rem; }
+.cart-item img { width: 100px; height: 100px; border-radius: 18px; object-fit: cover; }
+.cart-item-body { flex: 1; }
+.cart-item-body strong { display: block; font-size: 1rem; color: #0f172a; margin-bottom: 0.35rem; }
+.cart-item-meta { text-align: right; min-width: 120px; }
+.cart-item-meta strong { display: block; margin-bottom: 0.65rem; }
+.cart-item-quantity { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.85rem; }
+.cart-item-quantity button { width: 36px; height: 36px; border-radius: 12px; border: 1px solid rgba(15,23,42,0.12); background: #f8fafc; }
+.cart-summary { border-radius: 24px; background: #0f172a; color: #ffffff; padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.cart-summary small { color: rgba(255,255,255,.72); }
+.cart-summary .btn { min-width: 190px; border-radius: 18px; }
+.cart-empty { min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; }
+.cart-empty i { font-size: 3rem; color: #f2b300; margin-bottom: 1rem; }
+@media (max-width: 767px) {
+  .cart-item { flex-direction: column; align-items: stretch; }
+  .cart-item-meta { width: 100%; text-align: left; margin-top: 0.8rem; }
+  .cart-summary { flex-direction: column; align-items: stretch; text-align: left; }
+}

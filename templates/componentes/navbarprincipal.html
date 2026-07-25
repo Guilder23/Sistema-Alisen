@@ -1,0 +1,42 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark navbar-principal py-3">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
+      <img src="{% static 'img/logoAlmacen.png' %}" alt="Logo" class="mr-2" style="height:34px;">
+      <span class="font-weight-bold">{{ tienda_nombre }}</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <form class="form-inline my-2 my-lg-0 mr-auto position-relative" id="navbarSearchForm" action="{% url 'index' %}" method="get">
+        <div class="input-group input-group-sm shadow-sm navbar-search-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text bg-transparent border-right-0"><i class="fas fa-search"></i></span>
+          </div>
+          <input class="form-control border-left-0" id="navbarSearchInput" type="search" name="buscar" placeholder="Buscar productos, marcas, tallas" aria-label="Buscar" value="{{ buscar }}">
+        </div>
+      </form>
+      <ul class="navbar-nav ml-auto align-items-center">
+        <li class="nav-item d-none d-lg-block mr-2">
+          <a class="nav-link" href="{% url 'nosotros' %}">Nosotros</a>
+        </li>
+        <li class="nav-item d-none d-lg-block mr-3">
+          <a class="nav-link" href="{% url 'preguntas_frecuentes' %}">FAQ</a>
+        </li>
+        <li class="nav-item mr-3">
+          <a class="nav-link nav-icon-btn" href="{% url 'carrito' %}" title="Carrito">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cartCount">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link nav-icon-btn" href="{% url 'login' %}" title="Ingresar">
+            <i class="fas fa-user-circle"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

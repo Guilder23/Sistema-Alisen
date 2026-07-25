@@ -31,8 +31,8 @@ def verificar_permiso_productos(request):
     if request.user.is_superuser or request.user.is_staff:
         return True
     
-    # Verificar si es almacén
-    if hasattr(request.user, 'perfil') and request.user.perfil.rol == 'almacen':
+    # Verificar si es almacén o tienda virtual
+    if hasattr(request.user, 'perfil') and request.user.perfil.rol in ['almacen', 'tienda_online']:
         return True
     
     return False
@@ -40,6 +40,10 @@ def verificar_permiso_productos(request):
 def es_administrador(request):
     """Verifica si el usuario es administrador"""
     return request.user.is_superuser or request.user.is_staff
+
+def es_tienda_online(request):
+    """Verifica si el usuario es tienda virtual"""
+    return hasattr(request.user, 'perfil') and request.user.perfil.rol == 'tienda_online'
 
 def es_almacen(request):
     """Verifica si el usuario es del almacén"""
@@ -470,6 +474,7 @@ def listar_productos(request):
         'estado': estado,
         'es_administrador': es_administrador(request),
         'es_almacen': es_almacen(request),
+        'es_tienda_online': es_tienda_online(request),
     }
     
     return render(request, 'productos/productos.html', context)
@@ -557,7 +562,6 @@ def crear_producto(request):
     
     return redirect('listar_productos')
 
-@login_required
 def obtener_producto(request, id):
     """Obtener datos de un producto en formato JSON"""
     try:
@@ -757,6 +761,30 @@ def eliminar_producto(request, id):
         messages.error(request, f'Error al eliminar producto: {str(e)}')
     
     return redirect('listar_productos')
+
+@login_required
+@require_http_methods(['POST'])
+def publicar_producto(request, id):
+    """Publicar un producto desde tienda virtual"""
+    if not es_tienda_online(request):
+        return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
+
+    producto = get_object_or_404(Producto, id=id)
+    producto.activo = True
+    producto.save(update_fields=['activo'])
+    return JsonResponse({'success': True, 'activo': producto.activo})
+
+@login_required
+@require_http_methods(['POST'])
+def despublicar_producto(request, id):
+    """Despublicar un producto desde tienda virtual"""
+    if not es_tienda_online(request):
+        return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
+
+    producto = get_object_or_404(Producto, id=id)
+    producto.activo = False
+    producto.save(update_fields=['activo'])
+    return JsonResponse({'success': True, 'activo': producto.activo})
 
 @login_required
 def historial_producto(request, id):
