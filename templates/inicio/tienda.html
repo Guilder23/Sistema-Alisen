@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda | {{ tienda_nombre }}</title>
+    <meta name="description" content="{{ tienda_descripcion }}">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/inicio/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/inicio/tienda.css' %}">
+</head>
+<body>
+    {% include 'componentes/navbarprincipal.html' %}
+
+    <main class="tienda-main">
+        <section class="tienda-header py-4">
+            <div class="container">
+                <h1 class="h2 mb-2"><i class="fas fa-store text-primary mr-2"></i>Tienda</h1>
+                <p class="text-muted mb-0">Explora todos nuestros productos disponibles</p>
+            </div>
+        </section>
+
+        <section class="container py-4">
+            <div class="row">
+                <div class="col-lg-3 mb-4 mb-lg-0">
+                    <div class="card tienda-filtros sticky-top" style="top: 1rem;">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0"><i class="fas fa-sliders-h mr-2"></i>Filtros</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="GET" id="formFiltrosTienda">
+                                <input type="hidden" name="buscar" value="{{ buscar }}">
+
+                                <div class="filtro-seccion mb-4">
+                                    <h6 class="font-weight-bold mb-2">
+                                        <i class="fas fa-list mr-1 text-muted"></i>Categorías
+                                    </h6>
+                                    <div class="categorias-filtro-list">
+                                        <a href="?{% for key,value in request.GET.items %}{% if key != 'categoria' %}{{ key }}={{ value }}&{% endif %}{% endfor %}"
+                                           class="categoria-filtro-item {% if not categoria %}active{% endif %} d-block mb-2">
+                                            <i class="fas fa-th-large mr-1"></i> Todas
+                                        </a>
+                                        {% for cat in categorias %}
+                                        <a href="?{% for key,value in request.GET.items %}{% if key != 'categoria' %}{{ key }}={{ value }}&{% endif %}{% endfor %}categoria={{ cat.id }}"
+                                           class="categoria-filtro-item {% if categoria == cat.id|stringformat:'s' %}active{% endif %} d-block mb-2">
+                                            {{ cat.nombre }}
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="filtro-seccion mb-4">
+                                    <h6 class="font-weight-bold mb-2">
+                                        <i class="fas fa-venus-mars mr-1 text-muted"></i>Género
+                                    </h6>
+                                    <select class="form-control form-control-sm" id="filtroGenero" name="genero" onchange="this.form.submit()">
+                                        {% for key, label in genero_choices %}
+                                        <option value="{{ key }}" {% if genero == key %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="filtro-seccion mb-4">
+                                    <h6 class="font-weight-bold mb-2">
+                                        <i class="fas fa-dollar-sign mr-1 text-muted"></i>Rango de Precio
+                                    </h6>
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col-5">
+                                            <input type="number" class="form-control form-control-sm" id="precioMin"
+                                                   name="precio_min" placeholder="Mín" min="0" step="0.01"
+                                                   value="{{ precio_min }}">
+                                        </div>
+                                        <div class="col-2 text-center text-muted">—</div>
+                                        <div class="col-5">
+                                            <input type="number" class="form-control form-control-sm" id="precioMax"
+                                                   name="precio_max" placeholder="Máx" min="0" step="0.01"
+                                                   value="{{ precio_max }}">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm btn-block mt-2">
+                                        <i class="fas fa-filter mr-1"></i>Aplicar precio
+                                    </button>
+                                </div>
+
+                                <div class="filtro-seccion mb-4">
+                                    <h6 class="font-weight-bold mb-2">
+                                        <i class="fas fa-sort mr-1 text-muted"></i>Ordenar
+                                    </h6>
+                                    <select class="form-control form-control-sm" id="filtroOrden" name="orden" onchange="this.form.submit()">
+                                        <option value="">Más recientes</option>
+                                        <option value="nombre" {% if orden == 'nombre' %}selected{% endif %}>Nombre (A-Z)</option>
+                                        <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio: menor a mayor</option>
+                                        <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio: mayor a menor</option>
+                                    </select>
+                                </div>
+
+                                <a href="{% url 'tienda' %}" class="btn btn-outline-secondary btn-sm btn-block mt-2">
+                                    <i class="fas fa-eraser mr-1"></i>Limpiar filtros
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-9">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+                        <div>
+                            <h2 class="h5 mb-1">Todos los productos</h2>
+                            <p class="text-muted mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} encontrado{{ productos|length|pluralize }}</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'carrito' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-shopping-cart"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 tienda-product-grid">
+                        {% for producto in productos %}
+                        <div class="col">
+                            <article class="product-card h-100">
+                                <a href="{% url 'product_detail' producto.id %}" class="product-card-image d-block overflow-hidden">
+                                    {% if producto.foto %}
+                                        <img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" class="img-fluid">
+                                    {% else %}
+                                        <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" class="img-fluid">
+                                    {% endif %}
+                                </a>
+                                <div class="product-card-body p-3 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="mb-2">
+                                            {% if producto.categoria %}
+                                            <span class="badge badge-light mr-1">
+                                                {{ producto.categoria.nombre }}
+                                            </span>
+                                            {% endif %}
+                                            {% if producto.genero %}
+                                            <span class="badge badge-outline-primary">
+                                                {{ producto.get_genero_display }}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <h3 class="product-title mb-2">{{ producto.nombre }}</h3>
+                                        <div class="product-price mb-3">Bs {{ producto.precio_caja|floatformat:2 }}</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                        <a href="{% url 'product_detail' producto.id %}" class="btn btn-outline-secondary btn-sm">Detalles</a>
+                                        <button class="btn btn-sm btn-primary btn-add" type="button"
+                                            data-product-id="{{ producto.id }}"
+                                            data-product-name="{{ producto.nombre|escapejs }}"
+                                            data-product-price="{{ producto.precio_caja|floatformat:2 }}"
+                                            data-product-image="{% if producto.foto %}{{ producto.foto.url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}"
+                                            data-product-stock="{{ producto.stock }}"
+                                        ><i class="fas fa-shopping-cart"></i> <span>Agregar</span></button>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-2">No se encontraron productos con los filtros seleccionados.</p>
+                            <a href="{% url 'tienda' %}" class="btn btn-outline-primary btn-sm">Limpiar filtros</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20realizar%20un%20pedido" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-whatsapp"></i>
+        <span></span>
+    </a>
+
+    {% include 'componentes/footerprincipal.html' %}
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/componentes/navbarprincipal.js' %}"></script>
+    <script src="{% static 'js/inicio/tienda.js' %}"></script>
+</body>
+</html>

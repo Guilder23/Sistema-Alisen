@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/productos/modals/edita.css' %}">
     <link rel="stylesheet" href="{% static 'css/productos/modals/edita_precio.css' %}">
     <link rel="stylesheet" href="{% static 'css/productos/modals/elimina.css' %}">
+    <link rel="stylesheet" href="{% static 'css/productos/modals/toggle_publicar.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/modal_imagen_producto.css' %}">
 {% endblock %}
 
@@ -83,7 +84,8 @@
                         <!--<th style="width: 12%;">Contenedores</th>
                         <th style="width: 10%;">Stock</th>-->
                         <th style="width: 10%;">Precio por Caja</th>
-                        <th style="width: 8%;">Estado</th>
+                        <th class="text-center" style="width: 8%;">Estado</th>
+                        <th class="text-center" style="width: 8%;">Publicación</th>
                         <th class="text-center" style="width: 10%;">Acciones</th>
                     </tr>
                 </thead>
@@ -165,6 +167,17 @@
                                 </span>
                             {% endif %}
                         </td>
+                        <td class="text-center">
+                            {% if producto.publicado %}
+                                <span class="badge-publica badge-publica-publicado">
+                                    <i class="fas fa-check-circle"></i> Publicado
+                                </span>
+                            {% else %}
+                                <span class="badge-publica badge-publica-despublicado">
+                                    <i class="fas fa-times-circle"></i> Despublicado
+                                </span>
+                            {% endif %}
+                        </td>
                         <td class="text-center acciones-col">
                             <button 
                                 type="button" 
@@ -180,13 +193,13 @@
                             {% if es_tienda_online %}
                             <button 
                                 type="button"
-                                class="btn btn-toggle-publish btn-sm"
+                                class="btn btn-toggle-publish btn-sm {% if producto.publicado %}btn-outline-success{% else %}btn-outline-danger{% endif %}"
                                 data-product-id="{{ producto.id }}"
-                                data-action="{% if producto.activo %}despublicar{% else %}publicar{% endif %}"
-                                title="{% if producto.activo %}Despublicar{% else %}Publicar{% endif %}"
+                                data-action="{% if producto.publicado %}despublicar{% else %}publicar{% endif %}"
+                                title="{% if producto.publicado %}Despublicar{% else %}Publicar{% endif %}"
                             >
-                                <i class="fas fa-toggle-{% if producto.activo %}on{% else %}off{% endif %}"></i>
-                                {% if producto.activo %}Despublicar{% else %}Publicar{% endif %}
+                                <i class="fas fa-toggle-{% if producto.publicado %}on{% else %}off{% endif %}"></i>
+                                <span>{% if producto.publicado %}Despublicar{% else %}Publicar{% endif %}</span>
                             </button>
                             {% endif %}
                             
@@ -283,6 +296,9 @@
     {% elif es_administrador %}
         {% include 'productos/modals/edita_precio.html' %}
     {% endif %}
+    {% if es_tienda_online %}
+        {% include 'productos/modals/toggle_publicar.html' %}
+    {% endif %}
     {% include 'productos/modals/ver.html' %}
     <!-- Modal universal para imagen de producto -->
     <div class="modal fade" id="modalImagenProducto" tabindex="-1" role="dialog" aria-hidden="true">
@@ -309,6 +325,9 @@
         <script src="{% static 'js/productos/modals/elimina.js' %}"></script>
     {% elif es_administrador %}
         <script src="{% static 'js/productos/modals/edita_precio.js' %}"></script>
+    {% endif %}
+    {% if es_tienda_online %}
+        <script src="{% static 'js/productos/modals/toggle_publicar.js' %}"></script>
     {% endif %}
     <script src="{% static 'js/productos/modals/ver.js' %}"></script>
     

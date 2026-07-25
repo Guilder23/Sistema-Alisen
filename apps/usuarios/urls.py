@@ -14,6 +14,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
 
     # Public product storefront pages
+    path('tienda/', views.tienda, name='tienda'),
     path('producto/<int:id>/', views.product_detail, name='product_detail'),
     path('carrito/', views.carrito, name='carrito'),
     path('nosotros/', views.nosotros, name='nosotros'),

@@ -18,25 +18,90 @@
 
     <main class="cart-page container py-4">
         <section class="cart-hero">
-            <div class="cart-hero-card bg-white p-3 rounded shadow-sm">
-                <div class="cart-header-panel d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <span class="eyebrow">Tu carrito</span>
-                        <h1 class="h4">Revisa tu pedido</h1>
-                        <p class="small text-muted">Ajusta cantidades, elimina productos y envía tu pedido por WhatsApp cuando estés listo.</p>
-                    </div>
-                    <div class="cart-actions-top">
-                        <a href="{% url 'index' %}" class="btn btn-link">Seguir comprando</a>
-                        <button id="clearCartBtn" class="btn btn-outline-danger">Vaciar carrito</button>
-                    </div>
+            <div class="cart-header-panel d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4">
+                <div>
+                    <span class="eyebrow">Tu carrito</span>
+                    <h1 class="h4 mb-1">Revisa tu pedido</h1>
+                    <p class="small text-muted mb-0">Ajusta cantidades, elimina productos y envía tu pedido por WhatsApp cuando estés listo.</p>
                 </div>
-                <div id="cartContent" class="cart-content mb-3"></div>
-                <div class="cart-summary d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-muted">Total</small>
-                        <div class="h5">Bs <span id="cartTotal">0.00</span></div>
-                    </div>
-                    <button id="checkoutButton" data-phone="{{ tienda_whatsapp|slice:'1:' }}" class="btn btn-success">Enviar pedido por WhatsApp</button>
+                <div class="cart-actions-top mt-3 mt-md-0">
+                    <a href="{% url 'tienda' %}" class="btn btn-link">Seguir comprando</a>
+                    <button id="clearCartBtn" class="btn btn-outline-danger">Vaciar carrito</button>
+                </div>
+            </div>
+
+            <div class="row cart-layout-row">
+                <div class="col-lg-8 mb-4 mb-lg-0">
+                    <div id="cartContent" class="cart-content cart-items-col bg-white p-3 rounded shadow-sm"></div>
+                </div>
+                <div class="col-lg-4">
+                    <aside class="cart-summary-col sticky-top" style="top: 1rem;">
+                        <div class="cart-summary-box bg-white rounded shadow-sm p-4">
+                            <h5 class="font-weight-bold mb-3"><i class="fas fa-receipt text-primary mr-2"></i>Resumen del pedido</h5>
+
+                            <div class="resumen-filas mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Productos</span>
+                                    <strong id="cartItemCount">0</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Envío</span>
+                                    <span class="text-success font-weight-bold">A confirmar</span>
+                                </div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between align-items-center cart-total-final">
+                                    <span>Total</span>
+                                    <span>Bs <span id="cartTotal">0.00</span></span>
+                                </div>
+                            </div>
+
+                            <button id="checkoutButton" data-phone="{{ tienda_whatsapp|slice:'1:' }}" class="btn btn-success btn-lg btn-block btn-checkout-whatsapp">
+                                <i class="fab fa-whatsapp mr-2"></i>Enviar pedido por WhatsApp
+                            </button>
+
+                            <div class="mt-4 proceso-pedido">
+                                <h6 class="font-weight-bold text-muted mb-3">
+                                    <i class="fas fa-info-circle mr-1"></i>¿Cómo funciona tu pedido?
+                                </h6>
+                                <ol class="proceso-pasos mb-0">
+                                    <li>
+                                        <div class="paso-numero"><i class="fas fa-check"></i></div>
+                                        <div class="paso-texto">
+                                            <strong>Confirmación</strong>
+                                            <span>Te escribimos por WhatsApp para confirmar disponibilidad y detalles.</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="paso-numero"><i class="fas fa-shipping-fast"></i></div>
+                                        <div class="paso-texto">
+                                            <strong>Envío coordinado</strong>
+                                            <span>Elegimos la opción más rápida y económica a tu ciudad.</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="paso-numero"><i class="fas fa-hand-holding-usd"></i></div>
+                                        <div class="paso-texto">
+                                            <strong>Pago seguro</strong>
+                                            <span>Pago contra entrega o transferencia con comprobante.</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="paso-numero"><i class="fas fa-gift"></i></div>
+                                        <div class="paso-texto">
+                                            <strong>Recibe tu pedido</strong>
+                                            <span>Seguimiento personalizado hasta la entrega final.</span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <div class="mt-4 small text-muted border-top pt-3">
+                                <div><i class="fas fa-phone mr-2 text-primary"></i> {{ tienda_telefono }}</div>
+                                <div class="mt-1"><i class="fas fa-envelope mr-2 text-primary"></i> {{ tienda_email }}</div>
+                                <div class="mt-1"><i class="fas fa-map-marker-alt mr-2 text-primary"></i> {{ tienda_direccion }}</div>
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
         </section>

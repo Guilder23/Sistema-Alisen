@@ -231,6 +231,33 @@
     border-color: #fca5a5;
 }
 
+/* BADGE DE PUBLICACIÓN (igual estilo a badge-estado) */
+.badge-publica {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border: 1px solid;
+    white-space: nowrap;
+}
+
+.badge-publica-publicado {
+    background: #dbeafe;
+    color: #1e3a8a;
+    border-color: #93c5fd;
+}
+
+.badge-publica-despublicado {
+    background: #e5e7eb;
+    color: #374151;
+    border-color: #9ca3af;
+}
+
 /* FILA INACTIVA */
 .fila-inactiva {
     opacity: 0.6;

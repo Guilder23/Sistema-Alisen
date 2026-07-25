@@ -39,8 +39,8 @@
 </li>
 {% endif %}
 
-            <!-- Productos - Almacén y Administradores -->
-            {% if user.is_superuser or user.is_staff or user.perfil.rol == 'almacen' %}
+            <!-- Productos - Almacén, Administradores y Tienda Online -->
+            {% if user.is_superuser or user.is_staff or user.perfil.rol == 'almacen' or user.perfil.rol == 'tienda_online' %}
             {% with url_actual=request.resolver_match.url_name %}
             {% if user.perfil.rol == 'almacen' %}
             <li class="sidebar-item sidebar-item-with-submenu">
@@ -72,6 +72,13 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+            {% elif user.perfil.rol == 'tienda_online' %}
+            <li class="sidebar-item">
+                <a href="{% url 'listar_productos' %}" class="sidebar-link {% if 'productos' in url_actual %}active{% endif %}" title="Gestión de Productos">
+                    <i class="fas fa-box"></i>
+                    <span>Gestión de Productos</span>
+                </a>
             </li>
             {% else %}
             <li class="sidebar-item">

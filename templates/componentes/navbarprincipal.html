@@ -10,15 +10,36 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarMain">
-      <form class="form-inline my-2 my-lg-0 mr-auto position-relative" id="navbarSearchForm" action="{% url 'index' %}" method="get">
-        <div class="input-group input-group-sm shadow-sm navbar-search-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text bg-transparent border-right-0"><i class="fas fa-search"></i></span>
+      <form class="form-inline my-2 my-lg-0 mr-auto position-relative" id="navbarSearchForm" action="{% url 'tienda' %}" method="get">
+        <div class="d-flex align-items-stretch">
+          <div class="input-group input-group-sm shadow-sm navbar-search-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text bg-transparent border-right-0"><i class="fas fa-search"></i></span>
+            </div>
+            <input class="form-control border-left-0" id="navbarSearchInput" type="search" name="buscar" placeholder="Buscar productos, marcas, tallas" aria-label="Buscar" value="{{ buscar }}">
           </div>
-          <input class="form-control border-left-0" id="navbarSearchInput" type="search" name="buscar" placeholder="Buscar productos, marcas, tallas" aria-label="Buscar" value="{{ buscar }}">
+          <div class="dropdown navbar-category-icon ml-2">
+            <button class="btn btn-category-icon dropdown-toggle" type="button" id="dropdownCategorias" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Filtrar por categoría">
+              <i class="fas fa-th-large"></i>
+            </button>
+            <div class="dropdown-menu dropdown-categorias" aria-labelledby="dropdownCategorias">
+              <a class="dropdown-item {% if not categoria %}active{% endif %}" href="?{% for key,value in request.GET.items %}{% if key != 'categoria' %}{{ key }}={{ value }}&{% endif %}{% endfor %}">
+                Todas las categorías
+              </a>
+              <div class="dropdown-divider"></div>
+              {% for cat in categorias %}
+              <a class="dropdown-item {% if categoria == cat.id|stringformat:'s' %}active{% endif %}" href="{% url 'tienda' %}?categoria={{ cat.id }}">
+                {{ cat.nombre }}
+              </a>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       </form>
       <ul class="navbar-nav ml-auto align-items-center">
+        <li class="nav-item d-none d-lg-block mr-2">
+          <a class="nav-link" href="{% url 'tienda' %}">Tienda</a>
+        </li>
         <li class="nav-item d-none d-lg-block mr-2">
           <a class="nav-link" href="{% url 'nosotros' %}">Nosotros</a>
         </li>

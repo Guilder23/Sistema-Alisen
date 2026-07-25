@@ -17,14 +17,14 @@ def _es_usuario_tecnico_deposito(usuario):
     return usuario.username.startswith('deposito_auto_')
 
 def index(request):
-    """Página de inicio pública con catálogo de productos"""
+    """Página de inicio pública con catálogo de productos (máx. 4 productos)"""
     if request.user.is_authenticated:
         return redirect('dashboard')
 
     buscar = request.GET.get('buscar', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
 
-    productos = Producto.objects.select_related('categoria').filter(activo=True)
+    productos = Producto.objects.select_related('categoria').filter(activo=True, publicado=True)
     if buscar:
         productos = productos.filter(
             Q(codigo__icontains=buscar) |
@@ -36,7 +36,7 @@ def index(request):
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
 
-    productos = productos.order_by('-fecha_creacion')
+    productos = productos.order_by('-fecha_creacion')[:4]
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
 
     context = {
@@ -54,16 +54,163 @@ def index(request):
     return render(request, 'inicio/index.html', context)
 
 
+def tienda(request):
+    """Página de Tienda con todos los productos publicados y filtros"""
+    if request.user.is_authenticated:
+        pass  # Permitir también a usuarios autenticados
+
+    buscar = request.GET.get('buscar', '').strip()
+    categoria_id = request.GET.get('categoria', '').strip()
+    genero = request.GET.get('genero', '').strip()
+    precio_min = request.GET.get('precio_min', '').strip()
+    precio_max = request.GET.get('precio_max', '').strip()
+    orden = request.GET.get('orden', '').strip()
+
+    productos = Producto.objects.select_related('categoria').filter(activo=True, publicado=True)
+    if buscar:
+        productos = productos.filter(
+            Q(codigo__icontains=buscar) |
+            Q(nombre__icontains=buscar) |
+            Q(descripcion__icontains=buscar) |
+            Q(categoria__nombre__icontains=buscar)
+        )
+
+    if categoria_id:
+        productos = productos.filter(categoria_id=categoria_id)
+
+    if genero:
+        productos = productos.filter(genero=genero)
+
+    from decimal import Decimal
+    if precio_min:
+        try:
+            productos = productos.filter(precio_caja__gte=Decimal(precio_min))
+        except Exception:
+            pass
+    if precio_max:
+        try:
+            productos = productos.filter(precio_caja__lte=Decimal(precio_max))
+        except Exception:
+            pass
+
+    if orden == 'precio_asc':
+        productos = productos.order_by('precio_caja')
+    elif orden == 'precio_desc':
+        productos = productos.order_by('-precio_caja')
+    elif orden == 'nombre':
+        productos = productos.order_by('nombre')
+    else:
+        productos = productos.order_by('-fecha_creacion')
+
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    genero_choices = Producto.GENERO_CHOICES
+
+    context = {
+        'productos': productos,
+        'categorias': categorias,
+        'genero_choices': genero_choices,
+        'buscar': buscar,
+        'categoria': categoria_id,
+        'genero': genero,
+        'precio_min': precio_min,
+        'precio_max': precio_max,
+        'orden': orden,
+        'tienda_nombre': 'Alicen Imports',
+        'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
+        'tienda_telefono': '+59170000000',
+        'tienda_whatsapp': '+59170000000',
+        'tienda_email': 'contacto@alicen.com',
+        'tienda_direccion': 'La Paz, Bolivia',
+    }
+    return render(request, 'inicio/tienda.html', context)
+
+
 def product_detail(request, id):
     """Página pública: detalle de producto para la tienda virtual"""
-    producto = get_object_or_404(Producto, id=id, activo=True)
+    from apps.inventario.models import Inventario
+    from apps.depositos.models import Deposito as DepositoModel
+    producto = get_object_or_404(Producto, id=id, activo=True, publicado=True)
     buscar = request.GET.get('buscar', '').strip()
     categoria = request.GET.get('categoria', '').strip()
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
     similares = Producto.objects.filter(
         activo=True,
+        publicado=True,
         categoria=producto.categoria
     ).exclude(id=producto.id).order_by('-fecha_creacion')[:4] if producto.categoria else Producto.objects.none()
+
+    inventarios_ubicacion = Inventario.objects.filter(
+        producto=producto,
+        cantidad__gt=0
+    ).select_related(
+        'ubicacion', 'ubicacion__tienda', 'ubicacion__almacen'
+    ).order_by('-cantidad')
+
+    ubicaciones_disponibles = []
+    almacenes_stock = []
+    tiendas_stock = []
+    depositos_stock = []
+    otros_stock = []
+
+    for inv in inventarios_ubicacion:
+        nombre = None
+        ciudad = None
+        departamento = None
+        direccion = None
+        tipo = None
+        if inv.ubicacion.tienda:
+            nombre = inv.ubicacion.tienda.nombre
+            ciudad = inv.ubicacion.tienda.ciudad
+            departamento = inv.ubicacion.tienda.departamento
+            direccion = inv.ubicacion.tienda.direccion
+            tipo = 'Tienda'
+        elif inv.ubicacion.almacen:
+            nombre = inv.ubicacion.almacen.nombre
+            ciudad = inv.ubicacion.almacen.ciudad
+            departamento = inv.ubicacion.almacen.departamento
+            direccion = inv.ubicacion.almacen.direccion
+            tipo = 'Almacén'
+        elif inv.ubicacion.rol == 'deposito':
+            deposito_asociado = DepositoModel.objects.filter(
+                nombre=inv.ubicacion.nombre_ubicacion,
+                estado='activo'
+            ).first()
+            if deposito_asociado:
+                nombre = deposito_asociado.nombre
+                ciudad = deposito_asociado.ciudad
+                departamento = deposito_asociado.departamento
+                direccion = deposito_asociado.direccion
+                tipo = 'Depósito'
+            else:
+                nombre = inv.ubicacion.nombre_ubicacion
+                tipo = 'Depósito'
+        else:
+            nombre = inv.ubicacion.nombre_ubicacion
+            tipo = inv.ubicacion.get_rol_display() if inv.ubicacion.rol else 'Ubicación'
+
+        ubi_data = {
+            'nombre': nombre,
+            'tipo': tipo,
+            'ciudad': ciudad,
+            'departamento': departamento,
+            'direccion': direccion,
+            'cantidad': inv.cantidad,
+        }
+        ubicaciones_disponibles.append(ubi_data)
+
+        if tipo == 'Almacén':
+            almacenes_stock.append(ubi_data)
+        elif tipo == 'Tienda':
+            tiendas_stock.append(ubi_data)
+        elif tipo == 'Depósito':
+            depositos_stock.append(ubi_data)
+        else:
+            otros_stock.append(ubi_data)
+
+    total_almacenes = sum(a['cantidad'] for a in almacenes_stock)
+    total_tiendas = sum(t['cantidad'] for t in tiendas_stock)
+    total_depositos = sum(d['cantidad'] for d in depositos_stock)
+    total_otros = sum(o['cantidad'] for o in otros_stock)
 
     context = {
         'producto': producto,
@@ -71,6 +218,15 @@ def product_detail(request, id):
         'buscar': buscar,
         'categoria': categoria,
         'similares': similares,
+        'ubicaciones_disponibles': ubicaciones_disponibles,
+        'almacenes_stock': almacenes_stock,
+        'tiendas_stock': tiendas_stock,
+        'depositos_stock': depositos_stock,
+        'otros_stock': otros_stock,
+        'total_almacenes': total_almacenes,
+        'total_tiendas': total_tiendas,
+        'total_depositos': total_depositos,
+        'total_otros': total_otros,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
         'tienda_telefono': '+59170000000',

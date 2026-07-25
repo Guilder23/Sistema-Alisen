@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+/**
+ * Animación y helper común para mantener el foco del buscador
+ */
 function marcarAutofocusBuscador() {
     try {
         sessionStorage.setItem('productos_autofocus_buscar', '1');

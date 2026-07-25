@@ -618,6 +618,7 @@ def obtener_producto(request, id):
             'fecha_creacion': producto.fecha_creacion.strftime('%d/%m/%Y %H:%M'),
             'fecha_actualizacion': producto.fecha_actualizacion.strftime('%d/%m/%Y %H:%M'),
             'activo': producto.activo,
+            'publicado': producto.publicado,
         }
         return JsonResponse(data)
         
@@ -770,9 +771,9 @@ def publicar_producto(request, id):
         return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
 
     producto = get_object_or_404(Producto, id=id)
-    producto.activo = True
-    producto.save(update_fields=['activo'])
-    return JsonResponse({'success': True, 'activo': producto.activo})
+    producto.publicado = True
+    producto.save(update_fields=['publicado'])
+    return JsonResponse({'success': True, 'publicado': producto.publicado})
 
 @login_required
 @require_http_methods(['POST'])
@@ -782,9 +783,9 @@ def despublicar_producto(request, id):
         return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
 
     producto = get_object_or_404(Producto, id=id)
-    producto.activo = False
-    producto.save(update_fields=['activo'])
-    return JsonResponse({'success': True, 'activo': producto.activo})
+    producto.publicado = False
+    producto.save(update_fields=['publicado'])
+    return JsonResponse({'success': True, 'publicado': producto.publicado})
 
 @login_required
 def historial_producto(request, id):

@@ -1,0 +1,55 @@
+<!-- Modal Publicar/Despublicar Producto -->
+<div class="modal fade" id="modalTogglePublicar" tabindex="-1" role="dialog" aria-labelledby="modalTogglePublicarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md modal-toggle-publicar" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTogglePublicarLabel">
+                    <i class="fas fa-bullhorn"></i>
+                    <span id="modalToggleTitleText">Publicar Producto</span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 class="text-muted mb-3">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="modalToggleSubtitleText">Este producto se mostrará en la tienda virtual y catálogo.</span>
+                </h6>
+
+                <div class="modal-product-info bg-light rounded p-3 mb-3">
+                    <div class="row align-items-center no-gutters">
+                        <div class="col-auto pr-3">
+                            <img id="modalToggleFoto" src="" alt="" class="img-fluid rounded" style="width: 70px; height: 70px; object-fit: cover;">
+                        </div>
+                        <div class="col">
+                            <div id="modalToggleCodigo" class="text-muted small font-weight-bold"></div>
+                            <div id="modalToggleNombre" class="font-weight-bold text-dark"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert modal-toggle-alert" role="alert" id="modalToggleAlert">
+                    <div class="d-flex align-items-start">
+                        <div class="modal-toggle-icon-wrapper mr-3" id="modalToggleIconWrapper">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div class="flex-1">
+                            <strong id="modalToggleAlertTitle">¿Deseas publicar este producto?</strong>
+                            <p class="mb-0 small text-muted" id="modalToggleAlertDesc">Al confirmar, el producto estará visible para los clientes de la tienda virtual.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn modal-toggle-confirm-btn" id="modalToggleConfirmar">
+                    <i class="fas fa-check mr-1"></i>
+                    <span id="modalToggleConfirmarText">Confirmar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

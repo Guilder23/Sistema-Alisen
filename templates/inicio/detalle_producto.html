@@ -49,6 +49,198 @@
                             <strong>Bs {{ producto.precio_caja|floatformat:2 }}</strong>
                         </div>
                     </div>
+
+                    {% if ubicaciones_disponibles %}
+                    <div class="detail-locations mb-4">
+                        <h6 class="font-weight-bold mb-3 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.85rem;">
+                            <i class="fas fa-map-marker-alt mr-2 text-primary"></i>
+                            Disponibilidad por ubicación
+                        </h6>
+
+                        {% if almacenes_stock %}
+                        <div class="stock-group-card mb-3">
+                            <div class="stock-group-header almacen-header d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <span class="stock-group-icon"><i class="fas fa-warehouse"></i></span>
+                                    <span class="stock-group-title">Almacenes</span>
+                                </div>
+                                <span class="stock-group-total">{{ total_almacenes }} unid. total</span>
+                            </div>
+                            <div class="stock-group-body">
+                                {% for ub in almacenes_stock %}
+                                <div class="stock-item {% if not forloop.last %}border-bottom{% endif %}">
+                                    <div class="stock-item-main">
+                                        <span class="stock-item-name">{{ ub.nombre|default:'Almacén' }}</span>
+                                        <span class="badge-stock-item 
+                                                     {% if ub.cantidad >= 10 %}badge-stock-ok{% elif ub.cantidad >= 5 %}badge-stock-warn{% else %}badge-stock-crit{% endif %}">
+                                            {{ ub.cantidad }} unid.
+                                        </span>
+                                    </div>
+                                    <div class="stock-item-meta">
+                                        {% if ub.departamento %}
+                                        <span class="meta-item">
+                                            <i class="fas fa-flag"></i>
+                                            <strong>Depto:</strong> {{ ub.departamento }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ub.ciudad %}
+                                        <span class="meta-item">
+                                            <i class="fas fa-city"></i>
+                                            {{ ub.ciudad }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ub.direccion %}
+                                        <span class="meta-item d-block mt-1">
+                                            <i class="fas fa-location-arrow"></i>
+                                            {{ ub.direccion }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if tiendas_stock %}
+                        <div class="stock-group-card mb-3">
+                            <div class="stock-group-header tienda-header d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <span class="stock-group-icon"><i class="fas fa-store"></i></span>
+                                    <span class="stock-group-title">Tiendas</span>
+                                </div>
+                                <span class="stock-group-total">{{ total_tiendas }} unid. total</span>
+                            </div>
+                            <div class="stock-group-body">
+                                {% for ub in tiendas_stock %}
+                                <div class="stock-item {% if not forloop.last %}border-bottom{% endif %}">
+                                    <div class="stock-item-main">
+                                        <span class="stock-item-name">{{ ub.nombre|default:'Tienda' }}</span>
+                                        <span class="badge-stock-item 
+                                                     {% if ub.cantidad >= 10 %}badge-stock-ok{% elif ub.cantidad >= 5 %}badge-stock-warn{% else %}badge-stock-crit{% endif %}">
+                                            {{ ub.cantidad }} unid.
+                                        </span>
+                                    </div>
+                                    <div class="stock-item-meta">
+                                        {% if ub.departamento %}
+                                        <span class="meta-item">
+                                            <i class="fas fa-flag"></i>
+                                            <strong>Depto:</strong> {{ ub.departamento }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ub.ciudad %}
+                                        <span class="meta-item">
+                                            <i class="fas fa-city"></i>
+                                            {{ ub.ciudad }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ub.direccion %}
+                                        <span class="meta-item d-block mt-1">
+                                            <i class="fas fa-location-arrow"></i>
+                                            {{ ub.direccion }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if depositos_stock %}
+                        <div class="stock-group-card mb-3">
+                            <div class="stock-group-header deposito-header d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <span class="stock-group-icon"><i class="fas fa-archive"></i></span>
+                                    <span class="stock-group-title">Depósitos</span>
+                                </div>
+                                <span class="stock-group-total">{{ total_depositos }} unid. total</span>
+                            </div>
+                            <div class="stock-group-body">
+                                {% for ub in depositos_stock %}
+                                <div class="stock-item {% if not forloop.last %}border-bottom{% endif %}">
+                                    <div class="stock-item-main">
+                                        <span class="stock-item-name">{{ ub.nombre|default:'Depósito' }}</span>
+                                        <span class="badge-stock-item 
+                                                     {% if ub.cantidad >= 10 %}badge-stock-ok{% elif ub.cantidad >= 5 %}badge-stock-warn{% else %}badge-stock-crit{% endif %}">
+                                            {{ ub.cantidad }} unid.
+                                        </span>
+                                    </div>
+                                    <div class="stock-item-meta">
+                                        {% if ub.departamento %}
+                                        <span class="meta-item">
+                                            <i class="fas fa-flag"></i>
+                                            <strong>Depto:</strong> {{ ub.departamento }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ub.ciudad %}
+                                        <span class="meta-item">
+                                            <i class="fas fa-city"></i>
+                                            {{ ub.ciudad }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ub.direccion %}
+                                        <span class="meta-item d-block mt-1">
+                                            <i class="fas fa-location-arrow"></i>
+                                            {{ ub.direccion }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if otros_stock %}
+                        <div class="stock-group-card mb-3">
+                            <div class="stock-group-header otros-header d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <span class="stock-group-icon"><i class="fas fa-map-pin"></i></span>
+                                    <span class="stock-group-title">Otras ubicaciones</span>
+                                </div>
+                                <span class="stock-group-total">{{ total_otros }} unid. total</span>
+                            </div>
+                            <div class="stock-group-body">
+                                {% for ub in otros_stock %}
+                                <div class="stock-item {% if not forloop.last %}border-bottom{% endif %}">
+                                    <div class="stock-item-main">
+                                        <span class="stock-item-name">
+                                            <span class="badge badge-secondary mr-2">{{ ub.tipo }}</span>
+                                            {{ ub.nombre|default:'Ubicación' }}
+                                        </span>
+                                        <span class="badge-stock-item 
+                                                     {% if ub.cantidad >= 10 %}badge-stock-ok{% elif ub.cantidad >= 5 %}badge-stock-warn{% else %}badge-stock-crit{% endif %}">
+                                            {{ ub.cantidad }} unid.
+                                        </span>
+                                    </div>
+                                    <div class="stock-item-meta">
+                                        {% if ub.departamento %}
+                                        <span class="meta-item">
+                                            <i class="fas fa-flag"></i>
+                                            <strong>Depto:</strong> {{ ub.departamento }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ub.ciudad %}
+                                        <span class="meta-item">
+                                            <i class="fas fa-city"></i>
+                                            {{ ub.ciudad }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ub.direccion %}
+                                        <span class="meta-item d-block mt-1">
+                                            <i class="fas fa-location-arrow"></i>
+                                            {{ ub.direccion }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                     <form id="detailAddToCartForm" class="detail-action-form d-flex flex-column flex-sm-row align-items-start">
                         <input type="hidden" id="detailProductId" value="{{ producto.id }}">
                         <input type="hidden" id="detailProductName" value="{{ producto.nombre }}">

@@ -16,72 +16,197 @@
 <body>
     {% include 'componentes/navbarprincipal.html' %}
 
-    <main class="about-hero py-5">
-        <div class="container text-center text-white">
-            <span class="eyebrow">Acerca de nosotros</span>
-            <h1 class="mt-3">Construyendo comercio confiable para Bolivia</h1>
-            <p class="lead text-white-75 mt-3">En {{ tienda_nombre }} unimos productos importados y atención local con un enfoque profesional, ágil y transparente.</p>
-        </div>
+    <main class="about-page">
+        <section class="about-hero py-5">
+            <div class="about-hero-overlay"></div>
+            <div class="container text-center text-white">
+                <span class="eyebrow">Acerca de nosotros</span>
+                <h1 class="mt-3">Construyendo comercio confiable para Bolivia</h1>
+                <p class="lead text-white-50 mt-3 mx-auto">En {{ tienda_nombre }} unimos productos seleccionados, atención personalizada y logística ágil para hacer de tu compra una experiencia tranquila.</p>
+                <div class="d-flex justify-content-center flex-wrap gap-3 mt-4">
+                    <a href="{% url 'tienda' %}" class="btn btn-primary btn-lg px-4">Ver catálogo</a>
+                    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}" class="btn btn-outline-light btn-lg px-4" target="_blank"><i class="fab fa-whatsapp mr-2"></i>Contacto directo</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-stats py-5">
+            <div class="container">
+                <div class="row gx-3 gy-4 text-center">
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+                            <div class="stat-value">+98%</div>
+                            <div class="stat-label">Pedidos despachados a tiempo</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-city"></i></div>
+                            <div class="stat-value">+9</div>
+                            <div class="stat-label">Departamentos con cobertura</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-value">+350</div>
+                            <div class="stat-label">Clientes satisfechos</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-tag"></i></div>
+                            <div class="stat-value">+120</div>
+                            <div class="stat-label">Productos disponibles</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section container py-5">
+            <div class="row gx-4 gy-4 align-items-stretch">
+                <div class="col-lg-6">
+                    <div class="vision-panel">
+                        <span class="eyebrow-section">Nuestro propósito</span>
+                        <h2>Nuestra misión</h2>
+                        <p>Ser el socio de confianza para mayoristas, tiendas y familias en Bolivia, ofreciendo productos de calidad, disponibilidad real y envíos rápidos a todo el país. Trabajamos cada día para reducir la fricción entre importación y consumo local.</p>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <div class="mini-stat">
+                                    <span>Inventario real</span>
+                                    <small>Controlado por tienda y sucursal</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mini-stat">
+                                    <span>Transparencia</span>
+                                    <small>Precios claros y condiciones claras</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="about-feature feature-highlight">
+                        <span class="eyebrow-section">Atención directa</span>
+                        <h3>Experiencia profesional</h3>
+                        <p>Operamos con procesos claros, inventario controlado y atención directa por WhatsApp para cada pedido. Desde que solicitas una cotización hasta que recibes tu compra, hay un equipo humano contigo.</p>
+                        <ul class="feature-list mt-3">
+                            <li><i class="fas fa-check-circle text-success mr-2"></i>Confirmación inmediata de stock</li>
+                            <li><i class="fas fa-check-circle text-success mr-2"></i>Cotizaciones personalizadas</li>
+                            <li><i class="fas fa-check-circle text-success mr-2"></i>Envíos coordinados a todo Bolivia</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="why-section py-5">
+            <div class="container">
+                <div class="section-heading text-center mb-5">
+                    <span class="eyebrow-section text-primary">Por qué elegirnos</span>
+                    <h2>Razones para confiar en {{ tienda_nombre }}</h2>
+                </div>
+                <div class="row gx-4 gy-4">
+                    <div class="col-md-4">
+                        <article class="about-feature feature-card">
+                            <div class="feature-icon"><i class="fas fa-star"></i></div>
+                            <h3>Calidad de importación</h3>
+                            <p>Productos seleccionados para mayoristas y familias con buen costo-beneficio y respaldo comercial.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-4">
+                        <article class="about-feature feature-card">
+                            <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                            <h3>Atención local</h3>
+                            <p>Servicio en español, soporte continuo y despacho profesional a todo el país por tiendas y correo.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-4">
+                        <article class="about-feature feature-card">
+                            <div class="feature-icon"><i class="fas fa-handshake"></i></div>
+                            <h3>Compromiso serio</h3>
+                            <p>Inventario real, precios claros y respuesta rápida para compras tanto grandes como pequeñas.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-4">
+                        <article class="about-feature feature-card">
+                            <div class="feature-icon"><i class="fas fa-box-open"></i></div>
+                            <h3>Logística confiable</h3>
+                            <p>Gestión de envíos con seguimiento para que siempre sepas dónde está tu pedido.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-4">
+                        <article class="about-feature feature-card">
+                            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                            <h3>Ofertas semanales</h3>
+                            <p>Catálogo actualizado con promociones y oportunidades para hacer crecer tu negocio.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-4">
+                        <article class="about-feature feature-card">
+                            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h3>Pago flexible</h3>
+                            <p>Opciones de pago adaptadas a tu flujo: transferencia, QR y pago contra entrega en ciudades habilitadas.</p>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="values-section py-5">
+            <div class="container">
+                <div class="section-heading text-center mb-5">
+                    <span class="eyebrow-section text-primary">Nuestros pilares</span>
+                    <h2>Visión, valores y soporte</h2>
+                </div>
+                <div class="row gx-4 gy-4">
+                    <div class="col-md-4">
+                        <div class="team-card">
+                            <div class="team-card-icon"><i class="fas fa-road"></i></div>
+                            <h4>Visión</h4>
+                            <p>Ser la primera opción de compra online para mayoristas dentro de Bolivia, con catálogo confiable y crecimiento constante.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="team-card">
+                            <div class="team-card-icon"><i class="fas fa-heart"></i></div>
+                            <h4>Valores</h4>
+                            <p>Integridad, eficiencia y respaldo local para cada cliente que confía en nosotros. La confianza se construye en cada entrega.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="team-card">
+                            <div class="team-card-icon"><i class="fas fa-headset"></i></div>
+                            <h4>Soporte</h4>
+                            <p>Asesoría personalizada y seguimiento de pedido desde la cotización hasta la entrega en cualquier ciudad de Bolivia.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-cta-section py-5">
+            <div class="container">
+                <div class="contact-cta-card">
+                    <div class="row align-items-center gx-4 gy-4">
+                        <div class="col-lg-8">
+                            <span class="eyebrow-section text-white-50">Hablemos</span>
+                            <h3>¿Tienes dudas o quieres cotizar tu próximo pedido?</h3>
+                            <p class="mb-0">Escríbenos por WhatsApp y te respondemos de inmediato con disponibilidad, costos de envío y tiempos de entrega.</p>
+                        </div>
+                        <div class="col-lg-4 text-lg-right">
+                            <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}" target="_blank" class="btn btn-success btn-lg px-5 py-3 btn-whatsapp-outline">
+                                <i class="fab fa-whatsapp mr-2"></i>Contactar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
-
-    <section class="about-section container py-5">
-        <div class="row gx-4 gy-4 align-items-center">
-            <div class="col-lg-6">
-                <div class="vision-panel">
-                    <h2>Nuestra misión</h2>
-                    <p>Ser el socio de confianza para distribuidores y tiendas en Bolivia, ofreciendo productos de calidad, disponibilidad real y envíos rápidos.</p>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="about-feature">
-                    <h3>Experiencia profesional</h3>
-                    <p>Operamos con procesos claros, inventario controlado y atención directa por WhatsApp para cada pedido.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row gx-4 gy-4 mt-4">
-            <div class="col-md-4">
-                <article class="about-feature">
-                    <h3>Calidad de importación</h3>
-                    <p>Productos seleccionados para mayoristas con buen costo-beneficio y respaldo comercial.</p>
-                </article>
-            </div>
-            <div class="col-md-4">
-                <article class="about-feature">
-                    <h3>Atención local</h3>
-                    <p>Servicio en español, soporte continuo y despacho a todo el país.</p>
-                </article>
-            </div>
-            <div class="col-md-4">
-                <article class="about-feature">
-                    <h3>Compromiso serio</h3>
-                    <p>Inventario real, precios claros y respuesta rápida para compras grandes y pequeñas.</p>
-                </article>
-            </div>
-        </div>
-
-        <div class="row gx-4 gy-4 mt-5">
-            <div class="col-md-4">
-                <div class="team-card">
-                    <h4>Visión</h4>
-                    <p>Ser la primera opción de compra online para mayoristas dentro de Bolivia.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="team-card">
-                    <h4>Valores</h4>
-                    <p>Integridad, eficiencia y respaldo local para cada cliente que confía en nosotros.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="team-card">
-                    <h4>Soporte</h4>
-                    <p>Asesoría personalizada y seguimiento de pedido desde la cotización hasta la entrega.</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
     {% include 'componentes/footerprincipal.html' %}
 

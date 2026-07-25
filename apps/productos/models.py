@@ -90,9 +90,18 @@ class ProductoContenedor(models.Model):
 
 class Producto(models.Model):
     """Modelo de Producto"""
+    GENERO_CHOICES = (
+        ('', 'Todos'),
+        ('mujer', 'Mujer'),
+        ('hombre', 'Hombre'),
+        ('niño', 'Niño'),
+        ('niña', 'Niña'),
+        ('unisex', 'Unisex'),
+    )
     codigo = models.CharField(max_length=100, unique=True)
     nombre = models.CharField(max_length=200)
     categoria = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True, blank=True, related_name='productos')
+    genero = models.CharField(max_length=20, choices=GENERO_CHOICES, blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
     foto = models.ImageField(upload_to='productos/', blank=True, null=True)
     unidades_por_caja = models.IntegerField(default=1)
@@ -114,6 +123,7 @@ class Producto(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     activo = models.BooleanField(default=True)
+    publicado = models.BooleanField(default=False)
     
     class Meta:
         verbose_name = 'Producto'

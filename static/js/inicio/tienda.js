@@ -1,5 +1,5 @@
 /* ============================================================================
-   INDEX.JS - Inicio con máximo 4 productos y carrito
+   TIENDA.JS - Tienda virtual con todos los productos y carrito
    ============================================================================ */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -26,25 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    const mostrarToast = (mensaje, tipo = 'success', titulo = '') => {
-        const toast = document.createElement('div');
-        toast.className = `toast-notification toast-${tipo}`;
-        const iconClass = tipo === 'success' ? 'fa-check' : 'fa-exclamation-triangle';
-        const titleText = titulo || (tipo === 'success' ? 'Correcto' : 'Atención');
-        toast.innerHTML = `
-            <div class="toast-icon"><i class="fas ${iconClass}"></i></div>
-            <div class="toast-text">
-                <strong>${titleText}</strong>
-                <small>${mensaje}</small>
-            </div>
-        `;
-        document.body.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.add('toast-hide');
-            setTimeout(() => toast.remove(), 350);
-        }, 2800);
-    };
-
     const addItem = (button) => {
         const productId = button.dataset.productId;
         const nombre = button.dataset.productName;
@@ -53,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const stock = parseInt(button.dataset.productStock || '0', 10);
 
         if (!productId || !nombre || !precio || stock <= 0) {
-            mostrarToast('No se puede agregar este producto al carrito.', 'error', 'Sin stock disponible');
+            mostrarToast('No se puede agregar este producto al carrito.', 'error', 'Sin stock');
             return;
         }
 
@@ -72,6 +53,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
         saveCart(cart);
         mostrarToast('Producto agregado al carrito.', 'success', nombre);
+    };
+
+    const mostrarToast = (mensaje, tipo = 'success', titulo = '') => {
+        const toast = document.createElement('div');
+        toast.className = `toast-notification toast-${tipo}`;
+        const iconClass = tipo === 'success' ? 'fa-check' : 'fa-exclamation-triangle';
+        const titleText = titulo || (tipo === 'success' ? 'Correcto' : 'Atención');
+        toast.innerHTML = `
+            <div class="toast-icon"><i class="fas ${iconClass}"></i></div>
+            <div class="toast-text">
+                <strong>${titleText}</strong>
+                <small>${mensaje}</small>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('toast-hide');
+            setTimeout(() => toast.remove(), 350);
+        }, 2800);
     };
 
     addButtons.forEach(button => button.addEventListener('click', () => addItem(button)));
