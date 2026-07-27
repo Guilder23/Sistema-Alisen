@@ -37,3 +37,19 @@ document.addEventListener('DOMContentLoaded', function() {
 function limpiarFiltros() {
     window.location.href = window.location.pathname;
 }
+
+// PDF de comisión: requiere un vendedor seleccionado (no "Todos")
+function generarReporteComision() {
+    const form = document.getElementById('filtrosForm');
+    const vendedor = document.getElementById('vendedorFiltro');
+    if (!vendedor || !vendedor.value) {
+        alert('Seleccione un vendedor en los filtros (no "Todos") para generar el reporte de comisión.');
+        if (vendedor) {
+            vendedor.focus();
+        }
+        return;
+    }
+
+    const params = new URLSearchParams(new FormData(form));
+    window.location.href = '/reportes/ventas/comision/?' + params.toString();
+}

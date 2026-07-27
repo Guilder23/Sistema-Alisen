@@ -123,6 +123,30 @@
     border-color: #a8e6cf;
 }
 
+.btn-imprimir {
+    border-color: #e3e6f0;
+    background-color: #fadbd8;
+    color: #c0392b;
+}
+
+.btn-imprimir:hover {
+    background-color: #f1948a;
+    color: #922b21;
+    border-color: #f1948a;
+}
+
+.btn-comision {
+    border-color: #e3e6f0;
+    background-color: #e8f4fd;
+    color: #2980b9;
+}
+
+.btn-comision:hover {
+    background-color: #aed6f1;
+    color: #1a5276;
+    border-color: #aed6f1;
+}
+
 .btn-pdf {
     border-color: #e3e6f0;
     background-color: #fadbd8;

@@ -170,6 +170,14 @@
                             <i class="fas fa-filter mr-1"></i>Filtrar
                         </button>
                     </div>
+                    <div class="col-md-2">
+                        <button type="submit"
+                                class="btn btn-outline-success btn-sm btn-block"
+                                formaction="{% url 'ventas:reporte_comision' %}"
+                                title="Generar PDF de comisión según filtros">
+                            <i class="fas fa-percentage mr-1"></i>Comisión PDF
+                        </button>
+                    </div>
                     {% if cliente_filtro or fecha_desde or fecha_hasta %}
                     <div class="col-md-2">
                         <a href="{% url 'ventas:listar_ventas_tienda' %}" class="btn btn-outline-secondary btn-sm btn-block">

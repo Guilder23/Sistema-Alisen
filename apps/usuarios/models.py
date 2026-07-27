@@ -22,6 +22,12 @@ class PerfilUsuario(models.Model):
     encargado = models.CharField(max_length=200, blank=True, null=True)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
+    comision = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        help_text='Porcentaje de comisión sobre ventas (%)'
+    )
     activo = models.BooleanField(default=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='usuarios_creados')
     ubicacion_relacionada = models.ForeignKey(

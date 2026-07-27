@@ -59,6 +59,7 @@ def crear_almacen(request):
             direccion=request.POST.get('direccion'),
             ciudad=request.POST.get('ciudad'),
             departamento=request.POST.get('departamento'),
+            coordenadas=request.POST.get('coordenadas', '').strip() or None,
             telefono=request.POST.get('telefono', ''),
             email=request.POST.get('email', ''),
             estado=request.POST.get('estado', 'activo'),
@@ -82,6 +83,7 @@ def editar_almacen(request, pk):
         almacen.direccion = request.POST.get('direccion')
         almacen.ciudad = request.POST.get('ciudad')
         almacen.departamento = request.POST.get('departamento')
+        almacen.coordenadas = request.POST.get('coordenadas', '').strip() or None
         almacen.telefono = request.POST.get('telefono', '')
         almacen.email = request.POST.get('email', '')
         almacen.estado = request.POST.get('estado')
@@ -122,6 +124,7 @@ def obtener_almacen(request, pk):
         'direccion': almacen.direccion,
         'ciudad': almacen.ciudad,
         'departamento': almacen.departamento,
+        'coordenadas': almacen.coordenadas or '',
         'telefono': almacen.telefono or '',
         'email': almacen.email or '',
         'estado': almacen.estado,

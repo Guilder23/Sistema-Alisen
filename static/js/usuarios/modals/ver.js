@@ -29,6 +29,8 @@
                 $('#verEmail').text(data.email);
                 $('#verNombrecompleto').text(data.nombre_completo || 'No especificado');
                 $('#verTipo').text(data.rol_display);
+                const comision = data.comision != null ? parseFloat(data.comision) : 0;
+                $('#verComision').text(comision.toFixed(2) + ' %');
                 
                 // Mostrar estado con badge personalizado
                 const estadoBadge = data.is_active 

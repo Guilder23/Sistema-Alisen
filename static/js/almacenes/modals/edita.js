@@ -44,6 +44,8 @@ function cargarEdicionAlmacen(almacenId) {
             document.getElementById('editarDireccion').value = data.direccion;
             document.getElementById('editarCiudad').value = data.ciudad;
             document.getElementById('editarDepartamento').value = data.departamento;
+            const coordsInput = document.getElementById('editarCoordenadas');
+            if (coordsInput) coordsInput.value = data.coordenadas || '';
             document.getElementById('editarTelefono').value = data.telefono || '';
             document.getElementById('editarEmail').value = data.email || '';
             document.getElementById('editarEstado').value = data.estado;

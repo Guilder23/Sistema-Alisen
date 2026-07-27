@@ -30,8 +30,13 @@ class Tienda(models.Model):
     direccion = models.CharField(max_length=300, verbose_name='Dirección')
     ciudad = models.CharField(max_length=100, verbose_name='Ciudad')
     departamento = models.CharField(max_length=100, verbose_name='Departamento/Estado')
-    coordenadas = models.CharField(max_length=100, blank=True, null=True, 
-                                  verbose_name='Coordenadas GPS')
+    coordenadas = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name='Link Google Maps',
+        help_text='Pega aquí el enlace de Google Maps de la ubicación',
+    )
     
     # Estado y seguimiento
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='activo', 

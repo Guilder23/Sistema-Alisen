@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.contrib import messages
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.db.models import Q, Sum, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.productos.models import Producto, ProductoContenedor, Contenedor, Categoria
@@ -8,6 +9,8 @@ from apps.ventas.models import Venta, DetalleVenta
 from apps.usuarios.models import PerfilUsuario
 from django.contrib.auth.models import User
 from datetime import datetime
+from decimal import Decimal
+from io import BytesIO
 
 @login_required
 def index_reportes(request):
@@ -185,6 +188,163 @@ def reporte_ventas(request):
     }
     
     return render(request, 'reportes/ventas/ventas.html', context)
+
+
+def _queryset_reporte_ventas_filtrado(request):
+    """Reutiliza la misma lógica de filtros del reporte de ventas."""
+    ventas = Venta.objects.select_related(
+        'ubicacion', 'vendedor'
+    ).prefetch_related('detalles')
+
+    buscar = request.GET.get('buscar', '').strip()
+    fecha_desde = request.GET.get('fecha_desde', '').strip()
+    fecha_hasta = request.GET.get('fecha_hasta', '').strip()
+    estado = request.GET.get('estado', '').strip()
+    tipo_pago = request.GET.get('tipo_pago', '').strip()
+    vendedor_id = request.GET.get('vendedor', '').strip()
+    moneda = request.GET.get('moneda', '').strip()
+    monto_minimo = request.GET.get('monto_minimo', '').strip()
+    monto_maximo = request.GET.get('monto_maximo', '').strip()
+    ordenar_por = request.GET.get('ordenar', 'fecha_desc').strip()
+
+    if buscar:
+        ventas = ventas.filter(
+            Q(codigo__icontains=buscar) |
+            Q(cliente__icontains=buscar) |
+            Q(razon_social__icontains=buscar) |
+            Q(telefono__icontains=buscar)
+        )
+
+    if fecha_desde:
+        try:
+            fecha_desde_dt = datetime.strptime(fecha_desde, '%Y-%m-%d')
+            ventas = ventas.filter(fecha_elaboracion__gte=fecha_desde_dt)
+        except ValueError:
+            pass
+
+    if fecha_hasta:
+        try:
+            from datetime import timedelta
+            fecha_hasta_dt = datetime.strptime(fecha_hasta, '%Y-%m-%d')
+            fecha_hasta_dt = fecha_hasta_dt + timedelta(days=1) - timedelta(seconds=1)
+            ventas = ventas.filter(fecha_elaboracion__lte=fecha_hasta_dt)
+        except ValueError:
+            pass
+
+    if estado:
+        ventas = ventas.filter(estado=estado)
+
+    if tipo_pago:
+        ventas = ventas.filter(tipo_pago=tipo_pago)
+
+    if vendedor_id:
+        ventas = ventas.filter(vendedor_id=vendedor_id)
+
+    if moneda:
+        ventas = ventas.filter(moneda=moneda)
+
+    if monto_minimo:
+        try:
+            ventas = ventas.filter(total__gte=float(monto_minimo))
+        except ValueError:
+            pass
+
+    if monto_maximo:
+        try:
+            ventas = ventas.filter(total__lte=float(monto_maximo))
+        except ValueError:
+            pass
+
+    if ordenar_por == 'fecha_asc':
+        ventas = ventas.order_by('fecha_elaboracion')
+    elif ordenar_por == 'codigo':
+        ventas = ventas.order_by('codigo')
+    elif ordenar_por == 'cliente':
+        ventas = ventas.order_by('cliente')
+    elif ordenar_por == 'total_desc':
+        ventas = ventas.order_by('-total')
+    elif ordenar_por == 'total_asc':
+        ventas = ventas.order_by('total')
+    elif ordenar_por == 'estado':
+        ventas = ventas.order_by('estado')
+    else:
+        ventas = ventas.order_by('-fecha_elaboracion')
+
+    filtros = {
+        'buscar': buscar,
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta,
+        'estado': estado,
+        'tipo_pago': tipo_pago,
+        'vendedor': vendedor_id,
+        'moneda': moneda,
+        'monto_minimo': monto_minimo,
+        'monto_maximo': monto_maximo,
+    }
+    return ventas, filtros
+
+
+def _texto_filtros_reporte_ventas(filtros):
+    partes = []
+    labels = {
+        'buscar': 'Buscar',
+        'fecha_desde': 'Desde',
+        'fecha_hasta': 'Hasta',
+        'estado': 'Estado',
+        'tipo_pago': 'Tipo pago',
+        'moneda': 'Moneda',
+        'monto_minimo': 'Monto mín.',
+        'monto_maximo': 'Monto máx.',
+    }
+    for key, label in labels.items():
+        val = filtros.get(key)
+        if val:
+            partes.append(f'{label}: {val}')
+    return ' | '.join(partes) if partes else 'Sin filtros adicionales'
+
+
+@login_required
+def reporte_ventas_comision_pdf(request):
+    """
+    PDF de comisión para un vendedor específico (admin).
+    Requiere filtro vendedor seleccionado (un solo usuario).
+    """
+    vendedor_id = request.GET.get('vendedor', '').strip()
+    if not vendedor_id:
+        messages.error(
+            request,
+            'Para generar el reporte de comisión debe seleccionar un vendedor (no "Todos").',
+        )
+        return redirect('reporte_ventas')
+
+    try:
+        vendedor = User.objects.select_related('perfil').get(pk=vendedor_id)
+    except (User.DoesNotExist, ValueError, TypeError):
+        messages.error(request, 'El vendedor seleccionado no existe.')
+        return redirect('reporte_ventas')
+
+    ventas, filtros = _queryset_reporte_ventas_filtrado(request)
+    # Asegurar filtro por ese vendedor (por si viene vacío en el helper)
+    ventas = ventas.filter(vendedor_id=vendedor.id)
+    ventas_list = list(ventas)
+
+    perfil = getattr(vendedor, 'perfil', None)
+    porcentaje = getattr(perfil, 'comision', 0) if perfil else 0
+
+    from apps.ventas.pdf_generator import generar_pdf_reporte_comision
+    buffer = generar_pdf_reporte_comision(
+        usuario=vendedor,
+        perfil=perfil,
+        ventas=ventas_list,
+        filtros_texto=_texto_filtros_reporte_ventas(filtros),
+        porcentaje_comision=porcentaje,
+    )
+
+    nombre = f'Comision_{vendedor.username}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{nombre}"'
+    return response
+
 
 @login_required
 def reporte_traspasos(request):

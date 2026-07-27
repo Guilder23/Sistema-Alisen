@@ -519,8 +519,8 @@ def verificar_permiso_ventas(request):
         return True
     if es_almacen(request):
         return True
-    # NUEVA LÍNEA: Permitir a tiendas
-    if hasattr(request.user, 'perfil') and request.user.perfil.rol == 'tienda':
+    # Permitir a tiendas y depósitos
+    if hasattr(request.user, 'perfil') and request.user.perfil.rol in ('tienda', 'deposito'):
         return True
     return False
 
@@ -2235,3 +2235,101 @@ def registrar_amortizacion_tienda(request, id):
         return JsonResponse({'success': False, 'error': 'Venta no encontrada'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Error al registrar pago: {str(e)}'}, status=500)
+
+
+def _aplicar_filtros_comision_ventas(queryset, request):
+    """Aplica filtros comunes (cliente/fechas) para reporte de comisión."""
+    from datetime import datetime
+
+    fecha_desde = request.GET.get('fecha_desde', '').strip()
+    fecha_hasta = request.GET.get('fecha_hasta', '').strip()
+    cliente_filtro = request.GET.get('cliente', '').strip()
+    tipo_pago = request.GET.get('tipo_pago', '').strip()
+
+    if fecha_desde:
+        try:
+            fecha_desde_obj = datetime.strptime(fecha_desde, '%Y-%m-%d').date()
+            queryset = queryset.filter(fecha_elaboracion__date__gte=fecha_desde_obj)
+        except ValueError:
+            pass
+
+    if fecha_hasta:
+        try:
+            fecha_hasta_obj = datetime.strptime(fecha_hasta, '%Y-%m-%d').date()
+            queryset = queryset.filter(fecha_elaboracion__date__lte=fecha_hasta_obj)
+        except ValueError:
+            pass
+
+    if cliente_filtro:
+        queryset = queryset.filter(cliente__icontains=cliente_filtro)
+
+    if tipo_pago in ('contado', 'credito'):
+        queryset = queryset.filter(tipo_pago=tipo_pago)
+
+    return queryset, {
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta,
+        'cliente': cliente_filtro,
+        'tipo_pago': tipo_pago,
+    }
+
+
+def _texto_filtros_comision(filtros):
+    partes = []
+    if filtros.get('cliente'):
+        partes.append(f"Cliente: {filtros['cliente']}")
+    if filtros.get('fecha_desde'):
+        partes.append(f"Desde: {filtros['fecha_desde']}")
+    if filtros.get('fecha_hasta'):
+        partes.append(f"Hasta: {filtros['fecha_hasta']}")
+    if filtros.get('tipo_pago'):
+        partes.append(f"Tipo pago: {filtros['tipo_pago']}")
+    return ' | '.join(partes) if partes else 'Sin filtros adicionales'
+
+
+@login_required
+def reporte_comision_pdf(request):
+    """
+    PDF de comisión para el usuario logueado (almacén / tienda / depósito)
+    según los filtros de la lista de ventas.
+    """
+    if not verificar_permiso_ventas(request):
+        return HttpResponseForbidden('Sin permisos')
+
+    try:
+        perfil = request.user.perfil
+    except Exception:
+        messages.error(request, 'El usuario no tiene perfil asignado.')
+        return redirect('dashboard')
+
+    redirect_lista = 'ventas:listar_ventas_tienda' if perfil.rol == 'tienda' else 'ventas:listar_ventas'
+
+    if perfil.rol not in ('almacen', 'tienda', 'deposito'):
+        messages.error(request, 'Solo almacén, tienda o depósito pueden generar este reporte.')
+        return redirect(redirect_lista)
+
+    ventas = Venta.objects.filter(
+        ubicacion=perfil
+    ).select_related('ubicacion', 'vendedor').order_by('-fecha_elaboracion')
+
+    # En tienda el listado también filtra por el vendedor logueado
+    if perfil.rol == 'tienda':
+        ventas = ventas.filter(vendedor=request.user)
+
+    ventas, filtros = _aplicar_filtros_comision_ventas(ventas, request)
+    ventas_list = list(ventas)
+
+    from .pdf_generator import generar_pdf_reporte_comision
+    buffer = generar_pdf_reporte_comision(
+        usuario=request.user,
+        perfil=perfil,
+        ventas=ventas_list,
+        filtros_texto=_texto_filtros_comision(filtros),
+        porcentaje_comision=perfil.comision,
+    )
+
+    nombre = f'Comision_{request.user.username}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{nombre}"'
+    return response
+

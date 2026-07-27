@@ -837,3 +837,157 @@ def generar_pdf_venta_completo(venta):
         return buffer
     except Exception as e:
         raise Exception(f"Error al construir PDF: {str(e)}")
+
+
+def generar_pdf_reporte_comision(*, usuario, perfil, ventas, filtros_texto='', porcentaje_comision=None):
+    """
+    Genera un PDF con el resumen de comisión de un usuario sobre ventas filtradas.
+    Solo considera ventas no anuladas/canceladas.
+    """
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        topMargin=0.7 * inch,
+        bottomMargin=0.7 * inch,
+        leftMargin=0.6 * inch,
+        rightMargin=0.6 * inch,
+    )
+    styles = getSampleStyleSheet()
+    elements = []
+
+    titulo_style = ParagraphStyle(
+        'TituloComision',
+        parent=styles['Title'],
+        fontSize=16,
+        textColor=colors.HexColor('#1e3a8a'),
+        spaceAfter=8,
+    )
+    sub_style = ParagraphStyle(
+        'SubComision',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#4b5563'),
+        spaceAfter=4,
+    )
+    label_style = ParagraphStyle(
+        'LabelComision',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=3,
+    )
+
+    if porcentaje_comision is None:
+        porcentaje_comision = Decimal(str(getattr(perfil, 'comision', 0) or 0))
+    else:
+        porcentaje_comision = Decimal(str(porcentaje_comision or 0))
+
+    ventas_validas = [
+        v for v in ventas
+        if getattr(v, 'estado', '') not in ('anulada', 'cancelada')
+    ]
+
+    total_bob = Decimal('0.00')
+    total_usd = Decimal('0.00')
+    filas = [['Código', 'Cliente', 'Fecha', 'Estado', 'Moneda', 'Total']]
+
+    for venta in ventas_validas:
+        total = Decimal(str(venta.total or 0))
+        moneda = (venta.moneda or 'BOB').upper()
+        if moneda == 'USD':
+            total_usd += total
+        else:
+            total_bob += total
+
+        filas.append([
+            str(venta.codigo or '-'),
+            (venta.cliente or '-')[:28],
+            venta.fecha_elaboracion.strftime('%d/%m/%Y') if venta.fecha_elaboracion else '-',
+            venta.get_estado_display() if hasattr(venta, 'get_estado_display') else str(venta.estado),
+            moneda,
+            f'{total:,.2f}',
+        ])
+
+    comision_bob = (total_bob * porcentaje_comision / Decimal('100')).quantize(Decimal('0.01'))
+    comision_usd = (total_usd * porcentaje_comision / Decimal('100')).quantize(Decimal('0.01'))
+
+    nombre_usuario = ''
+    if usuario:
+        nombre_usuario = f"{usuario.first_name or ''} {usuario.last_name or ''}".strip() or usuario.username
+    ubicacion = getattr(perfil, 'nombre_ubicacion', '') or ''
+    rol = ''
+    if perfil and hasattr(perfil, 'get_rol_display'):
+        rol = perfil.get_rol_display()
+
+    elements.append(Paragraph('REPORTE DE COMISIÓN', titulo_style))
+    elements.append(Paragraph('Sistema Alicen — Comisión por ventas', sub_style))
+    elements.append(Spacer(1, 0.15 * inch))
+
+    elements.append(Paragraph(f'<b>Usuario:</b> {escape(nombre_usuario)}', label_style))
+    if ubicacion:
+        elements.append(Paragraph(f'<b>Ubicación:</b> {escape(str(ubicacion))}', label_style))
+    if rol:
+        elements.append(Paragraph(f'<b>Rol:</b> {escape(str(rol))}', label_style))
+    elements.append(Paragraph(f'<b>Comisión configurada:</b> {porcentaje_comision:.2f} %', label_style))
+    if filtros_texto:
+        elements.append(Paragraph(f'<b>Filtros aplicados:</b> {escape(filtros_texto)}', label_style))
+    elements.append(Paragraph(
+        f'<b>Generado:</b> {datetime.now().strftime("%d/%m/%Y %H:%M")}',
+        label_style,
+    ))
+    elements.append(Spacer(1, 0.2 * inch))
+
+    resumen_data = [
+        ['Concepto', 'BOB (Bs.)', 'USD ($us)'],
+        ['Total ventas válidas', f'{total_bob:,.2f}', f'{total_usd:,.2f}'],
+        ['Comisión ganada', f'{comision_bob:,.2f}', f'{comision_usd:,.2f}'],
+        ['Cantidad de ventas', str(len(ventas_validas)), ''],
+    ]
+    resumen_table = Table(resumen_data, colWidths=[2.8 * inch, 2.2 * inch, 2.2 * inch])
+    resumen_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e3a8a')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#dcfce7')),
+        ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e1')),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(resumen_table)
+    elements.append(Spacer(1, 0.25 * inch))
+
+    elements.append(Paragraph('<b>Detalle de ventas consideradas</b>', styles['Heading3']))
+    elements.append(Spacer(1, 0.08 * inch))
+
+    if len(filas) == 1:
+        elements.append(Paragraph('No hay ventas válidas con los filtros aplicados.', label_style))
+    else:
+        detalle = Table(filas, colWidths=[1.1*inch, 2.0*inch, 0.9*inch, 1.0*inch, 0.7*inch, 1.0*inch])
+        detalle.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#e5e7eb')),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 0.4, colors.HexColor('#d1d5db')),
+            ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
+        ]))
+        elements.append(detalle)
+
+    elements.append(Spacer(1, 0.25 * inch))
+    elements.append(Paragraph(
+        '<i>Nota: Se excluyen ventas anuladas y canceladas del cálculo de comisión.</i>',
+        sub_style,
+    ))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer

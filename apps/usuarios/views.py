@@ -157,18 +157,21 @@ def product_detail(request, id):
         ciudad = None
         departamento = None
         direccion = None
+        maps_url = None
         tipo = None
         if inv.ubicacion.tienda:
             nombre = inv.ubicacion.tienda.nombre
             ciudad = inv.ubicacion.tienda.ciudad
             departamento = inv.ubicacion.tienda.departamento
             direccion = inv.ubicacion.tienda.direccion
+            maps_url = inv.ubicacion.tienda.coordenadas
             tipo = 'Tienda'
         elif inv.ubicacion.almacen:
             nombre = inv.ubicacion.almacen.nombre
             ciudad = inv.ubicacion.almacen.ciudad
             departamento = inv.ubicacion.almacen.departamento
             direccion = inv.ubicacion.almacen.direccion
+            maps_url = getattr(inv.ubicacion.almacen, 'coordenadas', None)
             tipo = 'Almacén'
         elif inv.ubicacion.rol == 'deposito':
             deposito_asociado = DepositoModel.objects.filter(
@@ -180,6 +183,7 @@ def product_detail(request, id):
                 ciudad = deposito_asociado.ciudad
                 departamento = deposito_asociado.departamento
                 direccion = deposito_asociado.direccion
+                maps_url = deposito_asociado.coordenadas
                 tipo = 'Depósito'
             else:
                 nombre = inv.ubicacion.nombre_ubicacion
@@ -188,12 +192,19 @@ def product_detail(request, id):
             nombre = inv.ubicacion.nombre_ubicacion
             tipo = inv.ubicacion.get_rol_display() if inv.ubicacion.rol else 'Ubicación'
 
+        if maps_url:
+            maps_url = str(maps_url).strip()
+            if maps_url and not maps_url.startswith(('http://', 'https://')):
+                # Si solo hay coordenadas lat,lng armar link de Maps
+                maps_url = f'https://www.google.com/maps?q={maps_url}'
+
         ubi_data = {
             'nombre': nombre,
             'tipo': tipo,
             'ciudad': ciudad,
             'departamento': departamento,
             'direccion': direccion,
+            'maps_url': maps_url,
             'cantidad': inv.cantidad,
         }
         ubicaciones_disponibles.append(ubi_data)
@@ -478,6 +489,11 @@ def crear_usuario(request):
             rol = request.POST.get('rol')
             almacen_id = request.POST.get('almacen', '')
             tienda_id = request.POST.get('tienda', '')
+            try:
+                comision_valor = float(request.POST.get('comision', 0) or 0)
+            except (TypeError, ValueError):
+                comision_valor = 0
+            comision_valor = max(0, min(comision_valor, 100))
             
             # Validar contraseñas
             if password != password2:
@@ -550,6 +566,7 @@ def crear_usuario(request):
                 nombre_ubicacion=nombre_ubicacion,
                 almacen=almacen,
                 tienda=tienda,
+                comision=comision_valor,
                 activo=is_active,
                 creado_por=request.user
             )
@@ -611,6 +628,7 @@ def obtener_usuario(request, id):
             'tienda_id': perfil.tienda_id if perfil and perfil.tienda_id else '',
             'almacen_nombre': perfil.almacen.nombre if perfil and perfil.almacen else '',
             'tienda_nombre': perfil.tienda.nombre if perfil and perfil.tienda else '',
+            'comision': float(perfil.comision) if perfil and perfil.comision is not None else 0,
             'creado_por': creado_por_str,
             'last_login': usuario.last_login.strftime('%d/%m/%Y %H:%M') if usuario.last_login else 'Nunca',
             'date_joined': usuario.date_joined.strftime('%d/%m/%Y %H:%M'),
@@ -639,6 +657,11 @@ def editar_usuario(request, id):
             nuevo_rol = request.POST.get('rol')
             almacen_id = request.POST.get('almacen', '')
             tienda_id = request.POST.get('tienda', '')
+            try:
+                comision_valor = float(request.POST.get('comision', 0) or 0)
+            except (TypeError, ValueError):
+                comision_valor = 0
+            comision_valor = max(0, min(comision_valor, 100))
             
             if nuevo_rol:
                 # Validar que almacén/tienda sean requeridos según el rol
@@ -657,6 +680,7 @@ def editar_usuario(request, id):
                 # Actualizar perfil si existe, sino crear
                 if hasattr(usuario, 'perfil'):
                     usuario.perfil.rol = nuevo_rol
+                    usuario.perfil.comision = comision_valor
                     
                     # Actualizar almacén/tienda
                     if almacen_id:
@@ -684,6 +708,7 @@ def editar_usuario(request, id):
                         nombre_ubicacion=almacen.nombre or tienda.nombre or '',
                         almacen=almacen,
                         tienda=tienda,
+                        comision=comision_valor,
                         activo=usuario.is_active,
                         creado_por=request.user
                     )
@@ -725,6 +750,7 @@ def editar_usuario(request, id):
             'tienda_id': perfil.tienda_id if perfil and perfil.tienda_id else '',
             'almacen_nombre': perfil.almacen.nombre if perfil and perfil.almacen else '',
             'tienda_nombre': perfil.tienda.nombre if perfil and perfil.tienda else '',
+            'comision': float(perfil.comision) if perfil and perfil.comision is not None else 0,
             'creado_por': creado_por_str,
             'last_login': usuario.last_login.strftime('%d/%m/%Y %H:%M') if usuario.last_login else 'Nunca',
             'date_joined': usuario.date_joined.strftime('%d/%m/%Y %H:%M'),
