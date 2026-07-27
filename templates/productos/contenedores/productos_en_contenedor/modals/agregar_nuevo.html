@@ -75,21 +75,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="foto_modal" class="form-label">Foto de Producto</label>
-                                <div id="previewFotoModal" class="mb-2">
-                                    <!-- Preview aparecerá aquí -->
-                                </div>
-                                <div class="custom-file">
-                                    <input 
-                                        type="file" 
-                                        class="custom-file-input" 
-                                        id="foto_modal" 
-                                        name="foto"
-                                        accept="image/*"
-                                    >
-                                    <label class="custom-file-label" for="foto_modal">Seleccionar archivo</label>
-                                </div>
-                                <small class="form-text text-muted">Formatos: JPG, PNG, GIF</small>
+                                {% include 'productos/componentes/galeria_imagenes_form.html' with video_input_id='video_youtube_modal' %}
                             </div>
                         </div>
 

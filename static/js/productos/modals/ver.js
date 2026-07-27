@@ -83,24 +83,12 @@
         $('#verFechaCreacion').text(data.fecha_creacion || 'No disponible');
         $('#verFechaActualizacion').text(data.fecha_actualizacion || 'No disponible');
         
-        // Imagen y estado
-        mostrarImagen(data);
+        // Imagen, galería y video
+        window.GaleriaProducto?.renderVer(document.getElementById('modalVerProducto'), data);
         mostrarEstado(data);
         
         // Abrir modal
         $('#modalVerProducto').modal('show');
-    }
-    
-    function mostrarImagen(data) {
-        let html = '';
-        
-        if (data.foto) {
-            html += `<img src="${data.foto}" alt="${data.nombre}" class="img-fluid rounded" style="max-width: 100%; max-height: 300px; object-fit: cover; border: 2px solid #e5e7eb;">`;
-        } else {
-            html += '<div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px; border: 2px dashed #d1d5db;"><div class="text-center"><i class="fas fa-image fa-3x text-muted mb-2"></i><p class="text-muted">Sin imagen</p></div></div>';
-        }
-        
-        $('#previewProductoFoto').html(html);
     }
     
     function mostrarEstado(data) {

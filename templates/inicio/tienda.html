@@ -124,8 +124,8 @@
                         <div class="col">
                             <article class="product-card h-100">
                                 <a href="{% url 'product_detail' producto.id %}" class="product-card-image d-block overflow-hidden">
-                                    {% if producto.foto %}
-                                        <img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" class="img-fluid">
+                                    {% if producto.imagen_principal_url %}
+                                        <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="img-fluid">
                                     {% else %}
                                         <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" class="img-fluid">
                                     {% endif %}
@@ -153,7 +153,7 @@
                                             data-product-id="{{ producto.id }}"
                                             data-product-name="{{ producto.nombre|escapejs }}"
                                             data-product-price="{{ producto.precio_caja|floatformat:2 }}"
-                                            data-product-image="{% if producto.foto %}{{ producto.foto.url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}"
+                                            data-product-image="{% if producto.imagen_principal_url %}{{ producto.imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}"
                                             data-product-stock="{{ producto.stock }}"
                                         ><i class="fas fa-shopping-cart"></i> <span>Agregar</span></button>
                                     </div>

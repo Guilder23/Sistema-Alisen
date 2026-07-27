@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categoria, Contenedor, Producto, HistorialProducto, ProductoDanado, ProductoContenedor
+from .models import Categoria, Contenedor, Producto, HistorialProducto, ProductoDanado, ProductoContenedor, ProductoImagen
 
 
 @admin.register(Categoria)
@@ -43,17 +43,23 @@ class ProductoContenedorProductoInline(admin.TabularInline):
     verbose_name_plural = 'Contenedores de este Producto'
 
 
+class ProductoImagenInline(admin.TabularInline):
+    model = ProductoImagen
+    extra = 1
+    fields = ['imagen', 'es_principal', 'orden']
+
+
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ['codigo', 'nombre', 'categoria', 'stock_display', 'precio_unitario_display', 'activo', 'fecha_creacion']
     list_filter = ['activo', 'fecha_creacion', 'categoria']
     search_fields = ['codigo', 'nombre', 'descripcion']
     list_per_page = 20
-    inlines = [ProductoContenedorProductoInline]
+    inlines = [ProductoImagenInline, ProductoContenedorProductoInline]
     
     fieldsets = (
         ('Información Básica', {
-            'fields': ('codigo', 'nombre', 'categoria', 'descripcion', 'foto', 'activo')
+            'fields': ('codigo', 'nombre', 'categoria', 'descripcion', 'foto', 'video_youtube', 'activo')
         }),
         ('Precios (Configurables por Administrador)', {
             'fields': ('precio_compra', 'precio_caja', 'precio_mayor', 'precio_unidad', 'poliza', 'gastos'),

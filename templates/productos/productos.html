@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static 'css/productos/modals/elimina.css' %}">
     <link rel="stylesheet" href="{% static 'css/productos/modals/toggle_publicar.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/modal_imagen_producto.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/galeria_producto.css' %}">
 {% endblock %}
 
 {% block contenido %}
@@ -93,10 +94,10 @@
                     {% for producto in productos %}
                     <tr {% if not producto.activo %}class="fila-inactiva"{% endif %}>
                         <td class="text-center">
-                            {% if producto.foto %}
-                                <img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" class="img-producto producto-imagen-tabla" role="button" tabindex="0"
+                            {% if producto.imagen_principal_url %}
+                                <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="img-producto producto-imagen-tabla" role="button" tabindex="0"
                                     data-toggle="modal" data-target="#modalImagenProducto"
-                                    data-img-src="{{ producto.foto.url }}" data-img-alt="{{ producto.nombre }}">
+                                    data-img-src="{{ producto.imagen_principal_url }}" data-img-alt="{{ producto.nombre }}">
                             {% else %}
                                 <div class="img-placeholder">
                                     <i class="fas fa-image"></i>
@@ -318,6 +319,7 @@
 
 {% block scripts_extra %}
 <script src="{% static 'js/componentes/modal_imagen_producto.js' %}"></script>
+<script src="{% static 'js/componentes/galeria_producto.js' %}"></script>
     <!-- Scripts de Modals -->
     {% if es_almacen %}
         <script src="{% static 'js/productos/modals/crea.js' %}"></script>

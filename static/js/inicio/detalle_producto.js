@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const productPrice = parseFloat(document.getElementById('detailProductPrice')?.value || '0');
     const productImage = document.getElementById('detailProductImage')?.value;
     const stock = parseInt(quantityInput?.max || '0', 10);
-
     const cartCount = document.getElementById('cartCount');
 
     const getCart = () => {
@@ -68,4 +67,81 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateCartCount(getCart());
+
+    // Galería de imágenes y video
+    const galleryMainWrap = document.getElementById('galleryMainWrap');
+    const galleryMainMedia = document.getElementById('galleryMainMedia');
+    const galleryThumbs = document.getElementById('galleryThumbs');
+
+    const showImage = (src, alt) => {
+        galleryMainMedia.innerHTML = `<img src="${src}" alt="${alt || 'Producto'}" id="galleryMainImage" class="gallery-main-img">`;
+        initZoom();
+    };
+
+    const showVideo = (src) => {
+        const sep = src.includes('?') ? '&' : '?';
+        galleryMainMedia.innerHTML = `<iframe src="${src}${sep}rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="Video del producto"></iframe>`;
+        document.getElementById('galleryVideoSection')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    galleryThumbs?.querySelectorAll('.gallery-thumb').forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+            galleryThumbs.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+            const type = thumb.dataset.type;
+            const src = thumb.dataset.src;
+            if (type === 'video') {
+                showVideo(src);
+            } else {
+                showImage(src, thumb.querySelector('img')?.alt);
+            }
+        });
+    });
+
+    // Zoom en imagen (mouse y touch)
+    function initZoom() {
+        const wrap = galleryMainWrap;
+        const img = document.getElementById('galleryMainImage');
+        if (!wrap || !img) return;
+
+        const ZOOM = 2.2;
+        let zoomActive = false;
+
+        const applyZoom = (clientX, clientY) => {
+            const rect = wrap.getBoundingClientRect();
+            const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+            const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+            img.style.transformOrigin = `${x}% ${y}%`;
+            img.style.transform = `scale(${ZOOM})`;
+        };
+
+        const resetZoom = () => {
+            img.style.transform = 'scale(1)';
+            img.style.transformOrigin = 'center center';
+            zoomActive = false;
+        };
+
+        wrap.addEventListener('mouseenter', () => { zoomActive = true; });
+        wrap.addEventListener('mouseleave', resetZoom);
+        wrap.addEventListener('mousemove', (e) => {
+            if (zoomActive) applyZoom(e.clientX, e.clientY);
+        });
+
+        wrap.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                zoomActive = true;
+                applyZoom(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        wrap.addEventListener('touchmove', (e) => {
+            if (zoomActive && e.touches.length === 1) {
+                applyZoom(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        wrap.addEventListener('touchend', resetZoom);
+    }
+
+    initZoom();
 });

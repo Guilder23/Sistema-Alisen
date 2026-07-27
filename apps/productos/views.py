@@ -8,7 +8,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 import json
-from .models import Categoria, Contenedor, Producto, HistorialProducto, ProductoDanado, ProductoContenedor
+from .models import Categoria, Contenedor, Producto, HistorialProducto, ProductoDanado, ProductoContenedor, ProductoImagen
+from .utils_imagenes import guardar_media_producto, serializar_imagenes_producto, youtube_embed_url
 from apps.moneda.models import TipoCambio
 from apps.inventario.models import Inventario, MovimientoInventario
 from apps.usuarios.models import PerfilUsuario
@@ -499,7 +500,6 @@ def crear_producto(request):
             precio_unidad = request.POST.get('precio_unidad', 0)
             stock_critico = request.POST.get('stock_critico', 10)
             stock_bajo = request.POST.get('stock_bajo', 30)
-            foto = request.FILES.get('foto')
             
             # Validaciones
             if not codigo or not nombre:
@@ -537,9 +537,7 @@ def crear_producto(request):
                 activo=True
             )
             
-            if foto:
-                producto.foto = foto
-                producto.save()
+            guardar_media_producto(producto, request)
             
             # Registrar en historial
             HistorialProducto.objects.create(
@@ -618,7 +616,10 @@ def obtener_producto(request, id):
             'gastos': float(producto.gastos) if producto.gastos else 0,
             'stock_critico': producto.stock_critico,
             'stock_bajo': producto.stock_bajo,
-            'foto': producto.foto.url if producto.foto else '',
+            'foto': producto.imagen_principal_url or '',
+            'imagenes': serializar_imagenes_producto(producto),
+            'video_youtube': producto.video_youtube or '',
+            'video_youtube_embed': youtube_embed_url(producto.video_youtube) or '',
             'creado_por': creado_por_str,
             'fecha_creacion': producto.fecha_creacion.strftime('%d/%m/%Y %H:%M'),
             'fecha_actualizacion': producto.fecha_actualizacion.strftime('%d/%m/%Y %H:%M'),
@@ -667,9 +668,7 @@ def editar_producto(request, id):
 
                 producto.categoria = categoria
                 
-                # Actualizar foto si se proporciona
-                if request.FILES.get('foto'):
-                    producto.foto = request.FILES.get('foto')
+                guardar_media_producto(producto, request)
                 
                 # Registrar cambios en historial
                 cambios = []
@@ -1713,7 +1712,6 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                 stock_critico = int(request.POST.get('stock_critico', 10))
                 stock_bajo = int(request.POST.get('stock_bajo', 30))
                 cantidad = int(request.POST.get('cantidad', 1))
-                foto = request.FILES.get('foto')
                 
                 if not codigo or not nombre:
                     error_msg = 'El código y nombre son requeridos'
@@ -1759,10 +1757,11 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                     precio_unidad=precio_unidad,
                     stock_critico=stock_critico,
                     stock_bajo=stock_bajo,
-                    foto=foto,
                     creado_por=request.user,
                     activo=True
                 )
+                
+                guardar_media_producto(producto, request)
                 
                 # Agregar a contenedor
                 ProductoContenedor.objects.create(

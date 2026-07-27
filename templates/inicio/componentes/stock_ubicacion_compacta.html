@@ -1,0 +1,39 @@
+{% comment %}
+Bloque compacto de stock por ubicación.
+Variables: stock_list, total, header_class, icon_class, titulo, tipo_label (opcional)
+{% endcomment %}
+<div class="stock-group-card stock-group-compact mb-2">
+    <div class="stock-group-header {{ header_class }} d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <span class="stock-group-icon"><i class="fas {{ icon_class }}"></i></span>
+            <span class="stock-group-title">{{ titulo }}</span>
+        </div>
+        <span class="stock-group-total">{{ total }} unid.</span>
+    </div>
+    <div class="stock-group-body">
+        {% for ub in stock_list %}
+        <div class="stock-item stock-item-compact {% if not forloop.last %}border-bottom{% endif %}">
+            <div class="stock-item-main">
+                <span class="stock-item-name">
+                    {% if tipo_label %}<span class="badge badge-secondary badge-tipo-compact mr-1">{{ ub.tipo }}</span>{% endif %}
+                    {{ ub.nombre|default:titulo }}
+                </span>
+                <span class="badge-stock-item badge-stock-compact
+                             {% if ub.cantidad >= 10 %}badge-stock-ok{% elif ub.cantidad >= 5 %}badge-stock-warn{% else %}badge-stock-crit{% endif %}">
+                    {{ ub.cantidad }}
+                </span>
+            </div>
+            <div class="stock-item-meta stock-item-meta-compact">
+                {% if ub.departamento %}<span class="meta-item">{{ ub.departamento }}</span>{% endif %}
+                {% if ub.ciudad %}<span class="meta-item">{{ ub.ciudad }}</span>{% endif %}
+                {% if ub.direccion %}<span class="meta-item">{{ ub.direccion|truncatechars:40 }}</span>{% endif %}
+                {% if ub.maps_url %}
+                <a href="{{ ub.maps_url }}" target="_blank" rel="noopener noreferrer" class="meta-link-maps">
+                    <i class="fas fa-map-marked-alt"></i> Maps
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

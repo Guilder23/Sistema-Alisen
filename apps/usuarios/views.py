@@ -129,7 +129,12 @@ def product_detail(request, id):
     """Página pública: detalle de producto para la tienda virtual"""
     from apps.inventario.models import Inventario
     from apps.depositos.models import Deposito as DepositoModel
-    producto = get_object_or_404(Producto, id=id, activo=True, publicado=True)
+    producto = get_object_or_404(
+        Producto.objects.prefetch_related('imagenes'),
+        id=id,
+        activo=True,
+        publicado=True
+    )
     buscar = request.GET.get('buscar', '').strip()
     categoria = request.GET.get('categoria', '').strip()
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
@@ -223,8 +228,23 @@ def product_detail(request, id):
     total_depositos = sum(d['cantidad'] for d in depositos_stock)
     total_otros = sum(o['cantidad'] for o in otros_stock)
 
+    from apps.productos.utils_imagenes import youtube_embed_url
+    imagenes = [
+        {
+            'id': img.id,
+            'url': img.imagen.url,
+            'es_principal': img.es_principal,
+        }
+        for img in producto.imagenes.all()
+    ]
+    if not imagenes and producto.foto:
+        imagenes = [{'id': 0, 'url': producto.foto.url, 'es_principal': True}]
+
     context = {
         'producto': producto,
+        'imagenes': imagenes,
+        'imagen_principal_url': producto.imagen_principal_url,
+        'video_youtube_embed': youtube_embed_url(producto.video_youtube),
         'categorias': categorias,
         'buscar': buscar,
         'categoria': categoria,

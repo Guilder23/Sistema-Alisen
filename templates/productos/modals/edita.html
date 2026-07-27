@@ -10,7 +10,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="formEditarProducto" method="post" enctype="multipart/form-data">
+            <form id="formEditarProducto" method="post" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row">
@@ -76,21 +76,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="edit_foto" class="form-label">Foto de Producto</label>
-                                <div id="previewFotoEditar" class="mb-2">
-                                    <!-- Se llena con JavaScript -->
-                                </div>
-                                <div class="custom-file">
-                                    <input 
-                                        type="file" 
-                                        class="custom-file-input" 
-                                        id="edit_foto" 
-                                        name="foto"
-                                        accept="image/*"
-                                    >
-                                    <label class="custom-file-label" for="edit_foto">Seleccionar archivo</label>
-                                </div>
-                                <small class="form-text text-muted">Formatos: JPG, PNG, GIF</small>
+                                {% include 'productos/componentes/galeria_imagenes_form.html' with video_input_id='edit_video_youtube' %}
                             </div>
                         </div>
 

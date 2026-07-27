@@ -34,6 +34,7 @@
         limpiarFormulario();
         cargarCategorias();
         $('#modalAgregarNuevoProducto').modal('show');
+        window.GaleriaProducto?.init(document.getElementById('modalAgregarNuevoProducto'));
     }
     
     // Limpiar formulario
@@ -41,9 +42,8 @@
         const form = document.getElementById('formAgregarNuevoProducto');
         if (form) {
             form.reset();
-            document.getElementById('previewFotoModal').innerHTML = '';
         }
-        // Recalcular unidades después de limpiar
+        window.GaleriaProducto?.reset(document.getElementById('modalAgregarNuevoProducto'));
         calcularUnidadesTotal();
     }
     
@@ -189,35 +189,6 @@
             });
         }
 
-        // Preview de imagen
-        const inputFoto = document.getElementById('foto_modal');
-        if (inputFoto) {
-            inputFoto.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                const preview = document.getElementById('previewFotoModal');
-
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        preview.innerHTML = `
-                            <div class="position-relative d-inline-block">
-                                <img src="${event.target.result}" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
-                                <button type="button" class="btn btn-sm btn-danger position-absolute" style="top: 5px; right: 5px;" onclick="
-                                    document.getElementById('foto_modal').value = '';
-                                    document.getElementById('previewFotoModal').innerHTML = '';
-                                ">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        `;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    preview.innerHTML = '';
-                }
-            });
-        }
-
         // Envío de formulario - Agregar nuevo producto
         const formAgregarNuevo = document.getElementById('formAgregarNuevoProducto');
         if (formAgregarNuevo) {
@@ -262,7 +233,7 @@
                 btnSubmit.disabled = true;
                 btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando...';
 
-                const formData = new FormData(this);
+                const formData = window.GaleriaProducto?.buildFormData(formAgregarNuevo) || new FormData(formAgregarNuevo);
                 const url = `/productos/contenedores/${contenedorActualId}/agregar-producto/`;
 
                 fetch(url, {

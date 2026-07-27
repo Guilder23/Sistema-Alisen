@@ -10,7 +10,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="formCrearProducto" method="post" action="{% url 'crear_producto' %}" enctype="multipart/form-data">
+            <form id="formCrearProducto" method="post" action="{% url 'crear_producto' %}" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row">
@@ -66,21 +66,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="foto" class="form-label">Foto de Producto</label>
-                                <div id="previewFoto" class="mb-2">
-                                    <!-- Preview aparecerá aquí -->
-                                </div>
-                                <div class="custom-file">
-                                    <input 
-                                        type="file" 
-                                        class="custom-file-input" 
-                                        id="foto" 
-                                        name="foto"
-                                        accept="image/*"
-                                    >
-                                    <label class="custom-file-label" for="foto">Seleccionar archivo</label>
-                                </div>
-                                <small class="form-text text-muted">Formatos: JPG, PNG, GIF</small>
+                                {% include 'productos/componentes/galeria_imagenes_form.html' with video_input_id='video_youtube' only %}
                             </div>
                         </div>
 

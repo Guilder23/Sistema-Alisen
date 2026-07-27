@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/productos/contenedores/productos_en_contenedor/modals/editar.css' %}">
     <link rel="stylesheet" href="{% static 'css/productos/contenedores/productos_en_contenedor/modals/ver.css' %}">
     <link rel="stylesheet" href="{% static 'css/productos/contenedores/productos_en_contenedor/modals/elimina.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/galeria_producto.css' %}">
 {% endblock %}
 
 {% block contenido %}
@@ -91,8 +92,8 @@
                     {% for pc in productos_contenedor %}
                     <tr>
                         <td class="text-center">
-                            {% if pc.producto.foto %}
-                                <img src="{{ pc.producto.foto.url }}" alt="{{ pc.producto.nombre }}" class="img-producto">
+                            {% if pc.producto.imagen_principal_url %}
+                                <img src="{{ pc.producto.imagen_principal_url }}" alt="{{ pc.producto.nombre }}" class="img-producto">
                             {% else %}
                                 <div class="img-placeholder">
                                     <i class="fas fa-image"></i>
@@ -211,6 +212,7 @@
 {% endblock %}
 
 {% block scripts_extra %}
+    <script src="{% static 'js/componentes/galeria_producto.js' %}"></script>
     <script src="{% static 'js/productos/contenedores/productos_en_contenedor/productos_en_contenedor.js' %}"></script>
     <script src="{% static 'js/productos/contenedores/productos_en_contenedor/modals/agregar_nuevo.js' %}"></script>
     <script src="{% static 'js/productos/contenedores/productos_en_contenedor/modals/agregar_existente.js' %}?v=101"></script>

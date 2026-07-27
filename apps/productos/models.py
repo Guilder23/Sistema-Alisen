@@ -104,6 +104,13 @@ class Producto(models.Model):
     genero = models.CharField(max_length=20, choices=GENERO_CHOICES, blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
     foto = models.ImageField(upload_to='productos/', blank=True, null=True)
+    video_youtube = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name='Video de YouTube',
+        help_text='URL del video de YouTube del producto'
+    )
     unidades_por_caja = models.IntegerField(default=1)
     unidades_por_mayor = models.IntegerField(
         default=3,
@@ -136,6 +143,28 @@ class Producto(models.Model):
     
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
+
+    @property
+    def imagen_principal_obj(self):
+        principal = self.imagenes.filter(es_principal=True).first()
+        if principal:
+            return principal
+        return self.imagenes.order_by('orden', 'id').first()
+
+    @property
+    def imagen_principal_url(self):
+        obj = self.imagen_principal_obj
+        if obj and obj.imagen:
+            return obj.imagen.url
+        if self.foto:
+            return self.foto.url
+        return None
+
+    def sync_foto_desde_imagenes(self):
+        obj = self.imagen_principal_obj
+        if obj and obj.imagen:
+            self.foto = obj.imagen
+            self.save(update_fields=['foto', 'fecha_actualizacion'])
     
     @property
     def stock(self):
@@ -233,6 +262,28 @@ class Producto(models.Model):
                 pc.cantidad += cantidad
                 pc.save(update_fields=['cantidad_recibida', 'cantidad', 'fecha_actualizacion'])
             return True
+
+
+class ProductoImagen(models.Model):
+    """Imágenes adicionales de un producto con soporte de imagen principal."""
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.CASCADE,
+        related_name='imagenes',
+        verbose_name='Producto'
+    )
+    imagen = models.ImageField(upload_to='productos/galeria/', verbose_name='Imagen')
+    es_principal = models.BooleanField(default=False, verbose_name='Imagen principal')
+    orden = models.PositiveIntegerField(default=0, verbose_name='Orden')
+
+    class Meta:
+        verbose_name = 'Imagen de producto'
+        verbose_name_plural = 'Imágenes de producto'
+        ordering = ['-es_principal', 'orden', 'id']
+
+    def __str__(self):
+        principal = ' (principal)' if self.es_principal else ''
+        return f"{self.producto.codigo} - imagen {self.id}{principal}"
 
 
 class HistorialProducto(models.Model):

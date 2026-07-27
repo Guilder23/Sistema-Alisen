@@ -6,6 +6,10 @@
     'use strict';
     
     window.inicializarModalCrear = function() {
+        $('#modalCrearProducto').on('shown.bs.modal', function() {
+            window.GaleriaProducto?.init(this);
+        });
+
         // Limpiar cuando se cierra el modal
         $('#modalCrearProducto').on('hidden.bs.modal', function() {
             limpiarFormulario();
@@ -22,27 +26,12 @@
             crearProductoAJAX();
         });
         
-        // Mostrar nombre del archivo seleccionado
-        $('#foto').on('change', function() {
-            const fileName = this.files[0]?.name || 'Seleccionar archivo';
-            $(this).next('.custom-file-label').text(fileName);
-            
-            // Mostrar preview
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                $('#previewFoto').html(`<img src="${e.target.result}" alt="preview" class="img-fluid" style="max-width: 100%; max-height: 250px; object-fit: cover; border: 2px solid #e5e7eb; border-radius: 4px;">`);
-            };
-            if (this.files[0]) {
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-        
         console.log('✓ Modal Crear Producto inicializado');
     };
     
     function crearProductoAJAX() {
         const form = $('#formCrearProducto')[0];
-        const formData = new FormData(form);
+        const formData = window.GaleriaProducto?.buildFormData(form) || new FormData(form);
         const nombreProducto = $('#nombre').val();
         
         // Deshabilitar botón submit
@@ -129,7 +118,6 @@
     
     function limpiarFormulario() {
         $('#formCrearProducto')[0].reset();
-        $('#foto').next('.custom-file-label').text('Seleccionar archivo');
-        $('#previewFoto').html('');
+        window.GaleriaProducto?.reset('#modalCrearProducto');
     }
 })();
