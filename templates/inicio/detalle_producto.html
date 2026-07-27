@@ -43,14 +43,6 @@
                             </button>
                             {% endif %}
                         </div>
-                        {% if video_youtube_embed %}
-                        <div class="gallery-video-section mt-3" id="galleryVideoSection">
-                            <p class="small text-muted mb-2"><i class="fab fa-youtube text-danger"></i> Video del producto</p>
-                            <div class="gallery-video-embed">
-                                <iframe src="{{ video_youtube_embed }}?rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="Video de {{ producto.nombre }}"></iframe>
-                            </div>
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
                 <div class="detail-info col-md-7">
@@ -104,7 +96,7 @@
                     <form id="detailAddToCartForm" class="detail-action-form d-flex flex-column flex-sm-row align-items-start">
                         <input type="hidden" id="detailProductId" value="{{ producto.id }}">
                         <input type="hidden" id="detailProductName" value="{{ producto.nombre }}">
-                        <input type="hidden" id="detailProductPrice" value="{{ producto.precio_caja|floatformat:2 }}">
+                        <input type="hidden" id="detailProductPrice" value="{{ producto.precio_unidad|floatformat:2 }}">
                         <input type="hidden" id="detailProductImage" value="{% if imagen_principal_url %}{{ imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}">
                         <div class="product-quantity-group mr-2 mb-2">
                             <label for="detailQuantity" class="small">Cantidad</label>
@@ -144,7 +136,7 @@
                     </a>
                     <div class="similar-card-body">
                         <h4>{{ similar.nombre }}</h4>
-                        <p class="precio">Bs {{ similar.precio_caja|floatformat:2 }}</p>
+                        <p class="precio">Bs {{ similar.precio_unidad|floatformat:2 }}</p>
                         <a href="{% url 'product_detail' similar.id %}" class="btn btn-outline-secondary btn-sm">Ver producto</a>
                     </div>
                 </article>

@@ -142,6 +142,57 @@
 @keyframes toastSlideIn { from { opacity: 0; transform: translateX(50px);} to { opacity: 1; transform: translateX(0);} }
 @keyframes toastSlideOut { to { opacity: 0; transform: translateX(50px);} }
 
+/* Customer form styles */
+.customer-form {
+    background: linear-gradient(180deg, #fbfcff, #f5f7ff);
+    border-radius: 18px;
+    padding: 1.25rem;
+    border: 1px solid rgba(148,163,184,0.12);
+}
+.customer-form h6 {
+    color: #0f172a;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.customer-form .form-group {
+    margin-bottom: 1rem;
+}
+.customer-form label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+.customer-form .form-control {
+    border-radius: 12px;
+    border: 1px solid rgba(148,163,184,0.3);
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.customer-form .form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    outline: none;
+}
+.customer-form .btn-success {
+    border-radius: 14px;
+    font-weight: 600;
+    padding: 0.85rem;
+}
+.customer-form .btn-outline-secondary {
+    border-radius: 14px;
+    font-weight: 500;
+    padding: 0.75rem;
+}
+#deliveryNote {
+    background: rgba(37,99,235,0.05);
+    border-radius: 10px;
+    padding: 0.75rem;
+    border-left: 3px solid #2563eb;
+}
+
 @media (max-width: 991px) {
     .cart-summary-col { margin-top: 1rem; }
 }

@@ -80,8 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showVideo = (src) => {
         const sep = src.includes('?') ? '&' : '?';
-        galleryMainMedia.innerHTML = `<iframe src="${src}${sep}rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="Video del producto"></iframe>`;
-        document.getElementById('galleryVideoSection')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        galleryMainMedia.innerHTML = `<iframe src="${src}${sep}rel=0&autoplay=1&enablejsapi=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="Video del producto"></iframe>`;
     };
 
     galleryThumbs?.querySelectorAll('.gallery-thumb').forEach((thumb) => {

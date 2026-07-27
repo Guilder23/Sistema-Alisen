@@ -2,7 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartContent = document.getElementById('cartContent');
     const cartTotal = document.getElementById('cartTotal');
     const cartItemCount = document.getElementById('cartItemCount');
-    const checkoutButton = document.getElementById('checkoutButton');
+    const showFormButton = document.getElementById('showFormButton');
+    const customerForm = document.getElementById('customerForm');
+    const checkoutForm = document.getElementById('checkoutForm');
+    const submitOrderButton = document.getElementById('submitOrderButton');
+    const cancelFormButton = document.getElementById('cancelFormButton');
+    const deliveryOption = document.getElementById('deliveryOption');
+    const deliveryNote = document.getElementById('deliveryNote');
     const clearCartBtn = document.getElementById('clearCartBtn');
 
     const getCart = () => { try { return JSON.parse(localStorage.getItem('alicen_cart') || '{}'); } catch { return {}; } };
@@ -97,17 +103,66 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    checkoutButton?.addEventListener('click', () => {
+    showFormButton?.addEventListener('click', () => {
+        const items = getCartItems();
+        if (!items.length) {
+            mostrarToast('Agrega productos al carrito antes de enviar el pedido.', 'error', 'Carrito vacío');
+            return;
+        }
+        showFormButton.style.display = 'none';
+        customerForm.style.display = 'block';
+    });
+
+    cancelFormButton?.addEventListener('click', () => {
+        customerForm.style.display = 'none';
+        showFormButton.style.display = 'block';
+        checkoutForm.reset();
+        deliveryNote.style.display = 'none';
+    });
+
+    deliveryOption?.addEventListener('change', () => {
+        if (deliveryOption.value === 'delivery') {
+            deliveryNote.style.display = 'block';
+        } else {
+            deliveryNote.style.display = 'none';
+        }
+    });
+
+    checkoutForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
         const items = getCartItems();
         if (!items.length) {
             mostrarToast('Agrega productos al carrito antes de enviar el pedido.', 'error', 'Carrito vacío');
             return;
         }
 
+        const customerName = document.getElementById('customerName').value.trim();
+        const customerPhone = document.getElementById('customerPhone').value.trim();
+        const customerAddress = document.getElementById('customerAddress').value.trim();
+        const deliveryOptionValue = deliveryOption.value;
+
+        if (!customerName || !customerPhone || !customerAddress || !deliveryOptionValue) {
+            mostrarToast('Por favor, completa todos los campos requeridos.', 'error', 'Datos incompletos');
+            return;
+        }
+
         const lines = items.map(item => `${item.nombre} x ${item.cantidad} = Bs ${formatCurrency(item.cantidad * item.precio)}`);
         const total = formatCurrency(calculateTotal(items));
-        const message = encodeURIComponent(`Hola, quiero hacer un pedido:\n\n${lines.join('\n')}\n\nTotal: Bs ${total}\n\nPor favor, confirmen disponibilidad y envío.`);
-        const phone = checkoutButton?.dataset.phone || '';
+        const deliveryText = deliveryOptionValue === 'delivery' ? 'Delivery (envío a domicilio)' : 'Recoger en tienda';
+        
+        const message = encodeURIComponent(
+            `Hola, quiero hacer un pedido:\n\n` +
+            `📋 DATOS DEL CLIENTE:\n` +
+            `Nombre: ${customerName}\n` +
+            `Teléfono: ${customerPhone}\n` +
+            `Dirección: ${customerAddress}\n` +
+            `Opción de entrega: ${deliveryText}\n\n` +
+            `📦 PEDIDO:\n${lines.join('\n')}\n\n` +
+            `💰 Total productos: Bs ${total}\n\n` +
+            `Por favor, confirmen disponibilidad y el costo de envío.`
+        );
+        
+        const phone = submitOrderButton?.dataset.phone || '';
         const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
         window.open(whatsappUrl, '_blank');
     });
