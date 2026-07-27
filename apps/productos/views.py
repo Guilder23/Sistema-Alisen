@@ -495,6 +495,7 @@ def crear_producto(request):
             categoria_id = request.POST.get('categoria', '').strip()
             descripcion = request.POST.get('descripcion', '')
             unidades_por_caja = request.POST.get('unidades_por_caja', 1)
+            unidades_por_mayor = request.POST.get('unidades_por_mayor', 3)
             precio_unidad = request.POST.get('precio_unidad', 0)
             stock_critico = request.POST.get('stock_critico', 10)
             stock_bajo = request.POST.get('stock_bajo', 30)
@@ -518,6 +519,8 @@ def crear_producto(request):
             if Producto.objects.filter(codigo=codigo).exists():
                 messages.error(request, f'El código "{codigo}" ya existe')
                 return redirect('listar_productos')
+
+            unidades_por_mayor_int = max(int(unidades_por_mayor or 3), 2)
             
             # Crear producto (sin contenedor, se agrega después con ProductoContenedor)
             producto = Producto.objects.create(
@@ -526,6 +529,7 @@ def crear_producto(request):
                 categoria=categoria,
                 descripcion=descripcion,
                 unidades_por_caja=int(unidades_por_caja),
+                unidades_por_mayor=unidades_por_mayor_int,
                 precio_unidad=float(precio_unidad),
                 stock_critico=int(stock_critico),
                 stock_bajo=int(stock_bajo),
@@ -598,6 +602,7 @@ def obtener_producto(request, id):
             'descripcion': producto.descripcion or '',
             'stock': stock_disponible,
             'unidades_por_caja': producto.unidades_por_caja,
+            'unidades_por_mayor': producto.unidades_por_mayor,
             'precio_unidad': float(producto.precio_unidad),
             'precio_compra': float(producto.precio_compra),
             'precio_caja': float(producto.precio_caja),
@@ -642,6 +647,7 @@ def editar_producto(request, id):
                 categoria_id = request.POST.get('categoria', '').strip()
                 producto.descripcion = request.POST.get('descripcion', '')
                 producto.unidades_por_caja = int(request.POST.get('unidades_por_caja', producto.unidades_por_caja))
+                producto.unidades_por_mayor = max(int(request.POST.get('unidades_por_mayor', producto.unidades_por_mayor) or 3), 2)
                 producto.precio_unidad = float(request.POST.get('precio_unidad', producto.precio_unidad))
                 producto.precio_compra = float(request.POST.get('precio_compra', producto.precio_compra))
                 producto.precio_caja = float(request.POST.get('precio_caja', producto.precio_caja))
@@ -1162,6 +1168,7 @@ def editar_precio_producto(request, id):
             'precio_compra': float(producto.precio_compra),
             'precio_caja': float(producto.precio_caja),
             'precio_mayor': float(producto.precio_mayor),
+            'unidades_por_mayor': int(producto.unidades_por_mayor or 3),
             'poliza': float(producto.poliza) if producto.poliza else 0,
             'gastos': float(producto.gastos) if producto.gastos else 0,
         }
@@ -1171,6 +1178,7 @@ def editar_precio_producto(request, id):
         nuevo_precio_compra = float(request.POST.get('precio_compra', producto.precio_compra))
         nuevo_precio_caja = float(request.POST.get('precio_caja', producto.precio_caja))
         nuevo_precio_mayor = float(request.POST.get('precio_mayor', producto.precio_mayor))
+        nuevas_unidades_por_mayor = max(int(request.POST.get('unidades_por_mayor', producto.unidades_por_mayor) or 3), 2)
         nueva_poliza = float(request.POST.get('poliza', producto.poliza or 0))
         nuevos_gastos = float(request.POST.get('gastos', producto.gastos or 0))
         
@@ -1196,6 +1204,12 @@ def editar_precio_producto(request, id):
         if nuevo_precio_mayor != precios_anteriores['precio_mayor']:
             cambios_realizados.append(f"P. Mayor: {precios_anteriores['precio_mayor']} → {nuevo_precio_mayor}")
             producto.precio_mayor = nuevo_precio_mayor
+
+        if nuevas_unidades_por_mayor != precios_anteriores['unidades_por_mayor']:
+            cambios_realizados.append(
+                f"Unid. por mayor: {precios_anteriores['unidades_por_mayor']} → {nuevas_unidades_por_mayor}"
+            )
+            producto.unidades_por_mayor = nuevas_unidades_por_mayor
         
         if nueva_poliza != precios_anteriores['poliza']:
             cambios_realizados.append(f"Póliza: {precios_anteriores['poliza']} → {nueva_poliza}")
@@ -1561,7 +1575,8 @@ def datos_basicos_producto(request, id):
             'codigo': producto.codigo,
             'nombre': producto.nombre,
             'unidades_por_caja': producto.unidades_por_caja,
-            'precio_unitario': float(producto.precio_unitario) if producto.precio_unitario else 0,
+            'unidades_por_mayor': producto.unidades_por_mayor,
+            'precio_unitario': float(producto.precio_unidad) if producto.precio_unidad else 0,
             'stock': producto.stock,
         }
         return JsonResponse(data)
@@ -1579,22 +1594,33 @@ def json_productos_disponibles(request, contenedor_id):
     contenedor = get_object_or_404(Contenedor, id=contenedor_id)
     
     # Productos que ya están en el contenedor
-    productos_en_contenedor = ProductoContenedor.objects.filter(
+    productos_en_contenedor = list(ProductoContenedor.objects.filter(
         contenedor=contenedor
-    ).values_list('producto_id', flat=True)
+    ).values_list('producto_id', flat=True))
+    ids_en_contenedor = set(productos_en_contenedor)
     
-    # Productos activos que aun no estan en el contenedor
-    productos = Producto.objects.filter(
+    # Todos los productos activos; el frontend marca los ya agregados
+    # (el backend permite sumar stock a productos ya existentes en el contenedor)
+    productos_qs = Producto.objects.filter(
         activo=True
-    ).exclude(
-        id__in=productos_en_contenedor
     ).values(
-        'id', 'codigo', 'nombre', 'unidades_por_caja'
+        'id', 'codigo', 'nombre', 'unidades_por_caja', 'unidades_por_mayor'
     ).order_by('nombre')
+
+    productos = []
+    for prod in productos_qs:
+        productos.append({
+            'id': prod['id'],
+            'codigo': prod['codigo'] or '',
+            'nombre': prod['nombre'] or '',
+            'unidades_por_caja': prod['unidades_por_caja'] or 1,
+            'unidades_por_mayor': prod['unidades_por_mayor'] or 3,
+            'ya_en_contenedor': prod['id'] in ids_en_contenedor,
+        })
     
     return JsonResponse({
-        'productos': list(productos),
-        'productos_en_contenedor': list(productos_en_contenedor)
+        'productos': productos,
+        'productos_en_contenedor': productos_en_contenedor
     })
 
 
@@ -1682,6 +1708,7 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                 categoria_id = request.POST.get('categoria')
                 descripcion = request.POST.get('descripcion', '').strip()
                 unidades_por_caja = int(request.POST.get('unidades_por_caja', 1))
+                unidades_por_mayor = max(int(request.POST.get('unidades_por_mayor', 3) or 3), 2)
                 precio_unidad = float(request.POST.get('precio_unidad', 0))
                 stock_critico = int(request.POST.get('stock_critico', 10))
                 stock_bajo = int(request.POST.get('stock_bajo', 30))
@@ -1728,6 +1755,7 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                     categoria=categoria,
                     descripcion=descripcion,
                     unidades_por_caja=unidades_por_caja,
+                    unidades_por_mayor=unidades_por_mayor,
                     precio_unidad=precio_unidad,
                     stock_critico=stock_critico,
                     stock_bajo=stock_bajo,

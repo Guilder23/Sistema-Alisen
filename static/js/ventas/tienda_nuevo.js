@@ -142,8 +142,13 @@ function puedeAplicarDescuento() {
     return tipoPago === 'contado';
 }
 
+function obtenerUnidadesPorMayorProducto(producto) {
+    return Math.max(parseInt(producto.unidades_por_mayor || 3, 10) || 3, 2);
+}
+
 function obtenerResumenModalidad(producto, cantidad, modalidad) {
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
+    const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
 
     if (modalidad === 'caja') {
         const unidades = cantidad * unidadesPorCaja;
@@ -151,7 +156,7 @@ function obtenerResumenModalidad(producto, cantidad, modalidad) {
     }
 
     if (modalidad === 'mayor') {
-        return `${cantidad} unidad(es) a precio mayorista`;
+        return `${cantidad} unidad(es) a precio mayorista (desde ${unidadesPorMayor})`;
     }
 
     return `${cantidad} unidad(es)`;
@@ -180,11 +185,13 @@ function puedeUsarCaja(producto) {
 
 function puedeUsarMayor(producto) {
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
-    return unidadesPorCaja >= 4;
+    const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
+    return unidadesPorCaja > unidadesPorMayor;
 }
 
 function determinarModalidadAutomaticaTienda(producto, cantidad, modalidadActual) {
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
+    const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
     const valor = parseInt(cantidad, 10);
 
     if (!Number.isInteger(valor) || valor < 1) {
@@ -196,8 +203,7 @@ function determinarModalidadAutomaticaTienda(producto, cantidad, modalidadActual
         return 'caja';
     }
 
-    // Mayor solo existe si la caja trae 4 o más unidades
-    if (unidadesPorCaja >= 4 && valor >= 3 && valor < unidadesPorCaja) {
+    if (puedeUsarMayor(producto) && valor >= unidadesPorMayor && valor < unidadesPorCaja) {
         return 'mayor';
     }
 
@@ -294,18 +300,12 @@ function validarTelefono(input) {
     });
 }
 
-function validarCantidadSegunModalidad(cantidad, modalidad, unidadesPorCaja, tipoVendedor) {
+function validarCantidadSegunModalidad(cantidad, modalidad, unidadesPorCaja, tipoVendedor, unidadesPorMayor = 3) {
     const valor = parseInt(cantidad, 10);
+    const umbralMayor = Math.max(parseInt(unidadesPorMayor, 10) || 3, 2);
 
     if (!Number.isInteger(valor) || valor < 1) {
         return { valido: false, mensaje: 'La cantidad debe ser mayor a 0.' };
-    }
-
-    if (tipoVendedor === 'deposito') {
-        if (modalidad !== 'caja') {
-            return { valido: false, mensaje: 'En Depósito solo se permite vender por caja.' };
-        }
-        return { valido: true };
     }
 
     // CAJA: siempre manual
@@ -318,8 +318,8 @@ function validarCantidadSegunModalidad(cantidad, modalidad, unidadesPorCaja, tip
 
     // UNIDAD
     if (modalidad === 'unidad') {
-        // Si existe modalidad mayor, unidad solo permite 1 o 2
-        if (unidadesPorCaja >= 4 && valor > 2) {
+        // Si existe modalidad mayor, unidad solo permite hasta umbral-1
+        if (unidadesPorCaja > umbralMayor && valor >= umbralMayor) {
             return { valido: false, mensaje: 'Con esa cantidad corresponde precio Mayor.' };
         }
         return { valido: true };
@@ -327,14 +327,14 @@ function validarCantidadSegunModalidad(cantidad, modalidad, unidadesPorCaja, tip
 
     // MAYOR
     if (modalidad === 'mayor') {
-        if (unidadesPorCaja < 4) {
+        if (unidadesPorCaja <= umbralMayor) {
             return { valido: false, mensaje: 'Este producto no tiene modalidad Mayor.' };
         }
 
-        if (valor < 3 || valor >= unidadesPorCaja) {
+        if (valor < umbralMayor || valor >= unidadesPorCaja) {
             return {
                 valido: false,
-                mensaje: `La modalidad Mayor requiere entre 3 y ${unidadesPorCaja - 1} unidades.`
+                mensaje: `La modalidad Mayor requiere entre ${umbralMayor} y ${unidadesPorCaja - 1} unidades.`
             };
         }
 
@@ -417,10 +417,6 @@ function validarModalidadUnicaEnCarrito(producto, modalidad, tipoVendedor, index
 }
 
 function obtenerModalidadesPermitidasProducto(producto, tipoVendedor) {
-    if (normalizarTipoVendedor(tipoVendedor) === 'deposito') {
-        return ['caja'];
-    }
-
     const modalidades = ['unidad'];
 
     if (puedeUsarCaja(producto)) {
@@ -437,9 +433,10 @@ function obtenerModalidadesPermitidasProducto(producto, tipoVendedor) {
 function ajustarCantidadParaModalidad(producto, cantidad, modalidad) {
     const cantidadBase = parseInt(cantidad, 10) || 1;
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
+    const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
 
     if (modalidad === 'mayor') {
-        return Math.max(3, Math.min(cantidadBase, unidadesPorCaja - 1));
+        return Math.max(unidadesPorMayor, Math.min(cantidadBase, unidadesPorCaja - 1));
     }
 
     return cantidadBase;
@@ -499,7 +496,14 @@ function agregarAlCarrito(producto, cantidad, modalidad, tipoVendedor = tipoVend
         tipoVendedor || producto?.tipo_vendedor_busqueda || tipoVendedorActual
     ) || 'tienda';
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
-    const validacionCantidad = validarCantidadSegunModalidad(cantidad, modalidad, unidadesPorCaja, tipoVendedorFinal);
+    const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
+    const validacionCantidad = validarCantidadSegunModalidad(
+        cantidad,
+        modalidad,
+        unidadesPorCaja,
+        tipoVendedorFinal,
+        unidadesPorMayor
+    );
     if (!validacionCantidad.valido) {
         mostrarAlerta(validacionCantidad.mensaje);
         return false;
@@ -565,7 +569,7 @@ function cambiarModalidadCarrito(index, nuevaModalidad) {
     }
 
     // Validar si existe modalidad mayor
-    if (nuevaModalidad === 'mayor' && unidadesPorCaja < 4) {
+    if (nuevaModalidad === 'mayor' && !puedeUsarMayor(producto)) {
         mostrarAlerta('Este producto no tiene modalidad Mayor.');
         renderCarrito();
         return;
@@ -583,7 +587,8 @@ function cambiarModalidadCarrito(index, nuevaModalidad) {
         item.cantidad,
         nuevaModalidad,
         unidadesPorCaja,
-        tipoVendedor
+        tipoVendedor,
+        obtenerUnidadesPorMayorProducto(producto)
     );
 
     if (!validacionCantidad.valido) {
@@ -641,12 +646,7 @@ function cambiarCantidadCarrito(index, nuevaCantidad) {
     }
 
     let modalidadFinal = item.modalidad;
-
-    if (tipoVendedor === 'deposito') {
-        modalidadFinal = 'caja';
-    } else {
-        modalidadFinal = determinarModalidadAutomaticaTienda(producto, cantidad, item.modalidad);
-    }
+    modalidadFinal = determinarModalidadAutomaticaTienda(producto, cantidad, item.modalidad);
 
     const validacionModalidadUnica = validarModalidadUnicaEnCarrito(producto, modalidadFinal, tipoVendedor, index);
     if (!validacionModalidadUnica.valido) {
@@ -659,7 +659,8 @@ function cambiarCantidadCarrito(index, nuevaCantidad) {
         cantidad,
         modalidadFinal,
         unidadesPorCaja,
-        tipoVendedor
+        tipoVendedor,
+        obtenerUnidadesPorMayorProducto(producto)
     );
 
     if (!validacionCantidad.valido) {
@@ -722,11 +723,10 @@ function renderCarrito() {
 
     tbody.innerHTML = carrito.map((item, index) => {
         const tipoVendedor = obtenerTipoVendedorItem(item);
-        const esDeposito = tipoVendedor === 'deposito';
 
         const unidadesPorCaja = parseInt(item.producto.unidades_por_caja || 1, 10);
-        const mostrarCaja = unidadesPorCaja > 1;
-        const mostrarMayor = unidadesPorCaja >= 4;
+        const mostrarCaja = puedeUsarCaja(item.producto);
+        const mostrarMayor = puedeUsarMayor(item.producto);
         const modalidadesUsadas = obtenerModalidadesUsadasEnCarrito(item.producto.id, tipoVendedor, index);
         const unidadUsada = modalidadesUsadas.includes('unidad');
         const cajaUsada = modalidadesUsadas.includes('caja');
@@ -746,42 +746,38 @@ function renderCarrito() {
                 </td>
 
                 <td class="text-center">
-                    ${esDeposito ? `
-                       <span class="carrito-modalidad-fija carrito-modalidad-fija--deposito">Caja</span>
-                    ` : `
-                        <div class="carrito-modalidad-botones">
+                    <div class="carrito-modalidad-botones">
+                        <button
+                            type="button"
+                            class="btn btn-sm ${unidadUsada ? 'btn-secondary' : (item.modalidad === 'unidad' ? 'btn-primary' : 'btn-outline-primary')}"
+                            onclick="cambiarModalidadCarrito(${index}, 'unidad')"
+                            ${unidadUsada ? 'disabled title="Unidad ya usada para este producto"' : ''}
+                        >
+                            Unidad
+                        </button>
+
+                        ${mostrarCaja ? `
                             <button
                                 type="button"
-                                class="btn btn-sm ${unidadUsada ? 'btn-secondary' : (item.modalidad === 'unidad' ? 'btn-primary' : 'btn-outline-primary')}"
-                                onclick="cambiarModalidadCarrito(${index}, 'unidad')"
-                                ${unidadUsada ? 'disabled title="Unidad ya usada para este producto"' : ''}
+                                class="btn btn-sm ${cajaUsada ? 'btn-secondary' : (item.modalidad === 'caja' ? 'btn-primary' : 'btn-outline-primary')}"
+                                onclick="cambiarModalidadCarrito(${index}, 'caja')"
+                                ${cajaUsada ? 'disabled title="Caja ya usada para este producto"' : ''}
                             >
-                                Unidad
+                                Caja
                             </button>
+                        ` : ''}
 
-                            ${mostrarCaja ? `
-                                <button
-                                    type="button"
-                                    class="btn btn-sm ${cajaUsada ? 'btn-secondary' : (item.modalidad === 'caja' ? 'btn-primary' : 'btn-outline-primary')}"
-                                    onclick="cambiarModalidadCarrito(${index}, 'caja')"
-                                    ${cajaUsada ? 'disabled title="Caja ya usada para este producto"' : ''}
-                                >
-                                    Caja
-                                </button>
-                            ` : ''}
-
-                            ${mostrarMayor ? `
-                                <button
-                                    type="button"
-                                    class="btn btn-sm ${mayorUsada ? 'btn-secondary' : (item.modalidad === 'mayor' ? 'btn-primary' : 'btn-outline-primary')}"
-                                    onclick="cambiarModalidadCarrito(${index}, 'mayor')"
-                                    ${mayorUsada ? 'disabled title="Mayor ya usada para este producto"' : ''}
-                                >
-                                    Mayor
-                                </button>
-                            ` : ''}
-                        </div>
-                    `}
+                        ${mostrarMayor ? `
+                            <button
+                                type="button"
+                                class="btn btn-sm ${mayorUsada ? 'btn-secondary' : (item.modalidad === 'mayor' ? 'btn-primary' : 'btn-outline-primary')}"
+                                onclick="cambiarModalidadCarrito(${index}, 'mayor')"
+                                ${mayorUsada ? 'disabled title="Mayor ya usada para este producto"' : ''}
+                            >
+                                Mayor
+                            </button>
+                        ` : ''}
+                    </div>
 
                     <div class="small text-muted mt-2">
                         ${escapeHtml(obtenerResumenModalidad(item.producto, item.cantidad, item.modalidad))}
@@ -900,12 +896,12 @@ function actualizarPreviewProducto(productoId, tipoVendedorContexto = tipoVended
 function renderTarjetaProducto(producto) {
     const contextoId = obtenerIdContextoBusqueda(producto.id, tipoVendedorActual);
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
+    const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
     const stock = parseInt(producto.stock || 0, 10);
     const stockCajas = Math.floor(stock / Math.max(unidadesPorCaja, 1));
     const precioUnidad = obtenerPrecioBasePorModalidad(producto, 'unidad');
 
-    const bloqueModalidades = tipoVendedorActual === 'tienda'
-        ? `
+    const bloqueModalidades = `
             <div class="producto-acciones-grid">
                 <div>
                     <label class="producto-label">Modalidad</label>
@@ -947,30 +943,6 @@ function renderTarjetaProducto(producto) {
                     </button>
                 </div>
             </div>
-        `
-        : `
-            <div class="producto-acciones-grid producto-acciones-grid--deposito">
-                <div>
-                    <label for="cantidad_${contextoId}" class="producto-label">Cantidad</label>
-                    <input
-                        type="number"
-                        class="form-control producto-cantidad-input"
-                        id="cantidad_${contextoId}"
-                        min="1"
-                        value="1"
-                    >
-                </div>
-
-                <div class="producto-boton-wrap">
-                    <button
-                        type="button"
-                        class="btn btn-primary producto-btn-agregar"
-                        onclick="agregarDesdeResultadosDeposito(${producto.id}, '${tipoVendedorActual}')"
-                    >
-                        <i class="fas fa-plus mr-1"></i>Agregar al carrito
-                    </button>
-                </div>
-            </div>
         `;
 
     return `
@@ -996,25 +968,17 @@ function renderTarjetaProducto(producto) {
                     <small>unidades</small>
                 </div>
 
-                ${tipoVendedorActual === 'tienda' ? `
-                    <div class="producto-stock-card">
-                        <span class="producto-stock-titulo">Cajas actuales</span>
-                        <strong class="producto-stock-valor">${stockCajas}</strong>
-                        <small>cajas disponibles</small>
-                    </div>
+                <div class="producto-stock-card">
+                    <span class="producto-stock-titulo">Cajas actuales</span>
+                    <strong class="producto-stock-valor">${stockCajas}</strong>
+                    <small>cajas disponibles</small>
+                </div>
 
-                    <div class="producto-stock-card producto-stock-card--soft">
-                        <span class="producto-stock-titulo">Unidades por caja</span>
-                        <strong class="producto-stock-valor">${unidadesPorCaja}</strong>
-                        <small>unidades</small>
-                    </div>
-                ` : `
-                    <div class="producto-stock-card producto-stock-card--soft">
-                        <span class="producto-stock-titulo">Modalidad</span>
-                        <strong class="producto-stock-valor">Unidad</strong>
-                        <small>venta depósito</small>
-                    </div>
-                `}
+                <div class="producto-stock-card producto-stock-card--soft">
+                    <span class="producto-stock-titulo">Unidades por caja</span>
+                    <strong class="producto-stock-valor">${unidadesPorCaja}</strong>
+                    <small>mayor desde ${unidadesPorMayor}</small>
+                </div>
             </div>
 
             ${bloqueModalidades}
@@ -1048,31 +1012,23 @@ function renderTarjetaProductoCompacta(producto) {
             </div>
 
             <div class="producto-card-sugerido-precios">
-                ${esDeposito ? `
-                    <div class="precio-mini-linea">
-                        <span class="precio-mini-label">Caja</span>
-                        <span class="precio-mini-bs">Bs. ${Number(precioCajaBs).toFixed(2)}</span>
-                        <span class="precio-mini-usd">$ ${Number(precioCajaUsd).toFixed(2)}</span>
-                    </div>
-                ` : `
-                    <div class="precio-mini-linea">
-                        <span class="precio-mini-label">Unidad</span>
-                        <span class="precio-mini-bs">Bs. ${Number(precioUnidadBs).toFixed(2)}</span>
-                        <span class="precio-mini-usd">$ ${Number(precioUnidadUsd).toFixed(2)}</span>
-                    </div>
+                <div class="precio-mini-linea">
+                    <span class="precio-mini-label">Unidad</span>
+                    <span class="precio-mini-bs">Bs. ${Number(precioUnidadBs).toFixed(2)}</span>
+                    <span class="precio-mini-usd">$ ${Number(precioUnidadUsd).toFixed(2)}</span>
+                </div>
 
-                    <div class="precio-mini-linea">
-                        <span class="precio-mini-label">Caja</span>
-                        <span class="precio-mini-bs">Bs. ${Number(precioCajaBs).toFixed(2)}</span>
-                        <span class="precio-mini-usd">$ ${Number(precioCajaUsd).toFixed(2)}</span>
-                    </div>
+                <div class="precio-mini-linea">
+                    <span class="precio-mini-label">Caja</span>
+                    <span class="precio-mini-bs">Bs. ${Number(precioCajaBs).toFixed(2)}</span>
+                    <span class="precio-mini-usd">$ ${Number(precioCajaUsd).toFixed(2)}</span>
+                </div>
 
-                    <div class="precio-mini-linea">
-                        <span class="precio-mini-label">Mayor</span>
-                        <span class="precio-mini-bs">Bs. ${Number(precioMayorBs).toFixed(2)}</span>
-                        <span class="precio-mini-usd">$ ${Number(precioMayorUsd).toFixed(2)}</span>
-                    </div>
-                `}
+                <div class="precio-mini-linea">
+                    <span class="precio-mini-label">Mayor</span>
+                    <span class="precio-mini-bs">Bs. ${Number(precioMayorBs).toFixed(2)}</span>
+                    <span class="precio-mini-usd">$ ${Number(precioMayorUsd).toFixed(2)}</span>
+                </div>
             </div>
 
             <div class="producto-card-sugerido-actions">
@@ -1097,7 +1053,7 @@ function agregarProductoSugeridoDirecto(productoId, tipoVendedorContexto = tipoV
     }
 
     const cantidadInicial = 1;
-    const modalidadInicial = tipoVendedorContexto === 'deposito' ? 'caja' : 'unidad';
+    const modalidadInicial = 'unidad';
     const modalidadDisponible = resolverModalidadDisponible(
         producto,
         tipoVendedorContexto || 'tienda',
@@ -1129,7 +1085,7 @@ function mostrarProductoSugeridoExpandido(productoId) {
         sugeridosWrap.style.display = 'none';
     }
 
-    if (tipoVendedorActual === 'tienda') {
+    if (tipoVendedorActual === 'tienda' || tipoVendedorActual === 'deposito') {
         const contextoId = obtenerIdContextoBusqueda(producto.id, tipoVendedorActual);
         document.querySelectorAll(`input[name="modalidad_${contextoId}"]`).forEach((radio) => {
             radio.addEventListener('change', () => actualizarPreviewProducto(producto.id, tipoVendedorActual));

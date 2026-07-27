@@ -92,6 +92,7 @@
         const nombre = $('#nombre').val().trim();
         const categoria = $('#categoria').val();
         const unidades_por_caja = $('#unidades_por_caja').val();
+        const unidades_por_mayor = $('#unidades_por_mayor').val();
         
         if (!codigo) {
             mostrarNotificacion('El código del producto es requerido', 'warning');
@@ -114,6 +115,12 @@
         if (!unidades_por_caja || parseInt(unidades_por_caja) < 1) {
             mostrarNotificacion('Las unidades por caja deben ser al menos 1', 'warning');
             $('#unidades_por_caja').focus();
+            return false;
+        }
+
+        if (!unidades_por_mayor || parseInt(unidades_por_mayor) < 2) {
+            mostrarNotificacion('Las unidades por mayor deben ser al menos 2', 'warning');
+            $('#unidades_por_mayor').focus();
             return false;
         }
         

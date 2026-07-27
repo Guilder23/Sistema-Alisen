@@ -54,6 +54,7 @@
         $('#precio_compra').val(parseFloat(data.precio_compra).toFixed(2));
         $('#precio_caja').val(parseFloat(data.precio_caja).toFixed(2));
         $('#precio_mayor').val(parseFloat(data.precio_mayor).toFixed(2));
+        $('#unidades_por_mayor_precio').val(data.unidades_por_mayor || 3);
         $('#poliza').val(parseFloat(data.poliza).toFixed(2));
         $('#gastos').val(parseFloat(data.gastos).toFixed(2));
         
@@ -66,12 +67,19 @@
         const precioCompra = $('#precio_compra').val();
         const precioCaja = $('#precio_caja').val();
         const precioMayor = $('#precio_mayor').val();
+        const unidadesPorMayor = $('#unidades_por_mayor_precio').val();
         const poliza = $('#poliza').val();
         const gastos = $('#gastos').val();
         
         if (!precioUnitario || parseFloat(precioUnitario) < 0) {
             mostrarNotificacion('El precio unitario debe ser un número válido', 'warning');
             $('#precio_unitario').focus();
+            return;
+        }
+
+        if (!unidadesPorMayor || parseInt(unidadesPorMayor, 10) < 2) {
+            mostrarNotificacion('Las unidades por mayor deben ser al menos 2', 'warning');
+            $('#unidades_por_mayor_precio').focus();
             return;
         }
         
@@ -81,6 +89,7 @@
         formData.append('precio_compra', precioCompra || 0);
         formData.append('precio_caja', precioCaja || 0);
         formData.append('precio_mayor', precioMayor || 0);
+        formData.append('unidades_por_mayor', unidadesPorMayor || 3);
         formData.append('poliza', poliza || 0);
         formData.append('gastos', gastos || 0);
         
@@ -138,6 +147,7 @@
         $('#precio_compra').val('');
         $('#precio_caja').val('');
         $('#precio_mayor').val('');
+        $('#unidades_por_mayor_precio').val('3');
         $('#poliza').val('');
         $('#gastos').val('');
     }

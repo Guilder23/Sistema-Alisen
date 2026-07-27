@@ -51,6 +51,7 @@
         $('#verStock').text(data.stock + ' unidades');
         $('#verStockporCaja').text(data.stock_cajas + 'cajas');
         $('#verUnidadesPorCaja').text(data.unidades_por_caja);
+        $('#verUnidadesPorMayor').text(data.unidades_por_mayor || 3);
 
         $('#verStockCritico').text(data.stock_critico);
         $('#verStockBajo').text(data.stock_bajo);

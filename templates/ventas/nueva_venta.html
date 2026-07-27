@@ -151,7 +151,7 @@
                         </select>
                         <small class="form-text text-muted mt-1">
                             <i class="fas fa-info-circle"></i>
-                            Depósito: Solo venta por cajas | Tienda: Unidad, Caja o Mayor
+                            Depósito y Tienda: pueden vender por Unidad, Caja o Mayor
                         </small>
                     </div>
 
@@ -263,9 +263,10 @@
                                 <thead>
                                     <tr>
                                         <th class="pl-3">Producto</th>
-                                        <th class="text-center" style="width: 130px;">Cajas</th>
+                                        <th class="text-center" style="width: 180px;">Modalidad</th>
+                                        <th class="text-center" style="width: 130px;">Cantidad</th>
                                         <th class="text-center" style="width: 90px;">Precio</th>
-                                        <th class="text-center" style="width: 130px;">Cantidad (unid.)</th>
+                                        <th class="text-center" style="width: 130px;">Unidades</th>
                                         <th class="text-right" style="width: 100px;">Subtotal</th>
                                         <th class="text-center pr-3" style="width: 50px;"></th>
                                     </tr>
@@ -308,5 +309,5 @@
 {% endblock %}
 
 {% block scripts_extra %}
-<script src="{% static 'js/ventas/nueva_venta.js' %}"></script>
+<script src="{% static 'js/ventas/nueva_venta.js' %}?v=101"></script>
 {% endblock %}

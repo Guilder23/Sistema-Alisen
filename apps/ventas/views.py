@@ -739,13 +739,14 @@ def guardar_venta(request):
                 precio_unitario = Decimal(str(item.get('precio_unitario', '0')))
                 producto = Producto.objects.get(id=producto_id)
                 unidades_por_caja = int(producto.unidades_por_caja or 1)
+                unidades_por_mayor = max(int(getattr(producto, 'unidades_por_mayor', 3) or 3), 2)
                 cantidad_cajas = int(item.get('cantidad_cajas', 0) or 0)
                 modalidad = normalizar_modalidad(item.get('modalidad'), 'unidad')
                 tipo_vendedor = normalizar_tipo_vendedor(item.get('tipo_vendedor'), 'almacen') or 'almacen'
                 unidades_operativas = int(item.get('unidades_operativas', 0) or 0)
                 cantidad_ingresada = int(item.get('cantidad', 0) or 0)
 
-                if cantidad_cajas > 0:
+                if cantidad_cajas > 0 and modalidad == 'caja':
                     cantidad = cantidad_cajas * unidades_por_caja
                     modalidad = 'caja'
                 elif modalidad == 'caja':
@@ -753,11 +754,27 @@ def guardar_venta(request):
                     cantidad = cantidad_cajas * unidades_por_caja
                 else:
                     cantidad = cantidad_ingresada
-                    if modalidad == 'caja' and unidades_por_caja > 0 and cantidad > 0:
-                        cantidad_cajas = max(cantidad // unidades_por_caja, 0)
+                    cantidad_cajas = 0
 
                 if cantidad <= 0:
                     raise ValueError(f'Cantidad inválida para el producto ID {producto_id}.')
+
+                if modalidad == 'mayor':
+                    if unidades_por_caja <= unidades_por_mayor:
+                        raise ValueError(
+                            f'El producto "{producto.nombre}" no tiene rango válido para venta por mayor.'
+                        )
+                    if cantidad < unidades_por_mayor or cantidad >= unidades_por_caja:
+                        raise ValueError(
+                            f'Venta por mayor debe estar entre {unidades_por_mayor} y {unidades_por_caja - 1} unidades. '
+                            f'Recibido: {cantidad}.'
+                        )
+                elif modalidad == 'unidad':
+                    if unidades_por_caja > unidades_por_mayor and cantidad >= unidades_por_mayor:
+                        raise ValueError(
+                            f'Venta por unidad solo permite entre 1 y {unidades_por_mayor - 1} unidades. '
+                            f'Recibido: {cantidad}.'
+                        )
                 
                 unidades_a_descontar = unidades_operativas if unidades_operativas > 0 else cantidad
 
@@ -772,13 +789,20 @@ def guardar_venta(request):
                 # Ahora bloquear el producto para la actualización
                 producto = Producto.objects.select_for_update().get(id=producto_id)
 
+                # Recalcular precio según modalidad si el frontend no lo envió bien
+                precio_base_bs = obtener_precio_base_producto(producto, modalidad)
+                if precio_base_bs > 0:
+                    precio_unitario = convertir_bs_a_moneda_venta(precio_base_bs, moneda, tipo_cambio)
+                else:
+                    precio_unitario = Decimal(str(item.get('precio_unitario', '0')))
+
                 subtotal_item = precio_unitario * unidades_a_descontar
 
                 DetalleVenta.objects.create(
                     venta=venta,
                     producto=producto,
-                    cantidad=cantidad,
-                    cantidad_cajas=cantidad_cajas,
+                    cantidad=unidades_a_descontar if modalidad != 'caja' else cantidad,
+                    cantidad_cajas=cantidad_cajas if modalidad == 'caja' else 0,
                     tipo_vendedor=tipo_vendedor,
                     modalidad=modalidad,
                     precio_unitario=precio_unitario,
@@ -790,12 +814,12 @@ def guardar_venta(request):
                     origen_role = tipo_vendedor
 
                 if origen_role == 'tienda':
-                    descontar_stock_desde_inventario_tienda(producto, cantidad, perfil, 'tienda')
+                    descontar_stock_desde_inventario_tienda(producto, unidades_a_descontar, perfil, 'tienda')
                 elif origen_role == 'deposito':
-                    descontar_stock_desde_inventario_tienda(producto, cantidad, perfil, 'deposito')
+                    descontar_stock_desde_inventario_tienda(producto, unidades_a_descontar, perfil, 'deposito')
                 else:
                     # Por defecto (almacen u otros), descontar del stock universal (ProductoContenedor)
-                    descontar_stock_desde_contenedores(producto, cantidad)
+                    descontar_stock_desde_contenedores(producto, unidades_a_descontar)
 
                 total_venta += subtotal_item
 
@@ -900,6 +924,7 @@ def buscar_productos(request):
                 'categoria': p.categoria.nombre if p.categoria else 'Sin categoría',
                 'stock': stock,
                 'unidades_por_caja': int(p.unidades_por_caja) if p.unidades_por_caja else 1,
+                'unidades_por_mayor': int(getattr(p, 'unidades_por_mayor', 3) or 3),
                 'precio_unidad': float(p.precio_unidad or 0),
                 'precio_mayor': float(p.precio_mayor or 0),
                 'precio_caja': float(p.precio_caja or 0),
@@ -1909,11 +1934,12 @@ def guardar_venta_tienda(request):
                     raise ValueError(f'Cantidad inválida para el producto ID {producto_id}.')
                 if modalidad not in ['unidad', 'caja', 'mayor']:
                     raise ValueError(f'Modalidad inválida para el producto ID {producto_id}.')
-                if tipo_vendedor_item not in ['tienda', 'deposito']:
+                if tipo_vendedor_item not in ['tienda', 'deposito', 'almacen']:
                     raise ValueError(f'Tipo de vendedor inválido para el producto ID {producto_id}.')
 
                 producto = Producto.objects.get(id=producto_id)
                 unidades_por_caja = int(producto.unidades_por_caja or 1)
+                unidades_por_mayor = max(int(getattr(producto, 'unidades_por_mayor', 3) or 3), 2)
 
                 if modalidad == 'caja':
                     unidades_a_descontar = cantidad * unidades_por_caja
@@ -1928,13 +1954,16 @@ def guardar_venta_tienda(request):
 
                 precio_unitario = convertir_bs_a_moneda_venta(precio_base_bs, moneda, tipo_cambio)
 
-                # VALIDAR MODALIDAD MATEMÁTICAMENTE (solo para tienda)
-                # Para depósito, permitir cualquier cantidad entre 1 y stock disponible
-                if tipo_vendedor_item == 'tienda':
+                # VALIDAR MODALIDAD (tienda y depósito usan las mismas reglas)
+                if tipo_vendedor_item in ['tienda', 'deposito', 'almacen']:
                     if modalidad == 'mayor':
-                        if cantidad < 3 or cantidad >= unidades_por_caja:
+                        if unidades_por_caja <= unidades_por_mayor:
                             raise ValueError(
-                                f'Venta por mayor debe estar entre 3 y {unidades_por_caja - 1} unidades. '
+                                f'El producto "{producto.nombre}" no tiene rango válido para venta por mayor.'
+                            )
+                        if cantidad < unidades_por_mayor or cantidad >= unidades_por_caja:
+                            raise ValueError(
+                                f'Venta por mayor debe estar entre {unidades_por_mayor} y {unidades_por_caja - 1} unidades. '
                                 f'Recibido: {cantidad}.'
                             )
                     elif modalidad == 'caja':
@@ -1943,14 +1972,12 @@ def guardar_venta_tienda(request):
                                 'Venta por caja debe ser al menos 1 caja. '
                                 f'Recibido: {cantidad}.'
                             )
-                    elif modalidad == 'unidad' and cantidad > 2:
-                        raise ValueError(
-                            'Venta por unidad solo permite entre 1 y 2 unidades. '
-                            f'Recibido: {cantidad}.'
-                        )
-                else:
-                    # Para depósito: validación simple, cualquier cantidad >= 1
-                    pass
+                    elif modalidad == 'unidad':
+                        if unidades_por_caja > unidades_por_mayor and cantidad >= unidades_por_mayor:
+                            raise ValueError(
+                                f'Venta por unidad solo permite entre 1 y {unidades_por_mayor - 1} unidades. '
+                                f'Recibido: {cantidad}.'
+                            )
 
                 # Validar stock ANTES de bloquear
                 # Para tienda/deposito: validar contra el inventario específico

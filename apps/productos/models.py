@@ -105,6 +105,10 @@ class Producto(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     foto = models.ImageField(upload_to='productos/', blank=True, null=True)
     unidades_por_caja = models.IntegerField(default=1)
+    unidades_por_mayor = models.IntegerField(
+        default=3,
+        help_text='Desde cuántas unidades se considera venta por mayor'
+    )
     
     # Precios (administrador puede configurar todos)
     precio_compra = models.DecimalField(max_digits=10, decimal_places=2, default=0)
