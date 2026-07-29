@@ -35,6 +35,7 @@ def reporte_ventas(request):
     fecha_hasta = request.GET.get('fecha_hasta', '').strip()
     estado = request.GET.get('estado', '').strip()
     tipo_pago = request.GET.get('tipo_pago', '').strip()
+    metodo_pago = request.GET.get('metodo_pago', '').strip()
     vendedor_id = request.GET.get('vendedor', '').strip()
     moneda = request.GET.get('moneda', '').strip()
     monto_minimo = request.GET.get('monto_minimo', '').strip()
@@ -72,6 +73,9 @@ def reporte_ventas(request):
     
     if tipo_pago:
         ventas = ventas.filter(tipo_pago=tipo_pago)
+    
+    if metodo_pago:
+        ventas = ventas.filter(metodo_pago=metodo_pago)
     
     if vendedor_id:
         ventas = ventas.filter(vendedor_id=vendedor_id)
@@ -139,6 +143,7 @@ def reporte_ventas(request):
         bool(fecha_hasta),
         bool(estado),
         bool(tipo_pago),
+        bool(metodo_pago),
         bool(vendedor_id),
         bool(moneda),
         bool(monto_minimo),
@@ -179,6 +184,7 @@ def reporte_ventas(request):
         'fecha_hasta': fecha_hasta,
         'estado': estado,
         'tipo_pago': tipo_pago,
+        'metodo_pago': metodo_pago,
         'vendedor_id': vendedor_id,
         'moneda': moneda,
         'monto_minimo': monto_minimo,

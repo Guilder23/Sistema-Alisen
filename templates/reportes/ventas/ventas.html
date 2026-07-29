@@ -176,6 +176,18 @@
 
                     <div class="col-md-2 mb-2">
                         <label class="small text-muted mb-1">
+                            <i class="fas fa-money-bill-wave"></i> Método de Pago
+                        </label>
+                        <select class="form-control form-control-sm" name="metodo_pago" id="metodoPagoFiltro">
+                            <option value="">Todos</option>
+                            <option value="efectivo" {% if metodo_pago == 'efectivo' %}selected{% endif %}>Efectivo</option>
+                            <option value="qr" {% if metodo_pago == 'qr' %}selected{% endif %}>QR</option>
+                            <option value="transferencia" {% if metodo_pago == 'transferencia' %}selected{% endif %}>Transferencia</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
                             <i class="fas fa-money-bill"></i> Moneda
                         </label>
                         <select class="form-control form-control-sm" name="moneda" id="monedaFiltro">
@@ -267,6 +279,7 @@
                         <th style="width: 9%;" class="text-center">UBICACIÓN</th>
                         <th style="width: 8%;" class="text-center">FECHA</th>
                         <th style="width: 7%;" class="text-center">TIPO PAGO</th>
+                        <th style="width: 7%;" class="text-center">MÉTODO PAGO</th>
                         <th style="width: 7%;" class="text-center">ESTADO</th>
                         <th style="width: 5%;" class="text-center">MONEDA</th>
                         <th style="width: 7%;" class="text-right">DESCUENTO</th>
@@ -343,6 +356,17 @@
                             {% endif %}
                         </td>
                         <td class="text-center">
+                            {% if venta.metodo_pago == 'efectivo' %}
+                                <span class="badge-metodo-pago badge-efectivo">Efectivo</span>
+                            {% elif venta.metodo_pago == 'qr' %}
+                                <span class="badge-metodo-pago badge-qr">QR</span>
+                            {% elif venta.metodo_pago == 'transferencia' %}
+                                <span class="badge-metodo-pago badge-transferencia">Transferencia</span>
+                            {% else %}
+                                <span class="badge-metodo-pago badge-default">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
                             {% if venta.estado == 'completada' %}
                                 <span class="badge-estado badge-completada">Completada</span>
                             {% elif venta.estado == 'pendiente' %}
@@ -399,7 +423,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="11" class="text-center py-4">
+                        <td colspan="12" class="text-center py-4">
                             <div class="tabla-vacia">
                                 <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
                                 <p class="text-muted mb-0">No se encontraron ventas</p>

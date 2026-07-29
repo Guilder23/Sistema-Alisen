@@ -18,6 +18,12 @@ class Venta(models.Model):
         ('contado', 'Contado'),
         ('credito', 'Crédito'),
     )
+    
+    METODOS_PAGO = (
+        ('efectivo', 'Efectivo'),
+        ('qr', 'QR'),
+        ('transferencia', 'Transferencia'),
+    )
 
     TIPOS_DESCUENTO = (
         ('ninguno', 'Sin descuento'),
@@ -34,6 +40,7 @@ class Venta(models.Model):
     comentario = models.TextField(blank=True, null=True)
     
     tipo_pago = models.CharField(max_length=20, choices=TIPOS_PAGO, default='contado')
+    metodo_pago = models.CharField(max_length=20, choices=METODOS_PAGO, default='efectivo', blank=True, null=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     
     moneda = models.CharField(max_length=10, choices=[('BOB', 'Bolivianos'), ('USD', 'Dólares')], default='BOB', help_text='Moneda en la que se realizó la venta')

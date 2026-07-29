@@ -675,6 +675,10 @@ def guardar_venta(request):
     direccion = data.get('direccion', '').strip()
     comentario = data.get('comentario', '').strip()
     tipo_pago = data.get('tipo_pago', 'contado')
+    metodo_pago = data.get('metodo_pago', 'efectivo')
+    descuento_monto = Decimal(str(data.get('descuento_monto', 0)))
+    descuento_tipo = data.get('descuento_tipo', 'ninguno')
+    descuento_valor = Decimal(str(data.get('descuento_valor', 0)))
     moneda = data.get('moneda', 'BOB').upper()
     tipo_cambio = Decimal(str(data.get('tipo_cambio', obtener_tipo_cambio_usd('general') or 1)))
     vendedor_id = data.get('vendedor_id', None)  # Para vendedores de almacén
@@ -720,11 +724,15 @@ def guardar_venta(request):
                 direccion=direccion if direccion else None,
                 comentario=comentario if comentario else None,
                 tipo_pago=tipo_pago,
+                metodo_pago=metodo_pago if metodo_pago else None,
                 moneda=moneda,
                 tipo_cambio=tipo_cambio,
                 estado='completada' if tipo_pago == 'contado' else 'pendiente',
                 vendedor=vendedor_user,
                 subtotal=Decimal('0.00'),
+                descuento=descuento_monto,
+                descuento_tipo=descuento_tipo,
+                descuento_valor=descuento_valor,
                 total=Decimal('0.00'),
             )
             
@@ -825,7 +833,7 @@ def guardar_venta(request):
 
 # Actualizar totales de la venta
             venta.subtotal = total_venta
-            venta.total = total_venta
+            venta.total = total_venta - descuento_monto
             venta.save()
 
         return JsonResponse({
@@ -1860,6 +1868,7 @@ def guardar_venta_tienda(request):
     direccion = data.get('direccion', '').strip()
     comentario = data.get('comentario', '').strip()
     tipo_pago = data.get('tipo_pago', 'contado')
+    metodo_pago = data.get('metodo_pago', 'efectivo')
     tipo_venta = data.get('tipo_venta', '').strip().lower()  # compatibilidad con payload antiguo
     moneda = data.get('moneda', 'BOB').upper()
     tipo_cambio = Decimal(str(data.get('tipo_cambio', obtener_tipo_cambio_usd('tienda_principal') or 1)))
@@ -1914,11 +1923,15 @@ def guardar_venta_tienda(request):
                 direccion=direccion if direccion else None,
                 comentario=comentario if comentario else None,
                 tipo_pago=tipo_pago,
+                metodo_pago=metodo_pago if metodo_pago else None,
                 moneda=moneda,
                 tipo_cambio=tipo_cambio,
                 estado='completada' if tipo_pago == 'contado' else 'pendiente',
                 vendedor=request.user,
                 subtotal=Decimal('0.00'),
+                descuento=descuento_valor,
+                descuento_tipo=descuento_tipo,
+                descuento_valor=descuento_valor,
                 total=Decimal('0.00'),
             )
 

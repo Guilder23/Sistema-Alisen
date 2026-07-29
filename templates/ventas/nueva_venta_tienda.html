@@ -9,12 +9,14 @@
 
 {% block scripts_globales %}
 <script>
+    /* eslint-disable */
     const URLS = {
         buscarProductos: "{% url 'ventas:buscar_productos' %}",
         guardarVentaTienda: "{% url 'ventas:guardar_venta_tienda' %}",
         listaTienda: "{% url 'ventas:listar_ventas_tienda' %}",
     };
     const tipoCambioActual = {{ tipo_cambio_actual|default:'6.93'|stringformat:'f' }};
+    /* eslint-enable */
 </script>
 {% endblock %}
 
@@ -313,7 +315,6 @@
                             El descuento solo está disponible para ventas al contado.
                         </div>
 
-                        {% if es_tienda_principal %}
                         <div class="form-group mb-4">
                             <label class="label-campo d-block mb-2">Tipo de Pago</label>
                             <div class="tipo-pago-selector tipo-pago-selector--resumen">
@@ -328,6 +329,7 @@
                                     <i class="fas fa-check-circle check-icon"></i>
                                 </div>
 
+                                {% if es_tienda_principal %}
                                 <div class="tipo-pago-option" data-tipo="credito">
                                     <div class="tipo-pago-icon tipo-pago-icon--credito">
                                         <i class="fas fa-credit-card"></i>
@@ -338,9 +340,19 @@
                                     </div>
                                     <i class="fas fa-check-circle check-icon"></i>
                                 </div>
+                                {% endif %}
                             </div>
                         </div>
-                        {% endif %}
+
+                        <div class="form-group mb-4" id="metodoPagoSection">
+                            <label class="label-campo d-block mb-2">Método de Pago</label>
+                            <select class="form-control" id="selectMetodoPago">
+                                <option value="efectivo">Efectivo</option>
+                                <option value="qr">QR</option>
+                                <option value="transferencia">Transferencia</option>
+                            </select>
+                            <input type="hidden" id="inputMetodoPago" value="efectivo">
+                        </div>
 
                         <div class="resumen-total">
                             <span class="resumen-total-label">Total</span>

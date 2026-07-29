@@ -175,6 +175,7 @@
                                     <th>Cliente</th>
                                     <th>Fecha</th>
                                     <th class="text-center">Origen</th>
+                                    <th class="text-center">Método Pago</th>
                                     <th class="text-right">Total</th>
                                     <th class="text-center">Estado</th>
                                     <th class="text-center pr-3">Acciones</th>
@@ -192,6 +193,17 @@
                                         <span class="badge {% if venta.resumen_tipos_vendedor.codigo == 'mixto' %}badge-warning{% else %}badge-info{% endif %}">
                                             {{ venta.resumen_tipos_vendedor.label }}
                                         </span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if venta.metodo_pago == 'efectivo' %}
+                                        <span class="badge badge-success">Efectivo</span>
+                                        {% elif venta.metodo_pago == 'qr' %}
+                                        <span class="badge badge-info">QR</span>
+                                        {% elif venta.metodo_pago == 'transferencia' %}
+                                        <span class="badge badge-warning">Transferencia</span>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
                                     </td>
                                     <td class="text-right font-weight-bold">
                                         {% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ venta.total_display|floatformat:2 }}
@@ -236,7 +248,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="8" class="text-center py-5 text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                         No hay ventas al contado registradas.
                                     </td>
@@ -303,6 +315,7 @@
                                     <th>Cliente</th>
                                     <th>Fecha</th>
                                     <th class="text-center">Origen</th>
+                                    <th class="text-center">Método Pago</th>
                                     <th class="text-right">Total</th>
                                     <th class="text-center">Saldo</th>
                                     <th class="text-center">Estado</th>
@@ -321,6 +334,17 @@
                                         <span class="badge {% if venta.resumen_tipos_vendedor.codigo == 'mixto' %}badge-warning{% else %}badge-info{% endif %}">
                                             {{ venta.resumen_tipos_vendedor.label }}
                                         </span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if venta.metodo_pago == 'efectivo' %}
+                                        <span class="badge badge-success">Efectivo</span>
+                                        {% elif venta.metodo_pago == 'qr' %}
+                                        <span class="badge badge-info">QR</span>
+                                        {% elif venta.metodo_pago == 'transferencia' %}
+                                        <span class="badge badge-warning">Transferencia</span>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
                                     </td>
                                     <td class="text-right font-weight-bold">
                                         {% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ venta.total_display|floatformat:2 }}
@@ -387,7 +411,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="8" class="text-center py-5 text-muted">
+                                    <td colspan="9" class="text-center py-5 text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                         No hay ventas a crédito registradas.
                                     </td>

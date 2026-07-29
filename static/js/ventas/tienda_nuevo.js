@@ -183,9 +183,12 @@ function puedeUsarCaja(producto) {
     return unidadesPorCaja > 1;
 }
 
-function puedeUsarMayor(producto) {
+function puedeUsarMayor(producto, tipoVendedor = tipoVendedorActual) {
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
     const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
+    const tipoVendedorNormalizado = normalizarTipoVendedor(tipoVendedor);
+    
+    // Ambos tienda y deposito pueden usar mayor si el producto lo permite
     return unidadesPorCaja > unidadesPorMayor;
 }
 
@@ -423,7 +426,7 @@ function obtenerModalidadesPermitidasProducto(producto, tipoVendedor) {
         modalidades.push('caja');
     }
 
-    if (puedeUsarMayor(producto)) {
+    if (puedeUsarMayor(producto, tipoVendedor)) {
         modalidades.push('mayor');
     }
 
@@ -569,10 +572,22 @@ function cambiarModalidadCarrito(index, nuevaModalidad) {
     }
 
     // Validar si existe modalidad mayor
-    if (nuevaModalidad === 'mayor' && !puedeUsarMayor(producto)) {
+    if (nuevaModalidad === 'mayor' && !puedeUsarMayor(producto, tipoVendedor)) {
         mostrarAlerta('Este producto no tiene modalidad Mayor.');
         renderCarrito();
         return;
+    }
+
+    // Auto-ajustar cantidad cuando se cambia a modalidad mayor
+    if (nuevaModalidad === 'mayor') {
+        const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
+        const umbralMayor = Math.max(parseInt(unidadesPorMayor, 10) || 3, 2);
+        
+        if (item.cantidad < umbralMayor) {
+            item.cantidad = umbralMayor;
+        } else if (item.cantidad >= unidadesPorCaja) {
+            item.cantidad = unidadesPorCaja - 1;
+        }
     }
 
     // Validar cantidad según modalidad
@@ -726,7 +741,7 @@ function renderCarrito() {
 
         const unidadesPorCaja = parseInt(item.producto.unidades_por_caja || 1, 10);
         const mostrarCaja = puedeUsarCaja(item.producto);
-        const mostrarMayor = puedeUsarMayor(item.producto);
+        const mostrarMayor = puedeUsarMayor(item.producto, tipoVendedor);
         const modalidadesUsadas = obtenerModalidadesUsadasEnCarrito(item.producto.id, tipoVendedor, index);
         const unidadUsada = modalidadesUsadas.includes('unidad');
         const cajaUsada = modalidadesUsadas.includes('caja');
@@ -1410,6 +1425,7 @@ function construirPayloadVenta() {
         direccion: document.getElementById('inputDireccion')?.value.trim() || '',
         comentario: document.getElementById('inputComentario')?.value.trim() || '',
         tipo_pago: document.getElementById('inputTipoPago')?.value || 'contado',
+        metodo_pago: document.getElementById('inputMetodoPago')?.value || 'efectivo',
         tipo_venta: tipoVendedorActual || 'tienda',
         moneda: obtenerMonedaActual(),
         tipo_cambio: obtenerTipoCambioActual(),
@@ -1590,6 +1606,17 @@ function init() {
             actualizarVisibilidadDescuento();
         });
     });
+
+    // Inicializar selector de método de pago
+    const selectMetodoPago = document.getElementById('selectMetodoPago');
+    if (selectMetodoPago) {
+        selectMetodoPago.addEventListener('change', function() {
+            const inputMetodoPago = document.getElementById('inputMetodoPago');
+            if (inputMetodoPago) {
+                inputMetodoPago.value = this.value;
+            }
+        });
+    }
 
     inicializarBusqueda();
     cargarProductosSugeridos();

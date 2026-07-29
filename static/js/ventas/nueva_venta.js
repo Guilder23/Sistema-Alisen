@@ -97,6 +97,7 @@ function obtenerEtiquetaModalidadAlmacen(modalidad) {
 let carrito = [];  // Array de { productoId, codigo, nombre, precioUnitario, cajas, cantidad, stock, unidadesPorCaja }
 let debounceTimer = null;
 let ultimosProductosBusqueda = [];  // Guardar últimos resultados para re-renderizar al cambiar moneda
+let tipoDescuentoActual = 'fijo';
 
 // INICIALIZACIÓN
 $(document).ready(function () {
@@ -107,6 +108,8 @@ $(document).ready(function () {
     initSelectorTipoPrecio();
     initBuscadorProductos();
     initBtnLimpiarCarrito();
+    initDescuento();
+    initMetodoPago();
     initBtnGuardarVenta();
 });
 
@@ -116,10 +119,11 @@ function initSelectorTipoPago() {
         $('.tipo-pago-option').removeClass('active');
         $(this).addClass('active');
         
-        // Diferenciar entre tipo de pago y moneda
-        if ($(this).data('tipo')) {
-            $('#inputTipoPago').val($(this).data('tipo'));
-        }
+        const tipoPago = $(this).data('tipo');
+        $('#inputTipoPago').val(tipoPago);
+        
+        // Actualizar visibilidad de descuento
+        actualizarVisibilidadDescuento();
     });
 }
 
@@ -703,11 +707,26 @@ function actualizarResumen() {
     const tipoCambio = tipoCambioElement ? (parseFloat(tipoCambioElement.value) || 1) : 1;
     
     const etiqueta = moneda === 'USD' ? '$' : 'Bs.';
-    const totalDisplay = moneda === 'USD' ? (totalPrecio / tipoCambio).toFixed(2) : totalPrecio.toFixed(2);
+    const subtotalDisplay = moneda === 'USD' ? (totalPrecio / tipoCambio).toFixed(2) : totalPrecio.toFixed(2);
+    
+    // Calcular descuento
+    const detalleDescuento = obtenerDetalleDescuentoActual(totalPrecio);
+    const descuentoBs = detalleDescuento.descuentoBs;
+    const descuentoDisplay = moneda === 'USD' ? (descuentoBs / tipoCambio).toFixed(2) : descuentoBs.toFixed(2);
+    const totalFinal = totalPrecio - descuentoBs;
+    const totalDisplay = moneda === 'USD' ? (totalFinal / tipoCambio).toFixed(2) : totalFinal.toFixed(2);
 
     $('#resumenCantItems').text(totalItems);
-    $('#resumenSubtotal').text(etiqueta + ' ' + totalDisplay);
+    $('#resumenSubtotal').text(etiqueta + ' ' + subtotalDisplay);
     $('#resumenTotal').text(etiqueta + ' ' + totalDisplay);
+    
+    // Actualizar resumen de descuento si existe
+    if ($('#descuentoResumen').length) {
+        $('#descuentoResumen').text(detalleDescuento.resumen);
+    }
+    if ($('#descuentoCalculo').length) {
+        $('#descuentoCalculo').text(`${etiqueta} ${subtotalDisplay} - ${etiqueta} ${descuentoDisplay} = ${etiqueta} ${totalDisplay}`);
+    }
 }
 
 // CARRITO: LIMPIAR TODO
@@ -823,6 +842,18 @@ function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipo
     const $btn = $('#btnGuardarVenta');
     $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...');
 
+    // Calcular subtotal para descuento
+    const subtotalBs = carrito.reduce((sum, item) => {
+        const unidadesOperativas = item.modalidad === 'caja' 
+            ? (item.cajas * item.unidadesPorCaja) 
+            : item.cantidad;
+        return sum + (unidadesOperativas * item.precioUnitario);
+    }, 0);
+    
+    const detalleDescuento = obtenerDetalleDescuentoActual(subtotalBs);
+    const descuentoBs = detalleDescuento.descuentoBs;
+    const metodoPago = $('#inputMetodoPago').val() || 'efectivo';
+
     const items = carrito.map(item => {
         const modalidad = item.modalidad || 'caja';
         const unidadesOperativas = modalidad === 'caja'
@@ -847,7 +878,7 @@ function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipo
     const tipoCambio = tipoCambioElement ? parseFloat(tipoCambioElement.value) : 1;
     const vendedorId = vendedorIdElement ? (vendedorIdElement.value || null) : null;
 
-    //OJO: Incluye telefono, razon_social, direccion, moneda/tipo_cambio y vendedor_id
+    //OJO: Incluye telefono, razon_social, direccion, moneda/tipo_cambio, vendedor_id, descuento y metodo_pago
     const payload = {
         cliente: cliente,
         telefono: telefono,
@@ -855,6 +886,10 @@ function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipo
         direccion: direccion,
         comentario: comentario,
         tipo_pago: tipoPago,
+        metodo_pago: metodoPago,
+        descuento_monto: descuentoBs,
+        descuento_tipo: tipoDescuentoActual,
+        descuento_valor: detalleDescuento.valorIngresado,
         moneda: moneda,
         tipo_cambio: tipoCambio,
         vendedor_id: vendedorId,
@@ -921,3 +956,95 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// FUNCIONES DE DESCUENTO
+function initDescuento() {
+    // Toggle tipo de descuento
+    $('input[name="tipoDescuento"]').on('change', function() {
+        tipoDescuentoActual = $(this).val();
+        actualizarUnidadDescuento();
+        actualizarResumen();
+    });
+
+    // Input de descuento
+    $('#inputDescuento').on('input', function() {
+        actualizarResumen();
+    });
+}
+
+function actualizarUnidadDescuento() {
+    const unidad = $('#tipoDescuentoUnidad');
+    if (!unidad.length) return;
+
+    const moneda = obtenerMonedaActual();
+    unidad.text(tipoDescuentoActual === 'porcentaje' ? '%' : (moneda === 'USD' ? '$' : 'Bs.'));
+}
+
+function puedeAplicarDescuento() {
+    const tipoPago = $('#inputTipoPago').val() || 'contado';
+    return tipoPago === 'contado';
+}
+
+function obtenerDetalleDescuentoActual(subtotalBs) {
+    const descuentoInput = parseFloat($('#inputDescuento').val() || 0) || 0;
+    const descuentoHabilitado = puedeAplicarDescuento();
+    let descuentoBs = 0;
+    let resumen = 'Sin descuento';
+
+    if (descuentoHabilitado && descuentoInput > 0) {
+        if (tipoDescuentoActual === 'porcentaje') {
+            const porcentaje = Math.min(descuentoInput, 100);
+            descuentoBs = (subtotalBs * porcentaje) / 100;
+            resumen = `${porcentaje.toFixed(2).replace(/\.00$/, '')}% (${formatearMonto(descuentoBs)})`;
+        } else {
+            descuentoBs = Math.min(convertirMonedaABs(descuentoInput), subtotalBs);
+            resumen = formatearMonto(descuentoBs);
+        }
+    }
+
+    return {
+        descuentoBs,
+        resumen,
+        valorIngresado: descuentoInput,
+        habilitado: descuentoHabilitado
+    };
+}
+
+function actualizarVisibilidadDescuento() {
+    const descuentoSection = $('#descuentoSection');
+    const descuentoBloqueado = $('#descuentoBloqueado');
+    const inputDescuento = $('#inputDescuento');
+
+    if (!descuentoSection.length || !inputDescuento.length) return;
+
+    const habilitado = puedeAplicarDescuento();
+    descuentoSection.toggle(habilitado);
+    descuentoBloqueado.toggle(!habilitado);
+
+    if (!habilitado) {
+        inputDescuento.val('0');
+        tipoDescuentoActual = 'fijo';
+        $('#descuentoFijo').prop('checked', true);
+    }
+
+    actualizarUnidadDescuento();
+    actualizarResumen();
+}
+
+function formatearMonto(montoBs) {
+    const moneda = obtenerMonedaActual();
+    const monto = parseFloat(montoBs || 0);
+    const tipoCambio = obtenerTipoCambioActual();
+
+    if (moneda === 'USD') {
+        return `$ ${(monto / tipoCambio).toFixed(2)}`;
+    }
+    return `Bs. ${monto.toFixed(2)}`;
+}
+
+// FUNCIONES DE MÉTODO DE PAGO
+function initMetodoPago() {
+    $('#selectMetodoPago').on('change', function() {
+        $('#inputMetodoPago').val($(this).val());
+    });
+}

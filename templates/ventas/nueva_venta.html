@@ -117,6 +117,16 @@
                         <input type="hidden" id="inputTipoPago" value="contado">
                     </div>
 
+                    <div class="form-group mt-3" id="metodoPagoSection">
+                        <label class="label-campo">Método de Pago</label>
+                        <select class="form-control" id="selectMetodoPago">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="qr">QR</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+                        <input type="hidden" id="inputMetodoPago" value="efectivo">
+                    </div>
+
                     <!-- SELECTOR DE MONEDA -->
                     <div class="form-group mt-3">
                         <label class="label-campo">Moneda de Venta</label>
@@ -285,6 +295,63 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-muted">Subtotal (<span id="resumenCantItems">0</span> items):</span>
                             <span class="font-weight-bold" id="resumenSubtotal">Bs. 0.00</span>
+                        </div>
+
+                        <div class="form-group my-3 pb-3 border-bottom" id="descuentoSection">
+                            <label class="label-campo">
+                                <i class="fas fa-percentage text-success mr-1"></i>Descuento (opcional)
+                            </label>
+
+                            <div class="mb-3 descuento-toolbar">
+                                <label class="descuento-toolbar-label mb-2">Tipo de Descuento:</label>
+                                <div class="btn-group btn-group-sm descuento-toggle-group d-flex" role="group">
+                                    <input type="radio" class="btn-check" name="tipoDescuento" id="descuentoFijo" value="fijo" checked>
+                                    <label class="btn btn-outline-success flex-fill" for="descuentoFijo">
+                                        <i class="fas fa-coins mr-1"></i>Monto fijo
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="tipoDescuento" id="descuentoPorcentaje" value="porcentaje">
+                                    <label class="btn btn-outline-success flex-fill" for="descuentoPorcentaje">
+                                        <i class="fas fa-percent mr-1"></i>Porcentaje (%)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="input-group input-group-sm">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="inputDescuento"
+                                    placeholder="0.00"
+                                    step="0.01"
+                                    min="0"
+                                    value="0"
+                                    max="100"
+                                >
+                                <div class="input-group-append">
+                                    <span class="input-group-text bg-success text-white" id="tipoDescuentoUnidad">Bs.</span>
+                                </div>
+                            </div>
+
+                            <small class="form-text text-muted d-block mt-2">
+                                Máximo: subtotal (en monto) o 100% (en porcentaje)
+                            </small>
+
+                            <div class="descuento-feedback mt-3">
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span class="text-muted">Descuento aplicado:</span>
+                                    <strong id="descuentoResumen">Sin descuento</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center small mt-2">
+                                    <span class="text-muted">Cálculo final:</span>
+                                    <strong id="descuentoCalculo">Bs. 0.00 - Bs. 0.00 = Bs. 0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-light border descuento-bloqueado mb-3" id="descuentoBloqueado" style="display:none;">
+                            <i class="fas fa-lock mr-2 text-muted"></i>
+                            El descuento solo está disponible para ventas al contado.
                         </div>
 
                         <hr class="my-2">
