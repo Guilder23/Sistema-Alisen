@@ -1,0 +1,131 @@
+/* Estilos específicos para la página index */
+.index-main { background: linear-gradient(180deg, #eef2ff 0%, #fdfcff 100%); min-height: calc(100vh - 96px); }
+.index-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    min-height: 78vh;
+    display: flex;
+    align-items: center;
+    border: none;
+}
+.index-hero-with-bg { background: none; }
+.index-hero .hero-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: url('/static/img/imagenFondoPrincipal.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    filter: brightness(0.38) saturate(1.1);
+    width: 100%;
+    height: 100%;
+}
+.index-hero .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 5rem 0;
+    display: flex;
+    align-items: center;
+}
+.index-hero .hero-copy { max-width: 560px; }
+.eyebrow { font-size: 0.82rem; letter-spacing: 0.12em; color: #f2b300; text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.35); }
+.display-5 { font-size: clamp(2.2rem, 4vw, 3.2rem); color: #0f172a; text-shadow: 0 4px 16px rgba(0,0,0,0.35); }
+.index-hero .hero-description { color: rgba(248,247,244,0.9); text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-size: 1.1rem; }
+.preview-image { max-width: 360px; border-radius: 22px; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12); }
+
+/* Hero buttons */
+.hero-buttons { display: flex; align-items: center; gap: 1rem; }
+.hero-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 48px;
+}
+.hero-buttons .btn:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(0,0,0,0.22); }
+.hero-buttons .btn-catalogo { background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; }
+.hero-buttons .btn-catalogo:hover { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: #fff; }
+.hero-buttons .btn-whatsapp { background: linear-gradient(135deg, #16c784, #25d366); color: #fff; }
+.hero-buttons .btn-whatsapp:hover { background: linear-gradient(135deg, #12a86f, #1fb159); color: #fff; }
+
+.product-card { border: none; border-radius: 22px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 28px 80px rgba(15, 23, 42, 0.12); }
+.product-card-image { display: block; height: 190px; overflow: hidden; border-top-left-radius: 22px; border-top-right-radius: 22px; }
+.product-card-image img { width: 100%; height: 100%; object-fit: cover; }
+.product-card-body { padding: 1.2rem; }
+.product-title { font-size: 1rem; line-height: 1.4; margin-bottom: 0.5rem; color: #0f172a; }
+.product-price { font-size: 1rem; font-weight: 700; color: #1e293b; }
+.product-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
+.btn-detail { padding: 0.65rem 0.95rem; font-size: 0.85rem; border-radius: 16px; }
+.btn-add {
+    min-width: 48px;
+    height: 44px;
+    padding: 0 0.75rem;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+.btn-add i { color: #ffffff; }
+.btn-add span { font-size: 0.82rem; font-weight: 600; color: #fff; }
+.whatsapp-float { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 999; display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.95rem 1.1rem; background: linear-gradient(135deg, #16c784, #25d366); color: #ffffff; border-radius: 999px; box-shadow: 0 20px 50px rgba(37,211,102,0.25); transition: transform 0.2s ease, box-shadow 0.2s ease; text-decoration: none; font-weight: 700; }
+.whatsapp-float:hover { transform: translateY(-3px); box-shadow: 0 28px 60px rgba(37,211,102,0.28); }
+.whatsapp-float i { font-size: 1.15rem; }
+
+/* Toast de notificaciones */
+.toast-notification {
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 99999;
+    min-width: 280px;
+    max-width: 380px;
+    background: #ffffff;
+    border: 1px solid rgba(148,163,184,0.18);
+    border-radius: 18px;
+    padding: 1rem 1.15rem;
+    box-shadow: 0 20px 60px rgba(15,23,42,0.22);
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    animation: toastSlideIn 0.35s cubic-bezier(.2,.8,.2,1);
+}
+.toast-notification.toast-success { border-left: 4px solid #16c784; }
+.toast-notification.toast-error { border-left: 4px solid #ef4444; }
+.toast-notification .toast-icon {
+    width: 38px; height: 38px; border-radius: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.05rem; color: #fff; flex-shrink: 0;
+}
+.toast-notification.toast-success .toast-icon { background: linear-gradient(135deg, #16c784, #25d366); }
+.toast-notification.toast-error .toast-icon { background: linear-gradient(135deg, #ef4444, #f87171); }
+.toast-notification .toast-text { flex: 1; }
+.toast-notification .toast-text strong { display: block; color: #0f172a; font-size: 0.9rem; }
+.toast-notification .toast-text small { color: #64748b; font-size: 0.78rem; }
+.toast-notification.toast-hide { animation: toastSlideOut 0.3s ease forwards; }
+@keyframes toastSlideIn { from { opacity: 0; transform: translateX(50px);} to { opacity: 1; transform: translateX(0);} }
+@keyframes toastSlideOut { to { opacity: 0; transform: translateX(50px);} }
+
+@media (max-width: 991px) {
+    .index-hero .hero-preview { display: none; }
+}
+@media (max-width: 768px) {
+  .index-hero { min-height: 68vh; padding-top: 2.5rem; padding-bottom: 2.5rem; }
+  .index-hero .hero-content { padding: 3.5rem 0; }
+  .preview-image { max-width: 100%; }
+  .whatsapp-float { right: 1rem; bottom: 1rem; padding: 0.85rem 1rem; }
+  .hero-buttons { flex-direction: column; align-items: stretch; }
+  .hero-buttons .btn { width: 100%; }
+}
+@media (max-width: 576px) {
+  .product-actions { flex-direction: column; align-items: stretch; }
+  .btn-add { width: 100%; }
+}

@@ -1,0 +1,12 @@
+/* Estilos para footerprincipal */
+.footer-principal { background: #06112b; color: #d4d4ce; }
+.footer-principal .footer-title { color: #ffffff; font-size: 1.3rem; margin-bottom: 1rem; }
+.footer-principal .footer-heading { color: #f2b300; margin-bottom: 1rem; font-size: 1rem; letter-spacing: 0.08em; }
+.footer-principal .footer-text { color: rgba(212,212,206,.86); margin-bottom: 0.75rem; line-height: 1.75; }
+.footer-principal .footer-links li { margin-bottom: 0.75rem; }
+.footer-principal .footer-links a { color: rgba(212,212,206,.9); text-decoration: none; transition: color .2s ease, padding-left .2s ease; }
+.footer-principal .footer-links a:hover { color: #f2b300; padding-left: 4px; }
+.footer-principal .footer-bottom { color: rgba(212,212,206,.72); border-top: 1px solid rgba(255,255,255,.08); padding-top: 1rem; margin-top: 1.5rem; }
+.footer-principal .footer-links a::before { content: '•'; color: #f2b300; display: inline-block; width: 16px; margin-right: 6px; }
+@media (max-width: 576px) { .footer-principal .footer-title { font-size: 1.15rem; } }
+

@@ -9,8 +9,8 @@ dj-database-url==2.2.0
 # Servidor para producción (COMENTADO - solo para producción)
  gunicorn==23.0.0
 
-# Archivos estáticos en producción (COMENTADO - solo para producción)
-# whitenoise==6.8.2
+# Archivos estáticos en producción
+whitenoise==6.8.2
 
 # Manejo de imágenes (fotos de productos)
 Pillow==11.0.0

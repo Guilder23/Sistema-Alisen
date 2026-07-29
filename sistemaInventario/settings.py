@@ -29,14 +29,16 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-%(i1_91x*o9qbkki+-s@2
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # ALLOWED_HOSTS - Configuración para desarrollo y producción
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
 # En producción (Render), agregar el hostname automáticamente
 RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default=None)
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-
+# En producción, permitir cualquier host si no está configurado específicamente
+if not DEBUG and not RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append('*')
 # Application definition
 
 INSTALLED_APPS = [
@@ -69,7 +71,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',  # COMENTADO - solo para producción
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Activado para producción
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -175,6 +177,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Configuración de WhiteNoise para producción
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
