@@ -74,8 +74,9 @@
                 <thead>
                     <tr>
                         <th style="width: 6%;">Foto</th>
+                        <th style="width: 6%;">Fecha</th>
                         <th style="width: 9%;">Código</th>
-                        <!--<th style="width: 14%;">Nombre</th> -->
+                        <th style="width: 14%;">Nombre</th>
                         <th style="width: 12%;">Detalle</th>
                         <th style="width: 12%;">Categoría</th>
                         <th style="width: 10%;">Stock Unidad</th>
@@ -105,13 +106,16 @@
                             {% endif %}
                         </td>
                         <td>
+                            {{ producto.fecha_creacion|date:"d/m/Y" }}
+                        </td>
+                        <td>
                             <span class="codigo-badge">{{ producto.codigo }}</span>
                         </td>
-                        <!--<td>
+                        <td>
                             <div class="text-truncate" style="max-width: 200px;" title="{{ producto.nombre }}">
                                 {{ producto.nombre }}
                             </div>
-                        </td>-->
+                        </td>
                         <td>
                             <div class="text-truncate" style="max-width: 200px;" title="{{ producto.detalle|default:'Sin detalle' }}">
                                 {{ producto.descripcion|default:'Sin detalle' }}
