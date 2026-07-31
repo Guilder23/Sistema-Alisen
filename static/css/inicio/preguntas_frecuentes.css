@@ -1,13 +1,15 @@
-.faq-hero { background: linear-gradient(135deg, #0f1c3b, #16294f); color: #ffffff; }
+.faq-page { background: #f8fafc; padding-top: 76px; }
+.faq-hero { background: #06112b; color: #ffffff; padding: 4rem 0; }
 .faq-hero .eyebrow { color: #f2b300; }
 .faq-hero h1 { margin-bottom: 0.5rem; }
-.faq-panel { background: #0e1a35; border: 1px solid rgba(242, 179, 0, 0.15); border-radius: 18px; padding: 1.5rem; }
-.faq-item { border-bottom: 1px solid rgba(255,255,255,0.08); }
+.faq-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(15,23,42,0.06); }
+.faq-item { border-bottom: 1px solid #e2e8f0; }
 .faq-item:last-child { border-bottom: none; }
-.faq-question { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1.15rem 0; color: #f8f7f4; background: transparent; border: none; font-size: 1rem; text-align: left; cursor: pointer; }
-.faq-question i { transition: transform 0.3s ease; }
-.faq-item.open .faq-question i { transform: rotate(180deg); }
-.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; color: #d0d0c8; padding-bottom: 0; }
-.faq-answer p { margin: 0; padding: 0.75rem 0; }
-.faq-note { color: #c9c9c4; }
+.faq-question { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1.15rem 0; color: #0f172a; background: transparent; border: none; font-size: 1rem; font-weight: 600; text-align: left; cursor: pointer; transition: color 0.2s ease; }
+.faq-question:hover { color: #2563eb; }
+.faq-question i { transition: transform 0.3s ease; color: #64748b; }
+.faq-item.open .faq-question i { transform: rotate(180deg); color: #2563eb; }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; color: #475569; padding-bottom: 0; }
+.faq-answer p { margin: 0; padding: 0.75rem 0; line-height: 1.7; }
+.faq-note { color: #64748b; background: #f1f5f9; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; }
 @media (max-width: 767px) { .faq-hero, .faq-section { padding-left: 1.25rem; padding-right: 1.25rem; } }
