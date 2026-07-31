@@ -6,6 +6,7 @@ class Categoria(models.Model):
     """Modelo de Categoría de productos"""
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True, null=True)
+    foto = models.ImageField(upload_to='categorias/', blank=True, null=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='categorias_creadas')
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
@@ -135,6 +136,7 @@ class Producto(models.Model):
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     activo = models.BooleanField(default=True)
     publicado = models.BooleanField(default=False)
+    en_oferta = models.BooleanField(default=False, verbose_name='En oferta')
     
     class Meta:
         verbose_name = 'Producto'

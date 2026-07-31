@@ -16,9 +16,9 @@
 <body>
     {% include 'componentes/navbarprincipal.html' %}
 
-    <main class="detail-page container py-4" style="padding-top: 150px;">
+    <main class="detail-page container py-3" style="padding-top: 120px;">
         <section class="detail-hero">
-            <div class="detail-hero-card row bg-white p-3 rounded shadow-sm">
+            <div class="detail-hero-card row bg-white p-2 p-md-3 rounded shadow-sm">
                 <div class="detail-image-wrap col-md-5 text-center">
                     <div class="product-gallery">
                         <div class="gallery-main-wrap" id="galleryMainWrap">
@@ -93,7 +93,7 @@
                         {% endif %}
                     </div>
                     {% endif %}
-                    <form id="detailAddToCartForm" class="detail-action-form d-flex flex-wrap align-items-end" style="display: flex; align-items: center; gap: 0.9rem; margin-top: 1.5rem;">
+                    <form id="detailAddToCartForm" class="detail-action-form d-flex flex-wrap align-items-end">
                         <input type="hidden" id="detailProductId" value="{{ producto.id }}">
                         <input type="hidden" id="detailProductName" value="{{ producto.nombre }}">
                         <input type="hidden" id="detailProductPrice" value="{{ producto.precio_unidad|floatformat:2 }}">

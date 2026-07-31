@@ -37,6 +37,13 @@
                 $('#editNombre').val(data.nombre || '');
                 $('#editDescripcion').val(data.descripcion || '');
                 $('#editActivo').prop('checked', data.activo);
+                if (data.foto_url) {
+                    $('#editCategoriaPreview').attr('src', data.foto_url).show();
+                    $('#editCategoriaPreviewEmpty').hide();
+                } else {
+                    $('#editCategoriaPreview').attr('src', '').hide();
+                    $('#editCategoriaPreviewEmpty').show();
+                }
                 $('#modalEditarCategoria').modal('show');
             },
             error: function() {

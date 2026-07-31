@@ -9,7 +9,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="formEditarCategoria" method="post">
+            <form id="formEditarCategoria" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" id="editarCategoriaId" name="categoria_id">
                 <div class="modal-body">
@@ -33,6 +33,16 @@
                             name="descripcion"
                             rows="4"
                         ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Imagen actual</label>
+                        <div class="categoria-preview-box" id="editCategoriaPreviewBox">
+                            <img id="editCategoriaPreview" src="" alt="Previsualización de la categoría" class="img-fluid rounded" style="display:none; max-height: 180px; object-fit: cover;">
+                            <div id="editCategoriaPreviewEmpty" class="text-muted small">No hay imagen cargada.</div>
+                        </div>
+                        <input type="file" class="form-control-file mt-2" id="editFoto" name="foto" accept="image/*">
+                        <small class="form-text text-muted">Seleccione una imagen nueva para reemplazar la actual.</small>
                     </div>
 
                     <div class="form-group mb-0">

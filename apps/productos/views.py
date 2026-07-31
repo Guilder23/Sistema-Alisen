@@ -150,6 +150,7 @@ def crear_categoria(request):
         nombre = request.POST.get('nombre', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
         activo = request.POST.get('activo') == 'on'
+        foto = request.FILES.get('foto')
 
         if not nombre:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -167,6 +168,7 @@ def crear_categoria(request):
             nombre=nombre,
             descripcion=descripcion,
             activo=activo,
+            foto=foto,
             creado_por=request.user
         )
 
@@ -202,6 +204,7 @@ def obtener_categoria(request, id):
             'nombre': categoria.nombre,
             'descripcion': categoria.descripcion or '',
             'activo': categoria.activo,
+            'foto_url': categoria.foto.url if categoria.foto else '',
             'creado_por': creado_por_str,
             'fecha_creacion': categoria.fecha_creacion.strftime('%d/%m/%Y %H:%M'),
             'fecha_actualizacion': categoria.fecha_actualizacion.strftime('%d/%m/%Y %H:%M'),
@@ -225,6 +228,7 @@ def editar_categoria(request, id):
         nombre = request.POST.get('nombre', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
         activo = request.POST.get('activo') == 'on'
+        foto = request.FILES.get('foto')
 
         if not nombre:
             messages.error(request, 'El nombre de la categoría es requerido')
@@ -238,6 +242,8 @@ def editar_categoria(request, id):
         categoria.nombre = nombre
         categoria.descripcion = descripcion
         categoria.activo = activo
+        if foto is not None:
+            categoria.foto = foto
         categoria.save()
 
         messages.success(request, f'Categoría "{categoria.nombre}" actualizada exitosamente')
@@ -777,8 +783,9 @@ def publicar_producto(request, id):
 
     producto = get_object_or_404(Producto, id=id)
     producto.publicado = True
-    producto.save(update_fields=['publicado'])
-    return JsonResponse({'success': True, 'publicado': producto.publicado})
+    producto.en_oferta = request.POST.get('en_oferta') == 'on' or request.POST.get('en_oferta') == 'true'
+    producto.save(update_fields=['publicado', 'en_oferta'])
+    return JsonResponse({'success': True, 'publicado': producto.publicado, 'en_oferta': producto.en_oferta})
 
 @login_required
 @require_http_methods(['POST'])
@@ -789,8 +796,9 @@ def despublicar_producto(request, id):
 
     producto = get_object_or_404(Producto, id=id)
     producto.publicado = False
-    producto.save(update_fields=['publicado'])
-    return JsonResponse({'success': True, 'publicado': producto.publicado})
+    producto.en_oferta = False
+    producto.save(update_fields=['publicado', 'en_oferta'])
+    return JsonResponse({'success': True, 'publicado': producto.publicado, 'en_oferta': producto.en_oferta})
 
 @login_required
 def historial_producto(request, id):
