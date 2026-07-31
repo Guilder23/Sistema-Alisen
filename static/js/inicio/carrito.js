@@ -3,13 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartTotal = document.getElementById('cartTotal');
     const cartItemCount = document.getElementById('cartItemCount');
     const showFormButton = document.getElementById('showFormButton');
-    const customerForm = document.getElementById('customerForm');
     const checkoutForm = document.getElementById('checkoutForm');
     const submitOrderButton = document.getElementById('submitOrderButton');
-    const cancelFormButton = document.getElementById('cancelFormButton');
     const deliveryOption = document.getElementById('deliveryOption');
     const deliveryNote = document.getElementById('deliveryNote');
     const clearCartBtn = document.getElementById('clearCartBtn');
+    const customerModal = document.getElementById('customerModal');
 
     const getCart = () => { try { return JSON.parse(localStorage.getItem('alicen_cart') || '{}'); } catch { return {}; } };
     const saveCart = (cart) => { localStorage.setItem('alicen_cart', JSON.stringify(cart)); renderCart(); };
@@ -46,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         cartTotal.textContent = '0.00';
         if (cartItemCount) cartItemCount.textContent = '0';
+        if (showFormButton) showFormButton.disabled = true;
     };
 
     const renderCart = () => {
@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cartContent.innerHTML = htmlItems;
         cartTotal.textContent = formatCurrency(calculateTotal(items));
         if (cartItemCount) cartItemCount.textContent = String(totalItems);
+        if (showFormButton) showFormButton.disabled = false;
 
         cartContent.querySelectorAll('.quantity-control').forEach(button => {
             button.addEventListener('click', () => {
@@ -103,22 +104,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    showFormButton?.addEventListener('click', () => {
+    // Validar carrito antes de abrir el modal
+    showFormButton?.addEventListener('click', (e) => {
         const items = getCartItems();
         if (!items.length) {
+            e.preventDefault();
             mostrarToast('Agrega productos al carrito antes de enviar el pedido.', 'error', 'Carrito vacío');
-            return;
+            return false;
         }
-        showFormButton.style.display = 'none';
-        customerForm.style.display = 'block';
     });
 
-    cancelFormButton?.addEventListener('click', () => {
-        customerForm.style.display = 'none';
-        showFormButton.style.display = 'block';
-        checkoutForm.reset();
-        deliveryNote.style.display = 'none';
-    });
+    // Resetear formulario cuando se cierra el modal
+    if (customerModal) {
+        customerModal.addEventListener('hidden.bs.modal', () => {
+            checkoutForm.reset();
+            deliveryNote.style.display = 'none';
+        });
+    }
 
     deliveryOption?.addEventListener('change', () => {
         if (deliveryOption.value === 'delivery') {
@@ -165,6 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const phone = submitOrderButton?.dataset.phone || '';
         const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
         window.open(whatsappUrl, '_blank');
+        
+        // Cerrar el modal después de enviar
+        if (customerModal) {
+            $(customerModal).modal('hide');
+        }
     });
 
     clearCartBtn?.addEventListener('click', () => {
