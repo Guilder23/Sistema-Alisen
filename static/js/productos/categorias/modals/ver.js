@@ -23,6 +23,13 @@
                     : '<span class="badge-estado badge-estado-inactivo"><i class="fas fa-times-circle"></i> Inactivo</span>';
 
                 $('#verEstado').html(estadoBadge);
+                if (data.foto_url) {
+                    $('#verCategoriaFoto').attr('src', data.foto_url).show();
+                    $('#verCategoriaFotoEmpty').hide();
+                } else {
+                    $('#verCategoriaFoto').attr('src', '').hide();
+                    $('#verCategoriaFotoEmpty').show();
+                }
                 $('#verCreadoPor').text(data.creado_por || 'No disponible');
                 $('#verFechaCreacion').text(data.fecha_creacion || 'No disponible');
                 $('#verFechaActualizacion').text(data.fecha_actualizacion || 'No disponible');

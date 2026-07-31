@@ -139,6 +139,7 @@
 
         const confirmBtn = document.getElementById('modalToggleConfirmar');
         const originalHtml = confirmBtn.innerHTML;
+        const enOferta = document.getElementById('modalToggleEnOferta')?.checked ? 'on' : 'off';
         confirmBtn.disabled = true;
         confirmBtn.classList.add('btn-toggle-loading');
         confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Procesando...';
@@ -152,8 +153,10 @@
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `en_oferta=${encodeURIComponent(enOferta)}`
             });
             const data = await response.json();
 

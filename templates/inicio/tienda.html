@@ -124,11 +124,16 @@
                         <div class="col">
                             <article class="product-card h-100">
                                 <a href="{% url 'product_detail' producto.id %}" class="product-card-image d-block overflow-hidden">
-                                    {% if producto.imagen_principal_url %}
-                                        <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="img-fluid">
-                                    {% else %}
-                                        <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" class="img-fluid">
-                                    {% endif %}
+                                    <div class="product-card-visual">
+                                        {% if producto.imagen_principal_url %}
+                                            <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="img-fluid">
+                                        {% else %}
+                                            <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" class="img-fluid">
+                                        {% endif %}
+                                        {% if producto.en_oferta %}
+                                        <span class="offer-badge"><i class="fas fa-tags"></i> Oferta</span>
+                                        {% endif %}
+                                    </div>
                                 </a>
                                 <div class="product-card-body p-3 d-flex flex-column justify-content-between">
                                     <div>

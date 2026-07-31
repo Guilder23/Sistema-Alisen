@@ -24,7 +24,7 @@ def index(request):
     buscar = request.GET.get('buscar', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
 
-    productos = Producto.objects.select_related('categoria').filter(activo=True, publicado=True)
+    productos = Producto.objects.select_related('categoria').filter(activo=True, publicado=True, en_oferta=True)
     if buscar:
         productos = productos.filter(
             Q(codigo__icontains=buscar) |
