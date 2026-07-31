@@ -54,20 +54,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!items.length) { renderEmpty(); return; }
 
         const htmlItems = items.map(item => `
-            <article class="cart-item row align-items-center">
-                <div class="col-auto"><img src="${item.foto || '/static/img/logoAlmacen.png'}" alt="${item.nombre}"></div>
-                <div class="col cart-item-body">
-                    <strong>${item.nombre}</strong>
-                    <div class="small">Bs ${formatCurrency(item.precio)} c/u</div>
-                    <div class="cart-item-quantity mt-2">
-                        <button class="btn btn-sm btn-light quantity-control" data-action="decrease" data-id="${item.id}">-</button>
-                        <span class="mx-2">${item.cantidad}</span>
-                        <button class="btn btn-sm btn-light quantity-control" data-action="increase" data-id="${item.id}">+</button>
+            <article class="cart-item">
+                <div class="cart-item-image"><img src="${item.foto || '/static/img/logoAlmacen.png'}" alt="${item.nombre}"></div>
+                <div class="cart-item-main">
+                    <div class="cart-item-header">
+                        <strong>${item.nombre}</strong>
+                        <div class="cart-item-price">Bs ${formatCurrency(item.precio)} por unidad</div>
                     </div>
-                </div>
-                <div class="col-auto cart-item-meta text-right">
-                    <strong>Bs ${formatCurrency(item.cantidad * item.precio)}</strong>
-                    <div><button class="btn btn-sm btn-outline-danger remove-item" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button></div>
+                    <div class="cart-item-controls">
+                        <button class="btn btn-sm btn-light quantity-control" data-action="decrease" data-id="${item.id}" aria-label="Disminuir cantidad">-</button>
+                        <input type="number" class="form-control quantity-input" min="1" value="${item.cantidad}" data-id="${item.id}">
+                        <button class="btn btn-sm btn-light quantity-control" data-action="increase" data-id="${item.id}" aria-label="Aumentar cantidad">+</button>
+                    </div>
+                    <div class="cart-item-footer">
+                        <div class="cart-item-total">Total: Bs ${formatCurrency(item.cantidad * item.precio)}</div>
+                        <button class="btn btn-sm btn-outline-danger remove-item" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 </div>
             </article>
         `).join('');
@@ -87,6 +89,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const next = action === 'increase' ? current + 1 : current - 1;
                 if (next < 1) return;
                 cart[id].cantidad = next;
+                saveCart(cart);
+            });
+        });
+
+        cartContent.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', () => {
+                const cart = getCart();
+                const id = input.dataset.id;
+                if (!cart[id]) return;
+                const nextValue = parseInt(input.value, 10);
+                if (Number.isNaN(nextValue) || nextValue < 1) {
+                    input.value = 1;
+                    cart[id].cantidad = 1;
+                } else {
+                    cart[id].cantidad = nextValue;
+                }
                 saveCart(cart);
             });
         });

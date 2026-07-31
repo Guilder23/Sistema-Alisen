@@ -16,7 +16,7 @@
 <body>
     {% include 'componentes/navbarprincipal.html' %}
 
-    <main class="detail-page container py-4">
+    <main class="detail-page container py-4" style="padding-top: 150px;">
         <section class="detail-hero">
             <div class="detail-hero-card row bg-white p-3 rounded shadow-sm">
                 <div class="detail-image-wrap col-md-5 text-center">
@@ -50,20 +50,20 @@
                     <h1>{{ producto.nombre }}</h1>
                     <p class="detail-category">{{ producto.categoria.nombre|default:'Sin categoría' }}</p>
                     <p class="detail-description">{{ producto.descripcion|default:'No hay descripción disponible para este producto.' }}</p>
-                    <div class="detail-meta-grid row text-muted mb-3">
-                        <div class="col-6 col-md-3">
+                    <div class="detail-meta-grid d-flex flex-wrap gap-3 text-muted mb-3">
+                        <div class="detail-meta-item">
                             <span class="d-block">Stock disponible</span>
                             <strong>{{ producto.stock }} unidades</strong>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="detail-meta-item">
                             <span class="d-block">Unidades por caja</span>
                             <strong>{{ producto.unidades_por_caja }}</strong>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="detail-meta-item">
                             <span class="d-block">Precio unidad</span>
                             <strong>Bs {{ producto.precio_unidad|floatformat:2 }}</strong>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="detail-meta-item">
                             <span class="d-block">Precio caja</span>
                             <strong>Bs {{ producto.precio_caja|floatformat:2 }}</strong>
                         </div>
@@ -93,12 +93,12 @@
                         {% endif %}
                     </div>
                     {% endif %}
-                    <form id="detailAddToCartForm" class="detail-action-form d-flex flex-column flex-sm-row align-items-start">
+                    <form id="detailAddToCartForm" class="detail-action-form d-flex flex-wrap align-items-end" style="display: flex; align-items: center; gap: 0.9rem; margin-top: 1.5rem;">
                         <input type="hidden" id="detailProductId" value="{{ producto.id }}">
                         <input type="hidden" id="detailProductName" value="{{ producto.nombre }}">
                         <input type="hidden" id="detailProductPrice" value="{{ producto.precio_unidad|floatformat:2 }}">
                         <input type="hidden" id="detailProductImage" value="{% if imagen_principal_url %}{{ imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}">
-                        <div class="product-quantity-group mr-2 mb-2">
+                        <div class="product-quantity-group mr-2 mb-2" style="max-width: 120px; flex: 0 0 110px;">
                             <label for="detailQuantity" class="small">Cantidad</label>
                             <input type="number" id="detailQuantity" class="form-control" min="1" max="{{ producto.stock }}" value="1">
                         </div>
