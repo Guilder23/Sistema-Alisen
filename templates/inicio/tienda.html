@@ -18,20 +18,25 @@
 <body>
     {% include 'componentes/navbarprincipal.html' %}
 
+    <div class="tienda-overlay"></div>
     <main class="tienda-main">
-        <section class="tienda-header py-4">
-            <div class="container">
-                <h1 class="h2 mb-2"><i class="fas fa-store text-primary mr-2"></i>Tienda</h1>
-                <p class="text-muted mb-0">Explora todos nuestros productos disponibles</p>
-            </div>
-        </section>
-
         <section class="container py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 tienda-mobile-topbar">
+                <button type="button" class="btn btn-outline-primary btn-sm tienda-filtro-toggle d-flex align-items-center">
+                    <i class="fas fa-sliders-h mr-2"></i>Filtros
+                </button>
+                <div>
+                    <p class="text-muted mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} encontrado{{ productos|length|pluralize }}</p>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-3 mb-4 mb-lg-0">
-                    <div class="card tienda-filtros sticky-top" style="top: 1rem;">
-                        <div class="card-header bg-white">
+                    <div class="card tienda-filtros sticky-top" id="tiendaFilters" style="top: 1rem;">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0"><i class="fas fa-sliders-h mr-2"></i>Filtros</h5>
+                            <button type="button" class="btn btn-sm btn-outline-secondary tienda-filtros-close d-lg-none">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                         <div class="card-body">
                             <form method="GET" id="formFiltrosTienda">
@@ -119,9 +124,9 @@
                         </div>
                     </div>
 
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 tienda-product-grid">
+                    <div class="row no-gutters tienda-product-grid">
                         {% for producto in productos %}
-                        <div class="col">
+                        <div class="col-6 col-md-4 col-lg-3 mb-3">
                             <article class="product-card h-100">
                                 <a href="{% url 'product_detail' producto.id %}" class="product-card-image d-block overflow-hidden">
                                     <div class="product-card-visual">

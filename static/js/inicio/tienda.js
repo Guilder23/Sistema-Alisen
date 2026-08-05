@@ -74,6 +74,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2800);
     };
 
-    addButtons.forEach(button => button.addEventListener('click', () => addItem(button)));
+    addButtons.forEach(button => button.addEventListener('click', () => addItem(button)));    
     updateCartCount(getCart());
+
+    const filtroToggle = document.querySelector('.tienda-filtro-toggle');
+    const filtroClose = document.querySelector('.tienda-filtros-close');
+    const filtroPanel = document.getElementById('tiendaFilters');
+    const overlay = document.querySelector('.tienda-overlay');
+
+    const toggleFilters = (open) => {
+        if (!filtroPanel) return;
+        filtroPanel.classList.toggle('open', open);
+        document.body.classList.toggle('filtros-open', open);
+        if (overlay) {
+            overlay.classList.toggle('open', open);
+        }
+    };
+
+    if (filtroToggle) {
+        filtroToggle.addEventListener('click', () => toggleFilters(true));
+    }
+    if (filtroClose) {
+        filtroClose.addEventListener('click', () => toggleFilters(false));
+    }
+    if (overlay) {
+        overlay.addEventListener('click', () => toggleFilters(false));
+    }
 });

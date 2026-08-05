@@ -47,16 +47,23 @@
                     <p class="text-muted mb-0">Explora nuestras categorías con imagen.</p>
                 </div>
             </div>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-2 categories-grid">
+            <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-2 categories-grid">
                 {% for categoria in categorias %}
                 <div class="col">
-                    <article class="category-card h-100">
-                        <a href="{% url 'tienda' %}?categoria={{ categoria.id }}" class="category-card-image d-block overflow-hidden">
+                    <article class="category-card h-100 position-relative">
+                        <a href="{% url 'tienda' %}?categoria={{ categoria.id }}" class="category-card-image d-block overflow-hidden position-relative">
                             {% if categoria.foto %}
                                 <img src="{{ categoria.foto.url }}" alt="{{ categoria.nombre }}" class="img-fluid">
                             {% else %}
                                 <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ categoria.nombre }}" class="img-fluid">
                             {% endif %}
+                            <div class="category-card-overlay">
+                                <div class="category-card-overlay-content">
+                                    <h3>{{ categoria.nombre }}</h3>
+                                    <p>{{ categoria.descripcion|default:'Explora esta categoría' }}</p>
+                                    <span>Ver categoría</span>
+                                </div>
+                            </div>
                         </a>
                         <div class="category-card-body">
                             <h3 class="category-title mb-0">{{ categoria.nombre }}</h3>
@@ -85,7 +92,7 @@
                 </div>
             </div>
 
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+            <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
                 {% for producto in productos %}
                 <div class="col">
                     <article class="product-card h-100">
