@@ -81,7 +81,10 @@
                         {% endif %}
 
                         {% if tiendas_stock %}
-                        {% include 'inicio/componentes/stock_ubicacion_compacta.html' with stock_list=tiendas_stock total=total_tiendas header_class='tienda-header' icon_class='fa-store' titulo='Tienda' %}
+                        <div class="detail-store-selection mb-4">
+                            <h6 class="detail-section-title">Selecciona la tienda para comprar</h6>
+                            {% include 'inicio/componentes/stock_ubicacion_compacta.html' with stock_list=tiendas_stock total=total_tiendas header_class='tienda-header' icon_class='fa-store' titulo='Tienda' seleccionable=True selected_ubicacion_id=tiendas_stock.0.ubicacion_id %}
+                        </div>
                         {% endif %}
 
                         {% if depositos_stock %}
@@ -95,12 +98,21 @@
                     {% endif %}
                     <form id="detailAddToCartForm" class="detail-action-form d-flex flex-wrap align-items-end">
                         <input type="hidden" id="detailProductId" value="{{ producto.id }}">
+                        {% if tiendas_stock %}
+                        <input type="hidden" id="detailLocationId" value="{{ tiendas_stock.0.ubicacion_id }}">
+                        <input type="hidden" id="detailLocationName" value="{{ tiendas_stock.0.nombre }}">
+                        <input type="hidden" id="detailLocationPhone" value="{{ tiendas_stock.0.telefono }}">
+                        {% else %}
+                        <input type="hidden" id="detailLocationId" value="">
+                        <input type="hidden" id="detailLocationName" value="">
+                        <input type="hidden" id="detailLocationPhone" value="">
+                        {% endif %}
                         <input type="hidden" id="detailProductName" value="{{ producto.nombre }}">
                         <input type="hidden" id="detailProductPrice" value="{{ producto.precio_unidad|floatformat:2 }}">
                         <input type="hidden" id="detailProductImage" value="{% if imagen_principal_url %}{{ imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}">
                         <div class="product-quantity-group mr-2 mb-2" style="max-width: 120px; flex: 0 0 110px;">
                             <label for="detailQuantity" class="small">Cantidad</label>
-                            <input type="number" id="detailQuantity" class="form-control" min="1" max="{{ producto.stock }}" value="1">
+                            <input type="number" id="detailQuantity" class="form-control" min="1" max="{% if tiendas_stock %}{{ tiendas_stock.0.cantidad }}{% else %}{{ producto.stock }}{% endif %}" value="1">
                         </div>
                         <div class="detail-actions mt-2 mt-sm-0">
                             <button type="submit" class="btn btn-primary mr-2">Agregar al carrito</button>
@@ -108,7 +120,7 @@
                         </div>
                     </form>
                     <div class="detail-note mt-3 small text-muted">
-                        <p><strong>WhatsApp:</strong> {{ tienda_telefono }}</p>
+                        <p><strong>WhatsApp:</strong> <span id="detailSelectedStorePhone">{{ tiendas_stock.0.telefono|default:'+59170000000' }}</span></p>
                         <p><strong>Envíos a Bolivia</strong> y soporte personalizado con tu pedido.</p>
                     </div>
                 </div>

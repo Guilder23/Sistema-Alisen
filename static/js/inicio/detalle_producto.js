@@ -2,11 +2,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailForm = document.getElementById('detailAddToCartForm');
     const quantityInput = document.getElementById('detailQuantity');
     const productId = document.getElementById('detailProductId')?.value;
+    const detailLocationId = document.getElementById('detailLocationId');
+    const detailLocationName = document.getElementById('detailLocationName');
+    const detailLocationPhone = document.getElementById('detailLocationPhone');
+    const selectedStorePhoneDisplay = document.getElementById('detailSelectedStorePhone');
     const productName = document.getElementById('detailProductName')?.value;
     const productPrice = parseFloat(document.getElementById('detailProductPrice')?.value || '0');
     const productImage = document.getElementById('detailProductImage')?.value;
-    const stock = parseInt(quantityInput?.max || '0', 10);
+    const defaultStock = parseInt(quantityInput?.max || '0', 10);
     const cartCount = document.getElementById('cartCount');
+    const selectedStoreRadios = document.querySelectorAll('.selected-store-radio');
+
+    const getSelectedStore = () => {
+        const selected = document.querySelector('.selected-store-radio:checked');
+        if (!selected) return null;
+        return {
+            id: selected.value,
+            name: selected.dataset.storeName || '',
+            phone: selected.dataset.storePhone || '',
+            stock: parseInt(selected.dataset.storeStock || '0', 10) || 0,
+        };
+    };
+
+    const updateSelectedStore = () => {
+        const store = getSelectedStore();
+        if (!store) return;
+        if (detailLocationId) detailLocationId.value = store.id;
+        if (detailLocationName) detailLocationName.value = store.name;
+        if (detailLocationPhone) detailLocationPhone.value = store.phone;
+        if (selectedStorePhoneDisplay) selectedStorePhoneDisplay.textContent = store.phone || 'Sin teléfono';
+        if (quantityInput) quantityInput.max = store.stock || defaultStock;
+    };
+
+    selectedStoreRadios.forEach(radio => {
+        radio.addEventListener('change', updateSelectedStore);
+    });
+
+    updateSelectedStore();
 
     const getCart = () => {
         try { return JSON.parse(localStorage.getItem('alicen_cart') || '{}'); } catch { return {}; }
@@ -43,11 +75,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const addToCart = (quantity) => {
         if (!productId || !productName || !productPrice || quantity < 1) return;
+        const store = getSelectedStore();
         const cart = getCart();
-        const key = String(productId);
+        let selectedStock = defaultStock;
+        let locationId = '';
+        let locationName = '';
+        let locationPhone = '';
+
+        if (selectedStoreRadios.length > 0) {
+            if (!store) {
+                mostrarToast('Selecciona una tienda para tu compra.', 'error', 'Tienda obligatoria');
+                return;
+            }
+            selectedStock = store.stock;
+            locationId = store.id;
+            locationName = store.name;
+            locationPhone = store.phone;
+        }
+
+        if (quantity > selectedStock) {
+            mostrarToast(`La cantidad supera el stock disponible (${selectedStock}).`, 'error', 'Stock insuficiente');
+            return;
+        }
+
+        const key = `${productId}_${locationId}`;
         const existing = cart[key] || {};
-        const newQuantity = Math.min(stock, (existing.cantidad || 0) + quantity);
-        cart[key] = { id: productId, nombre: productName, precio: productPrice, cantidad: newQuantity, foto: productImage };
+        const newQuantity = Math.min(selectedStock, (existing.cantidad || 0) + quantity);
+
+        cart[key] = {
+            id: productId,
+            nombre: productName,
+            precio: productPrice,
+            cantidad: newQuantity,
+            foto: productImage,
+            ubicacion_id: locationId,
+            ubicacion_nombre: locationName,
+            ubicacion_telefono: locationPhone,
+            stock: selectedStock,
+        };
         saveCart(cart);
         mostrarToast(`${quantity} unidad${quantity === 1 ? '' : 'es'} agregada${quantity === 1 ? '' : 's'} al carrito.`, 'success', productName);
     };
@@ -59,8 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrarToast('Ingresa una cantidad válida.', 'error', 'Datos incorrectos');
             return;
         }
-        if (quantity > stock) {
-            mostrarToast(`La cantidad supera el stock disponible (${stock}).`, 'error', 'Stock insuficiente');
+        const store = getSelectedStore();
+        const maxAllowed = store ? store.stock : defaultStock;
+        if (quantity > maxAllowed) {
+            mostrarToast(`La cantidad supera el stock disponible (${maxAllowed}).`, 'error', 'Stock insuficiente');
             return;
         }
         addToCart(quantity);

@@ -49,7 +49,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderCart = () => {
-        const items = getCartItems();
+        const cart = getCart();
+        let needsSave = false;
+        const items = Object.values(cart).map((item) => {
+            const maxStock = Number.isFinite(Number(item.stock)) ? Number(item.stock) : Infinity;
+            if (item.cantidad > maxStock) {
+                item.cantidad = maxStock;
+                cart[`${item.id}_${item.ubicacion_id || ''}`] = item;
+                needsSave = true;
+            }
+            return item;
+        });
+        if (needsSave) {
+            saveCart(cart);
+            return;
+        }
+
         const totalItems = items.reduce((sum, i) => sum + i.cantidad, 0);
         if (!items.length) { renderEmpty(); return; }
 
@@ -61,14 +76,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         <strong>${item.nombre}</strong>
                         <div class="cart-item-price">Bs ${formatCurrency(item.precio)} por unidad</div>
                     </div>
+                    <div class="cart-item-store text-muted small mb-2">
+                        Tienda: ${item.ubicacion_nombre || 'No definida'}
+                    </div>
                     <div class="cart-item-controls">
-                        <button class="btn btn-sm btn-light quantity-control" data-action="decrease" data-id="${item.id}" aria-label="Disminuir cantidad">-</button>
-                        <input type="number" class="form-control quantity-input" min="1" value="${item.cantidad}" data-id="${item.id}">
-                        <button class="btn btn-sm btn-light quantity-control" data-action="increase" data-id="${item.id}" aria-label="Aumentar cantidad">+</button>
+                        <button class="btn btn-sm btn-light quantity-control" data-action="decrease" data-id="${item.id}_${item.ubicacion_id || ''}" aria-label="Disminuir cantidad">-</button>
+                        <input type="number" class="form-control quantity-input" min="1" value="${item.cantidad}" data-id="${item.id}_${item.ubicacion_id || ''}">
+                        <button class="btn btn-sm btn-light quantity-control" data-action="increase" data-id="${item.id}_${item.ubicacion_id || ''}" aria-label="Aumentar cantidad">+</button>
                     </div>
                     <div class="cart-item-footer">
                         <div class="cart-item-total">Total: Bs ${formatCurrency(item.cantidad * item.precio)}</div>
-                        <button class="btn btn-sm btn-outline-danger remove-item" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        <button class="btn btn-sm btn-outline-danger remove-item" data-id="${item.id}_${item.ubicacion_id || ''}"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 </div>
             </article>
@@ -79,6 +97,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cartItemCount) cartItemCount.textContent = String(totalItems);
         if (showFormButton) showFormButton.disabled = false;
 
+        const storeNames = [...new Set(items.map(item => item.ubicacion_nombre).filter(Boolean))];
+        const storePhones = [...new Set(items.map(item => item.ubicacion_telefono).filter(Boolean))];
+        const cartStoreNameElem = document.getElementById('cartStoreName');
+        const cartStorePhoneElem = document.getElementById('cartStorePhone');
+        const selectedPhone = storePhones.length === 1 ? storePhones[0] : (storePhones[0] || '');
+        const displayStoreName = storeNames.length === 1 ? storeNames[0] : (storeNames.length > 1 ? 'Varias tiendas' : 'Tienda no definida');
+        if (cartStoreNameElem) cartStoreNameElem.textContent = displayStoreName;
+        if (cartStorePhoneElem) cartStorePhoneElem.textContent = selectedPhone || 'Sin teléfono';
+        if (submitOrderButton) submitOrderButton.dataset.phone = selectedPhone.replace(/^\+/, '') || submitOrderButton.dataset.phone || '';
+
         cartContent.querySelectorAll('.quantity-control').forEach(button => {
             button.addEventListener('click', () => {
                 const cart = getCart();
@@ -86,8 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const action = button.dataset.action;
                 if (!cart[id]) return;
                 const current = cart[id].cantidad;
+                const maxStock = Number.isFinite(Number(cart[id].stock)) ? cart[id].stock : Infinity;
                 const next = action === 'increase' ? current + 1 : current - 1;
                 if (next < 1) return;
+                if (next > maxStock) {
+                    mostrarToast(`No puedes pedir más de ${maxStock} unidades de esta tienda.`, 'error', 'Stock insuficiente');
+                    return;
+                }
                 cart[id].cantidad = next;
                 saveCart(cart);
             });
@@ -98,13 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cart = getCart();
                 const id = input.dataset.id;
                 if (!cart[id]) return;
-                const nextValue = parseInt(input.value, 10);
+                const maxStock = Number.isFinite(Number(cart[id].stock)) ? cart[id].stock : Infinity;
+                let nextValue = parseInt(input.value, 10);
                 if (Number.isNaN(nextValue) || nextValue < 1) {
-                    input.value = 1;
-                    cart[id].cantidad = 1;
-                } else {
-                    cart[id].cantidad = nextValue;
+                    nextValue = 1;
                 }
+                if (nextValue > maxStock) {
+                    nextValue = maxStock;
+                    mostrarToast(`No puedes pedir más de ${maxStock} unidades de esta tienda.`, 'error', 'Stock insuficiente');
+                }
+                input.value = nextValue;
+                cart[id].cantidad = nextValue;
                 saveCart(cart);
             });
         });

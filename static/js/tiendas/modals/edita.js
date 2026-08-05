@@ -64,6 +64,7 @@ function cargarEdicionTienda(tiendaId) {
             document.getElementById('editarCiudad').value = data.ciudad || '';
             document.getElementById('editarDepartamento').value = data.departamento || '';
             document.getElementById('editarCoordenadas').value = data.coordenadas || '';
+            document.getElementById('editarTelefono').value = data.telefono || '';
             document.getElementById('editarEstado').value = data.estado || 'activo';
         })
         .catch(error => {

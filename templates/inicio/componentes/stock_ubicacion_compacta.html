@@ -12,12 +12,25 @@ Variables: stock_list, total, header_class, icon_class, titulo, tipo_label (opci
     </div>
     <div class="stock-group-body">
         {% for ub in stock_list %}
-        <div class="stock-item stock-item-compact {% if not forloop.last %}border-bottom{% endif %}">
+        {% if seleccionable %}
+        <label class="stock-item stock-item-compact stock-item-selectable {% if not forloop.last %}border-bottom{% endif %}" title="Comprar desde {{ ub.nombre }}">
+            <input type="radio" name="selectedStore" class="selected-store-radio"
+                value="{{ ub.ubicacion_id }}"
+                data-store-name="{{ ub.nombre }}"
+                data-store-phone="{{ ub.telefono|default:'' }}"
+                data-store-stock="{{ ub.cantidad }}"
+                data-store-address="{{ ub.direccion|default:''|escape }}"
+                data-store-maps="{{ ub.maps_url|default:'' }}"
+                data-store-type="{{ ub.tipo }}"
+                {% if selected_ubicacion_id and selected_ubicacion_id == ub.ubicacion_id %}checked{% elif not selected_ubicacion_id and forloop.first %}checked{% endif %}>
             <div class="stock-item-main">
-                <span class="stock-item-name">
-                    {% if tipo_label %}<span class="badge badge-secondary badge-tipo-compact mr-1">{{ ub.tipo }}</span>{% endif %}
-                    {{ ub.nombre|default:titulo }}
-                </span>
+                <div class="stock-item-top">
+                    <span class="stock-item-name">
+                        {% if tipo_label %}<span class="badge badge-secondary badge-tipo-compact mr-1">{{ ub.tipo }}</span>{% endif %}
+                        <strong>{{ ub.nombre|default:titulo }}</strong>
+                    </span>
+                    <span class="stock-item-phone">Cel: {{ ub.telefono|default:'Sin celular' }}</span>
+                </div>
                 <span class="badge-stock-item badge-stock-compact
                              {% if ub.cantidad >= 10 %}badge-stock-ok{% elif ub.cantidad >= 5 %}badge-stock-warn{% else %}badge-stock-crit{% endif %}">
                     {{ ub.cantidad }}
@@ -26,7 +39,31 @@ Variables: stock_list, total, header_class, icon_class, titulo, tipo_label (opci
             <div class="stock-item-meta stock-item-meta-compact">
                 {% if ub.departamento %}<span class="meta-item">{{ ub.departamento }}</span>{% endif %}
                 {% if ub.ciudad %}<span class="meta-item">{{ ub.ciudad }}</span>{% endif %}
-                {% if ub.direccion %}<span class="meta-item">{{ ub.direccion|truncatechars:40 }}</span>{% endif %}
+                {% if ub.maps_url %}
+                <a href="{{ ub.maps_url }}" target="_blank" rel="noopener noreferrer" class="meta-link-maps">
+                    <i class="fas fa-map-marked-alt"></i> Maps
+                </a>
+                {% endif %}
+            </div>
+        </label>
+        {% else %}
+        <div class="stock-item stock-item-compact {% if not forloop.last %}border-bottom{% endif %}">
+            <div class="stock-item-main">
+                <div class="stock-item-top">
+                    <span class="stock-item-name">
+                        {% if tipo_label %}<span class="badge badge-secondary badge-tipo-compact mr-1">{{ ub.tipo }}</span>{% endif %}
+                        {{ ub.nombre|default:titulo }}
+                    </span>
+                    <span class="stock-item-phone">Cel: {{ ub.telefono|default:'Sin celular' }}</span>
+                </div>
+                <span class="badge-stock-item badge-stock-compact
+                             {% if ub.cantidad >= 10 %}badge-stock-ok{% elif ub.cantidad >= 5 %}badge-stock-warn{% else %}badge-stock-crit{% endif %}">
+                    {{ ub.cantidad }}
+                </span>
+            </div>
+            <div class="stock-item-meta stock-item-meta-compact">
+                {% if ub.departamento %}<span class="meta-item">{{ ub.departamento }}</span>{% endif %}
+                {% if ub.ciudad %}<span class="meta-item">{{ ub.ciudad }}</span>{% endif %}
                 {% if ub.maps_url %}
                 <a href="{{ ub.maps_url }}" target="_blank" rel="noopener noreferrer" class="meta-link-maps">
                     <i class="fas fa-map-marked-alt"></i> Maps
@@ -34,6 +71,7 @@ Variables: stock_list, total, header_class, icon_class, titulo, tipo_label (opci
                 {% endif %}
             </div>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
 </div>
