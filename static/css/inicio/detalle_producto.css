@@ -273,10 +273,86 @@
 .stock-group-compact .stock-group-header.otros-header { background: #64748b; }
 .stock-item-compact {
   padding: 0.45rem 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  transition: border-color .2s ease, background .2s ease;
+}
+.stock-item-compact.stock-item-selectable {
+  cursor: pointer;
+}
+.stock-item-compact:hover {
+  border-color: #cbd5e1;
+}
+.stock-item-compact input.selected-store-radio {
+  margin: 0.3rem 0 0 0;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+.stock-item-compact .stock-item-main {
+  flex: 1;
+  min-width: 0;
+}
+.stock-item-compact .stock-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 .stock-item-compact .stock-item-name {
   font-size: 0.82rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.stock-item-compact .stock-item-phone {
+  font-size: 0.75rem;
+  color: #475569;
+  font-weight: 500;
+}
+.stock-item-compact input.selected-store-radio:checked + .stock-item-main {
+  background: #eff6ff;
+  border-radius: 0.5rem;
+  padding: 0.35rem;
+}
+@media (max-width: 767px) {
+  .stock-item-compact {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .stock-item-compact input.selected-store-radio {
+    margin: 0 0 0.5rem 0;
+  }
+  .stock-item-compact .stock-item-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .stock-item-compact .stock-item-name,
+  .stock-item-compact .stock-item-phone {
+    width: 100%;
+  }
+  .stock-item-compact .stock-item-phone {
+    margin-top: 0.25rem;
+  }
+  .stock-item-compact .badge-stock-item {
+    margin-top: 0.5rem;
+  }
+}
+.stock-item-compact .stock-item-phone {
+  font-size: 0.75rem;
+  color: #475569;
+  font-weight: 500;
+}
+.stock-item-compact input.selected-store-radio:checked + .stock-item-main {
+  background: #eff6ff;
+  border-radius: 0.5rem;
+  padding: 0.35rem;
 }
 .badge-stock-compact {
   font-size: 0.72rem;

@@ -20,9 +20,14 @@ function inicializarModalCrear() {
             const direccion = document.getElementById('crearDireccion').value.trim();
             const ciudad = document.getElementById('crearCiudad').value.trim();
             const departamento = document.getElementById('crearDepartamento').value.trim();
+            const telefono = document.getElementById('crearTelefono').value.trim();
             
             if (!nombre || !tipo || !almacen || !direccion || !ciudad || !departamento) {
                 alert('Por favor, complete todos los campos requeridos');
+                return;
+            }
+            if (telefono && telefono.length > 20) {
+                alert('El teléfono no puede superar los 20 caracteres');
                 return;
             }
             

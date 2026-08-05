@@ -71,6 +71,7 @@ def crear_tienda(request):
             ciudad=request.POST.get('ciudad'),
             departamento=request.POST.get('departamento'),
             coordenadas=request.POST.get('coordenadas', ''),
+            telefono=request.POST.get('telefono', ''),
             estado=request.POST.get('estado', 'activo'),
             creado_por=request.user
         )
@@ -95,6 +96,7 @@ def editar_tienda(request, pk):
         tienda.ciudad = request.POST.get('ciudad')
         tienda.departamento = request.POST.get('departamento')
         tienda.coordenadas = request.POST.get('coordenadas', '')
+        tienda.telefono = request.POST.get('telefono', '')
         tienda.estado = request.POST.get('estado')
         tienda.save()
         
@@ -138,6 +140,7 @@ def obtener_tienda(request, pk):
         'ciudad': tienda.ciudad,
         'departamento': tienda.departamento,
         'coordenadas': tienda.coordenadas or '',
+        'telefono': tienda.telefono or '',
         'estado': tienda.estado,
         'estado_display': tienda.get_estado_display(),
         'creado_por': tienda.creado_por.get_full_name() if tienda.creado_por else 'Sistema',

@@ -164,6 +164,8 @@ def product_detail(request, id):
         direccion = None
         maps_url = None
         tipo = None
+        telefono = None
+        ubicacion_id = None
         if inv.ubicacion.tienda:
             nombre = inv.ubicacion.tienda.nombre
             ciudad = inv.ubicacion.tienda.ciudad
@@ -171,6 +173,8 @@ def product_detail(request, id):
             direccion = inv.ubicacion.tienda.direccion
             maps_url = inv.ubicacion.tienda.coordenadas
             tipo = 'Tienda'
+            telefono = inv.ubicacion.tienda.telefono
+            ubicacion_id = inv.ubicacion.tienda.id
         elif inv.ubicacion.almacen:
             nombre = inv.ubicacion.almacen.nombre
             ciudad = inv.ubicacion.almacen.ciudad
@@ -211,6 +215,8 @@ def product_detail(request, id):
             'direccion': direccion,
             'maps_url': maps_url,
             'cantidad': inv.cantidad,
+            'telefono': telefono,
+            'ubicacion_id': ubicacion_id,
         }
         ubicaciones_disponibles.append(ubi_data)
 

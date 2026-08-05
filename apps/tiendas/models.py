@@ -37,6 +37,12 @@ class Tienda(models.Model):
         verbose_name='Link Google Maps',
         help_text='Pega aquí el enlace de Google Maps de la ubicación',
     )
+    telefono = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name='Teléfono/Celular',
+    )
     
     # Estado y seguimiento
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='activo', 

@@ -13,7 +13,7 @@ class TiendaAdmin(admin.ModelAdmin):
             'fields': ('nombre', 'descripcion', 'tipo', 'almacen', 'estado')
         }),
         ('Ubicación', {
-            'fields': ('direccion', 'ciudad', 'departamento', 'coordenadas')
+            'fields': ('direccion', 'ciudad', 'departamento', 'coordenadas', 'telefono')
         }),
         ('Auditoría', {
             'fields': ('creado_por', 'fecha_creacion', 'fecha_actualizacion'),
