@@ -76,6 +76,9 @@
                     <article class="product-card h-100">
                         <a href="{% url 'product_detail' producto.id %}" class="product-card-image d-block overflow-hidden">
                             <div class="product-card-visual">
+                                {% if producto.en_oferta and producto.precio_unidad_oferta %}
+                                <span class="offer-badge"><i class="fas fa-tags"></i> Oferta</span>
+                                {% endif %}
                                 {% if producto.imagen_principal_url %}
                                     <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="img-fluid">
                                 {% else %}
@@ -89,7 +92,7 @@
                                 <div class="product-price mb-3">
                                     {% if producto.en_oferta and producto.precio_unidad_oferta %}
                                         <small class="text-muted"><del>Bs {{ producto.precio_unidad|floatformat:2 }}</del></small>
-                                        <div class="text-danger font-weight-bold">Bs {{ producto.precio_unidad_oferta|floatformat:2 }}</div>
+                                        <span class="text-danger font-weight-bold ml-2">Bs {{ producto.precio_unidad_oferta|floatformat:2 }}</span>
                                     {% else %}
                                         Bs {{ producto.precio_unidad|floatformat:2 }}
                                     {% endif %}

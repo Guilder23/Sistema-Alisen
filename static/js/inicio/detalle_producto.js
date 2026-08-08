@@ -137,6 +137,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateCartCount(getCart());
 
+    // Acordeón de descripción
+    const descriptionAccordion = document.querySelector('.description-accordion');
+    const descriptionToggle = document.querySelector('.description-toggle');
+    const descriptionContent = document.querySelector('.description-content');
+
+    if (descriptionToggle && descriptionContent) {
+        descriptionToggle.addEventListener('click', () => {
+            const isOpen = descriptionAccordion.classList.contains('open');
+            if (isOpen) {
+                descriptionAccordion.classList.remove('open');
+                descriptionContent.style.maxHeight = '0';
+                descriptionToggle.setAttribute('aria-expanded', 'false');
+            } else {
+                descriptionAccordion.classList.add('open');
+                descriptionContent.style.maxHeight = `${descriptionContent.scrollHeight}px`;
+                descriptionToggle.setAttribute('aria-expanded', 'true');
+            }
+        });
+    }
+
     // Galería de imágenes y video
     const galleryMainWrap = document.getElementById('galleryMainWrap');
     const galleryMainMedia = document.getElementById('galleryMainMedia');
