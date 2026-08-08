@@ -25,6 +25,7 @@ def ver_inventario(request):
 
     buscar = request.GET.get('buscar', '').strip()
     estado = request.GET.get('estado', '').strip()
+    oferta = request.GET.get('oferta', '').strip()
 
     ubicaciones_inventario = [perfil]
     nombre_ubicacion = perfil.nombre_ubicacion or perfil.usuario.username
@@ -60,8 +61,15 @@ def ver_inventario(request):
                 prod.nombre.lower().find(buscar.lower()) != -1 or
                 (prod.categoria and prod.categoria.nombre.lower().find(buscar.lower()) != -1)
             ):
-                if not estado or clase_inventario.estado_stock == estado:
-                    inventarios_lista.append(clase_inventario)
+                # aplicar filtro de estado
+                if estado and clase_inventario.estado_stock != estado:
+                    continue
+                # aplicar filtro de oferta (solo productos en oferta / no en oferta)
+                if oferta == 'si' and not prod.en_oferta:
+                    continue
+                if oferta == 'no' and prod.en_oferta:
+                    continue
+                inventarios_lista.append(clase_inventario)
     else:
         # Para tienda/depósito: usar tabla Inventario
         inventarios = Inventario.objects.select_related(
@@ -76,6 +84,13 @@ def ver_inventario(request):
                 | Q(producto__nombre__icontains=buscar)
                 | Q(producto__categoria__nombre__icontains=buscar)
             )
+
+        inventarios_lista = list(inventarios)
+        # aplicar filtro de oferta
+        if oferta == 'si':
+            inventarios = inventarios.filter(producto__en_oferta=True)
+        elif oferta == 'no':
+            inventarios = inventarios.filter(producto__en_oferta=False)
 
         inventarios_lista = list(inventarios)
 
@@ -104,6 +119,7 @@ def ver_inventario(request):
         'paginator': paginator,
         'buscar': buscar,
         'estado': estado,
+        'oferta': oferta,
         'ubicacion_actual': perfil,
         'nombre_ubicacion': nombre_ubicacion,
         'tipo_inventario': 'tienda' if perfil.rol == 'tienda' else 'ubicacion',
@@ -131,6 +147,7 @@ def ver_inventario_deposito(request):
 
     buscar = request.GET.get('buscar', '').strip()
     estado = request.GET.get('estado', '').strip()
+    oferta = request.GET.get('oferta', '').strip()
 
     depositos = Deposito.objects.filter(tienda_id=perfil.tienda_id).order_by('id')
     tiene_depositos_vinculados = depositos.exists()
@@ -153,6 +170,12 @@ def ver_inventario_deposito(request):
             | Q(producto__nombre__icontains=buscar)
             | Q(producto__categoria__nombre__icontains=buscar)
         )
+
+    # aplicar filtro de oferta para depósitos
+    if oferta == 'si':
+        inventarios = inventarios.filter(producto__en_oferta=True)
+    elif oferta == 'no':
+        inventarios = inventarios.filter(producto__en_oferta=False)
 
     inventarios_lista = list(inventarios)
 
@@ -183,6 +206,7 @@ def ver_inventario_deposito(request):
         'paginator': paginator,
         'buscar': buscar,
         'estado': estado,
+        'oferta': oferta,
         'ubicacion_actual': perfil,
         'nombre_ubicacion': nombre_deposito,
         'tipo_inventario': 'deposito',

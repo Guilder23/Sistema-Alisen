@@ -47,7 +47,7 @@
     <div class="card card-filtros mb-3">
         <div class="card-body py-3">
             <form method="GET" id="formFiltrosInventario" class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <div class="input-group input-group-sm">
                         <div class="input-group-prepend">
                             <span class="input-group-text bg-white border-right-0">
@@ -64,7 +64,14 @@
                         >
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <select class="form-control form-control-sm" id="ofertaInventario" name="oferta">
+                        <option value="">Todas</option>
+                        <option value="si" {% if oferta == 'si' %}selected{% endif %}>En oferta</option>
+                        <option value="no" {% if oferta == 'no' %}selected{% endif %}>Sin oferta</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <select class="form-control form-control-sm" id="estadoInventario" name="estado">
                         <option value="">Todos los estados</option>
                         <option value="normal" {% if estado == 'normal' %}selected{% endif %}>Normal</option>
@@ -104,8 +111,9 @@
                             <th style="width: 9%;">Unid/Caja</th>
                             <th style="width: 10%;">Stock por Caja</th>
                             <th style="width: 12%;">Precio USD</th>
-                            <th style="width: 10%;">Precio por Caja</th>
-                            <th style="width: 8%;">Estado</th>
+                            <th style="width: 10%">Precio por Caja</th>
+                            <th class="text-center" style="width: 6%;">Oferta</th>
+                            <th style="width: 8%">Estado</th>
                             <th class="text-center" style="width: 10%;">Acciones</th>
                         {% endif %}
                     </tr>
@@ -234,6 +242,13 @@
                             <td class="text-center">
                                 <span class="precio-badge">Bs. {{ item.producto.precio_caja|floatformat:2 }}</span>
                             </td>
+                                <td class="text-center">
+                                    {% if item.producto.en_oferta %}
+                                        <span class="badge-oferta badge-oferta-si"><i class="fas fa-tag"></i> En oferta</span>
+                                    {% else %}
+                                        <span class="badge-oferta badge-oferta-no">No</span>
+                                    {% endif %}
+                                </td>
                             <td class="text-center">
                                 {% if item.estado_stock == 'normal' %}
                                     <span class="badge-estado badge-estado-activo">Normal</span>
@@ -260,7 +275,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="{% if es_almacen %}12{% else %}11{% endif %}" class="text-center py-4">
+                        <td colspan="{% if es_almacen %}13{% else %}12{% endif %}" class="text-center py-4">
                             <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
                             <p class="text-muted mb-0">No hay stock disponible para esta ubicación</p>
                         </td>
@@ -276,10 +291,10 @@
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}">Primera</a>
+                    <a class="page-link" href="?page=1&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}&oferta={{ oferta|urlencode }}">Primera</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}">Anterior</a>
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}&oferta={{ oferta|urlencode }}">Anterior</a>
                 </li>
             {% endif %}
 
@@ -290,17 +305,17 @@
                     </li>
                 {% else %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}">{{ num }}</a>
+                        <a class="page-link" href="?page={{ num }}&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}&oferta={{ oferta|urlencode }}">{{ num }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
 
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}">Siguiente</a>
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}&oferta={{ oferta|urlencode }}">Siguiente</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}">Última</a>
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&buscar={{ buscar|urlencode }}&estado={{ estado|urlencode }}&oferta={{ oferta|urlencode }}">Última</a>
                 </li>
             {% endif %}
         </ul>
