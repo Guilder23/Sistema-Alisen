@@ -81,22 +81,27 @@
                                 {% else %}
                                     <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" class="img-fluid">
                                 {% endif %}
-                                {% if producto.en_oferta %}
-                                <span class="offer-badge"><i class="fas fa-tags"></i> Oferta</span>
-                                {% endif %}
                             </div>
                         </a>
                         <div class="product-card-body p-3 d-flex flex-column justify-content-between">
                             <div>
                                 <h3 class="product-title mb-2">{{ producto.nombre }}</h3>
-                                <div class="product-price mb-3">Bs {{ producto.precio_unidad|floatformat:2 }}</div>
+                                <div class="product-price mb-3">
+                                    {% if producto.en_oferta and producto.precio_unidad_oferta %}
+                                        <small class="text-muted"><del>Bs {{ producto.precio_unidad|floatformat:2 }}</del></small>
+                                        <div class="text-danger font-weight-bold">Bs {{ producto.precio_unidad_oferta|floatformat:2 }}</div>
+                                    {% else %}
+                                        Bs {{ producto.precio_unidad|floatformat:2 }}
+                                    {% endif %}
+                                </div>
                             </div>
                             <div class="product-actions">
                                 <a href="{% url 'product_detail' producto.id %}" class="btn btn-outline-secondary btn-sm btn-detail">Detalles</a>
                                 <button class="btn btn-sm btn-primary btn-add" type="button"
                                     data-product-id="{{ producto.id }}"
                                     data-product-name="{{ producto.nombre|escapejs }}"
-                                    data-product-price="{{ producto.precio_unidad|floatformat:2 }}"
+                                    data-product-price="{% if producto.en_oferta and producto.precio_unidad_oferta %}{{ producto.precio_unidad_oferta|floatformat:2 }}{% else %}{{ producto.precio_unidad|floatformat:2 }}{% endif %}"
+                                    data-product-oferta="{% if producto.en_oferta and producto.precio_unidad_oferta %}true{% else %}false{% endif %}"
                                     data-product-image="{% if producto.imagen_principal_url %}{{ producto.imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}"
                                     data-product-stock="{{ producto.stock }}"
                                 ><i class="fas fa-shopping-cart"></i> <span>Agregar</span></button>

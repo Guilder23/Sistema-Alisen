@@ -93,7 +93,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const lines = items.map(item => `${item.nombre} x ${item.cantidad} = Bs ${formatCurrency(item.cantidad * item.precio)}`);
+        const lines = items.map(item => {
+            const label = item.en_oferta ? `${item.nombre} (OFERTA)` : item.nombre;
+            return `${label} x ${item.cantidad} = Bs ${formatCurrency(item.cantidad * item.precio)}`;
+        });
         const total = formatCurrency(calculateTotal(items));
         const message = encodeURIComponent(`Hola, quiero hacer un pedido:\n\n${lines.join('\n')}\n\nTotal: Bs ${total}\n\nPor favor, confirmen disponibilidad y envío.`);
         const phone = checkoutButton?.dataset.phone || '';

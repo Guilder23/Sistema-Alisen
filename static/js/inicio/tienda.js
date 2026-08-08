@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const precio = parseFloat(button.dataset.productPrice || '0');
         const foto = button.dataset.productImage;
         const stock = parseInt(button.dataset.productStock || '0', 10);
+        const enOferta = (button.dataset.productOferta === 'true');
 
         if (!productId || !nombre || !precio || stock <= 0) {
             mostrarToast('No se puede agregar este producto al carrito.', 'error', 'Sin stock');
@@ -49,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
             precio,
             cantidad,
             foto,
+            en_oferta: enOferta
         };
 
         saveCart(cart);

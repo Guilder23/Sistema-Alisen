@@ -61,7 +61,14 @@
                         </div>
                         <div class="detail-meta-item">
                             <span class="d-block">Precio unidad</span>
-                            <strong>Bs {{ producto.precio_unidad|floatformat:2 }}</strong>
+                            <strong>
+                                {% if producto.en_oferta and producto.precio_unidad_oferta %}
+                                    <small class="text-muted"><del>Bs {{ producto.precio_unidad|floatformat:2 }}</del></small><br>
+                                    <span class="text-danger">Bs {{ producto.precio_unidad_oferta|floatformat:2 }}</span>
+                                {% else %}
+                                    Bs {{ producto.precio_unidad|floatformat:2 }}
+                                {% endif %}
+                            </strong>
                         </div>
                         <div class="detail-meta-item">
                             <span class="d-block">Precio caja</span>
@@ -108,8 +115,9 @@
                         <input type="hidden" id="detailLocationPhone" value="">
                         {% endif %}
                         <input type="hidden" id="detailProductName" value="{{ producto.nombre }}">
-                        <input type="hidden" id="detailProductPrice" value="{{ producto.precio_unidad|floatformat:2 }}">
-                        <input type="hidden" id="detailProductImage" value="{% if imagen_principal_url %}{{ imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}">
+                        <input type="hidden" id="detailProductPrice" value="{% if producto.en_oferta and producto.precio_unidad_oferta %}{{ producto.precio_unidad_oferta|floatformat:2 }}{% else %}{{ producto.precio_unidad|floatformat:2 }}{% endif %}">
+                        <input type="hidden" id="detailProductOferta" value="{% if producto.en_oferta and producto.precio_unidad_oferta %}true{% else %}false{% endif %}">
+                        <input type="hidden" id="detailProductImage" value="{% if imagen_principal_url %}{{ imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}">>
                         <div class="product-quantity-group mr-2 mb-2" style="max-width: 120px; flex: 0 0 110px;">
                             <label for="detailQuantity" class="small">Cantidad</label>
                             <input type="number" id="detailQuantity" class="form-control" min="1" max="{% if tiendas_stock %}{{ tiendas_stock.0.cantidad }}{% else %}{{ producto.stock }}{% endif %}" value="1">
