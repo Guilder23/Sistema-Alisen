@@ -59,6 +59,18 @@
         
         // Precios Bs
         $('#verPrecioUnidad').text('Bs. ' + parseFloat(data.precio_unidad).toFixed(2));
+        // Precio unidad oferta: mostrar solo si hay valor positivo
+        try {
+            const oferta = parseFloat(data.precio_unidad_oferta || 0);
+            if (!isNaN(oferta) && oferta > 0) {
+                $('#verPrecioUnidadOferta').text('Bs. ' + oferta.toFixed(2));
+                $('#infoPrecioUnidadOferta').show();
+            } else {
+                $('#infoPrecioUnidadOferta').hide();
+            }
+        } catch (e) {
+            $('#infoPrecioUnidadOferta').hide();
+        }
         $('#verPrecioCompra').text('Bs. ' + parseFloat(data.precio_compra).toFixed(2));
         $('#verPrecioCaja').text('Bs. ' + parseFloat(data.precio_caja).toFixed(2));
         $('#verPrecioMayor').text('Bs. ' + parseFloat(data.precio_mayor).toFixed(2));

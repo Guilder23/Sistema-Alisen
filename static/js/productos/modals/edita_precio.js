@@ -51,6 +51,8 @@
         
         // Llenar todos los campos de precios
         $('#precio_unitario').val(parseFloat(data.precio_unidad).toFixed(2));
+        // precio de oferta (puede ser null)
+        $('#precio_unidad_oferta').val(data.precio_unidad_oferta ? parseFloat(data.precio_unidad_oferta).toFixed(2) : '');
         $('#precio_compra').val(parseFloat(data.precio_compra).toFixed(2));
         $('#precio_caja').val(parseFloat(data.precio_caja).toFixed(2));
         $('#precio_mayor').val(parseFloat(data.precio_mayor).toFixed(2));
@@ -64,6 +66,7 @@
     
     function guardarPrecio(productoId) {
         const precioUnitario = $('#precio_unitario').val();
+        const precioUnidadOferta = $('#precio_unidad_oferta').val();
         const precioCompra = $('#precio_compra').val();
         const precioCaja = $('#precio_caja').val();
         const precioMayor = $('#precio_mayor').val();
@@ -86,6 +89,7 @@
         const formData = new FormData();
         formData.append('csrfmiddlewaretoken', $('[name=csrfmiddlewaretoken]').val());
         formData.append('precio_unidad', precioUnitario);
+        formData.append('precio_unidad_oferta', precioUnidadOferta || 0);
         formData.append('precio_compra', precioCompra || 0);
         formData.append('precio_caja', precioCaja || 0);
         formData.append('precio_mayor', precioMayor || 0);
@@ -144,6 +148,7 @@
         $('#formEditarPrecio')[0].reset();
         $('#precio_producto').val('');
         $('#precio_unitario').val('');
+        $('#precio_unidad_oferta').val('');
         $('#precio_compra').val('');
         $('#precio_caja').val('');
         $('#precio_mayor').val('');
