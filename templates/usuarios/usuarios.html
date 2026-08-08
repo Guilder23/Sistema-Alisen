@@ -90,6 +90,17 @@
                                 <tr>
                                     <td>
                                         <span class="usuario-badge">{{ usuario.username }}</span>
+                                        {% if usuario.perfil %}
+                                            {% if usuario.perfil.tienda %}
+                                                <small class="text-muted d-block" style="font-size: 0.8rem;">{{ usuario.perfil.tienda.nombre }}</small>
+                                            {% elif usuario.perfil.almacen %}
+                                                <small class="text-muted d-block" style="font-size: 0.8rem;">{{ usuario.perfil.almacen.nombre }}</small>
+                                            {% elif usuario.perfil.rol == 'deposito' and usuario.perfil.ubicacion_relacionada %}
+                                                <small class="text-muted d-block" style="font-size: 0.8rem;">Depósito de {{ usuario.perfil.ubicacion_relacionada.nombre_ubicacion|default:usuario.perfil.ubicacion_relacionada.usuario.username }}</small>
+                                            {% elif usuario.perfil.nombre_ubicacion %}
+                                                <small class="text-muted d-block" style="font-size: 0.8rem;">{{ usuario.perfil.nombre_ubicacion }}</small>
+                                            {% endif %}
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <div class="text-truncate" style="max-width: 150px;" title="{{ usuario.get_full_name|default:'Sin nombre' }}">

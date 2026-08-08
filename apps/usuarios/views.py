@@ -454,8 +454,8 @@ def listar_usuarios(request):
     estado = request.GET.get('estado', '')
     rol = request.GET.get('rol', '')
     
-    # Query base - incluir perfil con select_related para optimización
-    usuarios = User.objects.select_related('perfil').exclude(username__startswith='deposito_auto_').order_by('-date_joined')
+    # Query base - incluir perfil y relaciones de ubicación para optimización
+    usuarios = User.objects.select_related('perfil__almacen', 'perfil__tienda', 'perfil__ubicacion_relacionada').exclude(username__startswith='deposito_auto_').order_by('-date_joined')
     
     # Aplicar filtros
     if buscar:
