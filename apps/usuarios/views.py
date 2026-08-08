@@ -17,7 +17,7 @@ def _es_usuario_tecnico_deposito(usuario):
     return usuario.username.startswith('deposito_auto_')
 
 def index(request):
-    """Página de inicio pública con catálogo de productos (máx. 4 productos)"""
+    """Página de inicio pública con catálogo de productos (muestra todos los productos en oferta)"""
     if request.user.is_authenticated:
         return redirect('dashboard')
 
@@ -36,7 +36,7 @@ def index(request):
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
 
-    productos = productos.order_by('-fecha_creacion')[:4]
+    productos = productos.order_by('-fecha_creacion')
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
 
     context = {
