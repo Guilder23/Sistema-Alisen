@@ -197,6 +197,16 @@
             </li>
             {% endif %}
 
+            <!-- Proformas -->
+            {% if user.is_superuser or user.is_staff or user.perfil.rol == 'almacen' %}
+            <li class="sidebar-item">
+                <a href="{% url 'proformas:listar_proformas' %}" class="sidebar-link {% if 'proformas' in request.path or 'proformas' in request.resolver_match.url_name %}active{% endif %}" title="Proformas">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Proformas</span>
+                </a>
+            </li>
+            {% endif %}
+
             <!-- Pedidos - Oculto para Tienda Online -->
             {% if not user.perfil or user.perfil.rol != 'tienda_online' %}
             <li class="sidebar-item">
