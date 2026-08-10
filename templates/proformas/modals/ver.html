@@ -1,0 +1,116 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Ver Proforma{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/proformas/modals/ver.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Proforma {{ proforma.codigo }}</h3>
+            <p class="text-muted mb-0">Detalles y productos de la proforma.</p>
+        </div>
+        <div>
+            <a href="{% url 'proformas:listar_proformas' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i> Volver al listado
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>Código</strong>
+                    <p>{{ proforma.codigo }}</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Cliente</strong>
+                    <p>{{ proforma.cliente }}</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Usuario</strong>
+                    <p>{% if proforma.usuario %}{{ proforma.usuario.username }}{% else %}Sistema{% endif %}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>NIT</strong>
+                    <p>{{ proforma.nit|default:'-' }}</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Teléfono</strong>
+                    <p>{{ proforma.telefono|default:'-' }}</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Fecha</strong>
+                    <p>{{ proforma.fecha_elaboracion|date:'d/m/Y H:i' }}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>Razón social</strong>
+                    <p>{{ proforma.razon_social|default:'-' }}</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Moneda</strong>
+                    <p>{{ proforma.moneda }}</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>Total</strong>
+                    <p>{{ proforma.total|floatformat:2 }}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <strong>Dirección</strong>
+                    <p>{{ proforma.direccion|default:'-' }}</p>
+                </div>
+            </div>
+            <div class="row mb-0">
+                <div class="col-md-12">
+                    <strong>Comentario</strong>
+                    <p class="mb-0">{{ proforma.comentario|default:'-' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white font-weight-bold">Productos en proforma</div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm mb-0" id="tablaDetalleProforma">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Modalidad</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detalleProformaBody">
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">Cargando detalles...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    const PROFORMAS_VER_URLS = {
+        obtenerProforma: "{% url 'proformas:obtener_proforma' proforma.id %}",
+    };
+</script>
+<script src="{% static 'js/proformas/modals/ver.js' %}"></script>
+{% endblock %}

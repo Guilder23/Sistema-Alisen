@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedStorePhoneDisplay = document.getElementById('detailSelectedStorePhone');
     const productName = document.getElementById('detailProductName')?.value;
     const productPrice = parseFloat(document.getElementById('detailProductPrice')?.value || '0');
+    const productOferta = (document.getElementById('detailProductOferta')?.value === 'true');
     const productImage = document.getElementById('detailProductImage')?.value;
     const defaultStock = parseInt(quantityInput?.max || '0', 10);
     const cartCount = document.getElementById('cartCount');
@@ -112,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ubicacion_nombre: locationName,
             ubicacion_telefono: locationPhone,
             stock: selectedStock,
+            en_oferta: productOferta
         };
         saveCart(cart);
         mostrarToast(`${quantity} unidad${quantity === 1 ? '' : 'es'} agregada${quantity === 1 ? '' : 's'} al carrito.`, 'success', productName);
@@ -134,6 +136,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateCartCount(getCart());
+
+    // Acordeón de descripción
+    const descriptionAccordion = document.querySelector('.description-accordion');
+    const descriptionToggle = document.querySelector('.description-toggle');
+    const descriptionContent = document.querySelector('.description-content');
+
+    if (descriptionToggle && descriptionContent) {
+        descriptionToggle.addEventListener('click', () => {
+            const isOpen = descriptionAccordion.classList.contains('open');
+            if (isOpen) {
+                descriptionAccordion.classList.remove('open');
+                descriptionContent.style.maxHeight = '0';
+                descriptionToggle.setAttribute('aria-expanded', 'false');
+            } else {
+                descriptionAccordion.classList.add('open');
+                descriptionContent.style.maxHeight = `${descriptionContent.scrollHeight}px`;
+                descriptionToggle.setAttribute('aria-expanded', 'true');
+            }
+        });
+    }
 
     // Galería de imágenes y video
     const galleryMainWrap = document.getElementById('galleryMainWrap');

@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const productId = button.dataset.productId;
         const nombre = button.dataset.productName;
         const precio = parseFloat(button.dataset.productPrice || '0');
+        const enOferta = (button.dataset.productOferta === 'true');
         const foto = button.dataset.productImage;
         const stock = parseInt(button.dataset.productStock || '0', 10);
 
@@ -68,6 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
             precio,
             cantidad,
             foto,
+            en_oferta: enOferta
         };
 
         saveCart(cart);

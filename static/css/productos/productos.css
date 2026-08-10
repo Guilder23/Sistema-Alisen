@@ -258,6 +258,28 @@
     border-color: #9ca3af;
 }
 
+/* BADGE PARA INDICAR SI EL PRODUCTO ESTÁ EN OFERTA */
+.badge-oferta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border: 1px solid;
+}
+.badge-oferta-si {
+    background: linear-gradient(180deg,#ecfccb,#bbf7d0);
+    color: #166534;
+    border-color: #86efac;
+}
+.badge-oferta-no {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #e2e8f0;
+}
+
 /* FILA INACTIVA */
 .fila-inactiva {
     opacity: 0.6;

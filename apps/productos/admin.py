@@ -51,7 +51,7 @@ class ProductoImagenInline(admin.TabularInline):
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ['codigo', 'nombre', 'categoria', 'stock_display', 'precio_unitario_display', 'activo', 'fecha_creacion']
+    list_display = ['codigo', 'nombre', 'categoria', 'stock_display', 'precio_unitario_display', 'precio_oferta_display', 'activo', 'fecha_creacion']
     list_filter = ['activo', 'fecha_creacion', 'categoria']
     search_fields = ['codigo', 'nombre', 'descripcion']
     list_per_page = 20
@@ -62,7 +62,7 @@ class ProductoAdmin(admin.ModelAdmin):
             'fields': ('codigo', 'nombre', 'categoria', 'descripcion', 'foto', 'video_youtube', 'activo')
         }),
         ('Precios (Configurables por Administrador)', {
-            'fields': ('precio_compra', 'precio_caja', 'precio_mayor', 'precio_unidad', 'poliza', 'gastos'),
+            'fields': ('precio_compra', 'precio_caja', 'precio_mayor', 'precio_unidad', 'precio_unidad_oferta', 'poliza', 'gastos'),
             'description': 'Todos los precios pueden ser editados por el administrador'
         }),
         ('Stock', {
@@ -84,6 +84,12 @@ class ProductoAdmin(admin.ModelAdmin):
     def precio_unitario_display(self, obj):
         return f"Bs. {obj.precio_unidad}"
     precio_unitario_display.short_description = 'Precio Unitario'
+
+    def precio_oferta_display(self, obj):
+        if obj.precio_unidad_oferta:
+            return f"Bs. {obj.precio_unidad_oferta}"
+        return '-'
+    precio_oferta_display.short_description = 'Precio Oferta (Unidad)'
     
     def save_model(self, request, obj, form, change):
         if not change:

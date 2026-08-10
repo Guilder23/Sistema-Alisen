@@ -1,0 +1,160 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Editar Proforma{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/proformas/modals/editar.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Editar Proforma</h3>
+            <p class="text-muted mb-0">Modifica los datos y productos de la proforma.</p>
+        </div>
+        <a href="{% url 'proformas:listar_proformas' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left mr-1"></i> Volver al listado
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form id="formEditarProforma" novalidate>
+                <input type="hidden" id="proformaId" value="{{ proforma.id }}">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="inputCliente">Cliente <span class="text-danger">*</span></label>
+                                <input type="text" id="inputCliente" class="form-control" placeholder="Nombre del cliente" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="inputNit">NIT</label>
+                                <input type="text" id="inputNit" name="nit" class="form-control" placeholder="123456789" value="{{ proforma.nit|default_if_none:'' }}">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="inputTelefono">Teléfono</label>
+                                <input type="text" id="inputTelefono" class="form-control" placeholder="70012345">
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="inputRazonSocial">Razón social</label>
+                                <input type="text" id="inputRazonSocial" class="form-control" placeholder="Empresa S.A.">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="inputDireccion">Dirección</label>
+                                <input type="text" id="inputDireccion" class="form-control" placeholder="Av. Principal #123">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="inputMoneda">Moneda</label>
+                                <select id="inputMoneda" class="form-control">
+                                    <option value="BOB">Bolivianos (BOB)</option>
+                                    <option value="USD">Dólares (USD)</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="inputTipoCambio">Tipo de cambio</label>
+                                <input type="number" step="0.01" id="inputTipoCambio" class="form-control" value="6.93">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="selectDescuentoTipo">Descuento</label>
+                                <select id="selectDescuentoTipo" class="form-control">
+                                    <option value="ninguno">Sin descuento</option>
+                                    <option value="fijo">Monto fijo</option>
+                                    <option value="porcentaje">Porcentaje</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="inputDescuentoValor">Valor descuento</label>
+                                <input type="number" step="0.01" id="inputDescuentoValor" class="form-control" value="0">
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="inputComentario">Comentario</label>
+                                <textarea id="inputComentario" class="form-control" rows="2" placeholder="Observaciones opcionales"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card border-secondary mb-3">
+                            <div class="card-header bg-white font-weight-bold">Buscar producto</div>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <input type="text" id="inputBuscarProducto" class="form-control" placeholder="Buscar por nombre o código" autocomplete="off">
+                                </div>
+                                <div id="searchResults" class="search-results"></div>
+                            </div>
+                        </div>
+
+                        <div class="card border-secondary">
+                            <div class="card-header bg-white font-weight-bold">Totales</div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal</span>
+                                    <strong id="subtotalGeneral">0.00</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Descuento</span>
+                                    <strong id="descuentoGeneral">0.00</strong>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between font-weight-bold">
+                                    <span>Total</span>
+                                    <strong id="totalGeneral">0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-white font-weight-bold">Productos añadidos</div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0" id="tablaItemsProforma">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad</th>
+                                        <th>Modalidad</th>
+                                        <th>Subtotal</th>
+                                        <th class="text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">Cargando proforma...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-right mt-3">
+                    <button type="button" class="btn btn-secondary mr-2" onclick="window.location.href='{% url 'proformas:listar_proformas' %}'">
+                        <i class="fas fa-times mr-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" id="btnActualizarProforma">
+                        <i class="fas fa-save mr-1"></i> Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    const PROFORMAS_EDITAR_URLS = {
+        buscarProductos: "{% url 'proformas:buscar_productos' %}",
+        obtenerProforma: "{% url 'proformas:obtener_proforma' proforma.id %}",
+        actualizarProforma: "{% url 'proformas:actualizar_proforma' proforma.id %}",
+        listarProformas: "{% url 'proformas:listar_proformas' %}",
+    };
+</script>
+<script src="{% static 'js/proformas/modals/editar.js' %}"></script>
+{% endblock %}

@@ -17,7 +17,7 @@ def _es_usuario_tecnico_deposito(usuario):
     return usuario.username.startswith('deposito_auto_')
 
 def index(request):
-    """Página de inicio pública con catálogo de productos (máx. 4 productos)"""
+    """Página de inicio pública con catálogo de productos (muestra todos los productos en oferta)"""
     if request.user.is_authenticated:
         return redirect('dashboard')
 
@@ -36,7 +36,7 @@ def index(request):
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
 
-    productos = productos.order_by('-fecha_creacion')[:4]
+    productos = productos.order_by('-fecha_creacion')
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
 
     context = {
@@ -454,8 +454,8 @@ def listar_usuarios(request):
     estado = request.GET.get('estado', '')
     rol = request.GET.get('rol', '')
     
-    # Query base - incluir perfil con select_related para optimización
-    usuarios = User.objects.select_related('perfil').exclude(username__startswith='deposito_auto_').order_by('-date_joined')
+    # Query base - incluir perfil y relaciones de ubicación para optimización
+    usuarios = User.objects.select_related('perfil__almacen', 'perfil__tienda', 'perfil__ubicacion_relacionada').exclude(username__startswith='deposito_auto_').order_by('-date_joined')
     
     # Aplicar filtros
     if buscar:

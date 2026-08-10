@@ -39,6 +39,7 @@ urlpatterns = [
     path('tiendas/', include('apps.tiendas.urls')),
     path('depositos/', include('apps.depositos.urls')),
     path('tiendas-virtuales/', include('apps.tiendas_virtuales.urls')),
+    path('proformas/', include('apps.proformas.urls')),
     path('vendedores/', include('apps.vendedores.urls')),
     path('devoluciones/', include('apps.devoluciones.urls')),
     path('moneda/', include('apps.moneda.urls')),

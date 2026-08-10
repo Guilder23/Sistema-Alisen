@@ -55,6 +55,11 @@ def obtener_precio_base_producto(producto, modalidad):
     precio_unidad = Decimal(str(producto.precio_unidad or 0))
     precio_caja = Decimal(str(producto.precio_caja or 0))
     precio_mayor = Decimal(str(producto.precio_mayor or 0))
+    
+    # Si el producto está en oferta y tiene precio de oferta, usar ese para unidad
+    precio_unidad_oferta = Decimal(str(producto.precio_unidad_oferta or 0)) if hasattr(producto, 'precio_unidad_oferta') else Decimal('0')
+    if producto.en_oferta and precio_unidad_oferta > 0:
+        precio_unidad = precio_unidad_oferta
 
     if modalidad == 'caja':
         if precio_caja > 0:

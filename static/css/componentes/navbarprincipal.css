@@ -6,22 +6,33 @@
 .navbar-principal .navbar-brand { color: #fafafa; font-size: 1.15rem; letter-spacing: 0.05em; font-weight: 700; }
 .navbar-principal .navbar-brand img { height: 34px; filter: brightness(1.1); }
 .navbar-principal .navbar-brand-name { display: inline-block; }
-.mobile-navbar-actions { display: none; align-items: center; gap: 0.5rem; margin-left: auto; flex: 1; justify-content: flex-end; }
-.mobile-navbar-search-form { flex: 1; min-width: 0; }
-.mobile-navbar-search-form .input-group { width: 100%; }
-.mobile-navbar-search-form .input-group-text {
-  background: rgba(255,255,255,.12);
-  border: none;
-  color: #f8f7f4;
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
+.mobile-navbar-actions {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.mobile-navbar-actions > .nav-icon-btn,
+.mobile-navbar-actions > .mobile-menu-toggle {
+  flex-shrink: 0;
+}
+.mobile-navbar-search-form {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  margin-right: 0.35rem;
 }
 .mobile-navbar-search-form .form-control {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background: rgba(255,255,255,.12);
   border: none;
   color: #f8f7f4;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
+  border-radius: 8px;
 }
 .mobile-navbar-search-form .form-control::placeholder { color: rgba(248,247,244,.65); }
 
@@ -301,8 +312,42 @@
   .desktop-nav {
     display: none;
   }
+  .navbar-principal .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
+  .navbar-principal .navbar-brand {
+    flex: 0 0 auto;
+  }
   .mobile-navbar-actions {
     display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0;
+    justify-content: flex-end;
+    width: auto;
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+  .mobile-navbar-search-form {
+    flex: 0 0 auto;
+    max-width: 165px;
+    margin-right: 0.20rem;
+    min-width: 0;
+    width: 90%;
+  }
+  .mobile-navbar-actions > .nav-icon-btn,
+  .mobile-navbar-actions > .mobile-menu-toggle {
+    flex: 0 0 auto;
+  }
+  .mobile-navbar-search-form .form-control {
+    width: 100%;
+    min-width: 0;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.9rem;
   }
   .mobile-menu-toggle {
     display: inline-flex;
@@ -310,6 +355,10 @@
   .mobile-sidebar,
   .mobile-sidebar-overlay {
     display: block;
+  }
+  .navbar-principal .navbar-brand img {
+    height: 10px;
+    margin-right: 0.2rem;
   }
   .navbar-principal .navbar-brand-name {
     display: none;

@@ -86,6 +86,7 @@
                         <!--<th style="width: 12%;">Contenedores</th>
                         <th style="width: 10%;">Stock</th>-->
                         <th style="width: 10%;">Precio por Caja</th>
+                        <th class="text-center" style="width: 6%;">Oferta</th>
                         <th class="text-center" style="width: 8%;">Estado</th>
                         <th class="text-center" style="width: 8%;">Publicación</th>
                         <th class="text-center" style="width: 10%;">Acciones</th>
@@ -160,6 +161,15 @@
 
                         <td class="text-center">
                             <span class="precio-badge">Bs. {{ producto.precio_caja|floatformat:2 }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if producto.en_oferta %}
+                                <span class="badge-oferta badge-oferta-si">
+                                    <i class="fas fa-tag"></i> En oferta
+                                </span>
+                            {% else %}
+                                <span class="badge-oferta badge-oferta-no">No</span>
+                            {% endif %}
                         </td>
                         <td class="text-center">
                             {% if producto.activo %}
@@ -246,7 +256,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="11" class="text-center py-4">
+                        <td colspan="15" class="text-center py-4">
                             <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
                             <p class="text-muted">No hay productos registrados</p>
                         </td>

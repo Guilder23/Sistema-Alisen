@@ -1,0 +1,80 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Proformas{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/proformas/proforma.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Proformas</h3>
+            <p class="text-muted mb-0">Lista de proformas registradas.</p>
+        </div>
+        <a href="{% url 'proformas:modal_proforma' %}" class="btn btn-primary">
+            <i class="fas fa-plus mr-1"></i> Nueva Proforma
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0" id="tablaProformas">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Código</th>
+                            <th>Cliente</th>
+                            <th>NIT</th>
+                            <th>Moneda</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proforma in proformas %}
+                        <tr>
+                            <td>{{ proforma.codigo }}</td>
+                            <td>{{ proforma.cliente }}</td>
+                            <td>{{ proforma.nit|default:'-' }}</td>
+                            <td>{{ proforma.moneda }}</td>
+                            <td>{{ proforma.total|floatformat:2 }}</td>
+                            <td>{{ proforma.fecha_elaboracion|date:'d/m/Y H:i' }}</td>
+                            <td>{% if proforma.usuario %}{{ proforma.usuario.username }}{% else %}Sistema{% endif %}</td>
+                            <td class="text-center">
+                                <a href="{% url 'proformas:ver_proforma' proforma.id %}" class="btn btn-sm btn-outline-info mr-1" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'proformas:pdf_proforma' proforma.id %}" class="btn btn-sm btn-outline-danger mr-1" title="PDF" target="_blank">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <a href="{% url 'proformas:editar_proforma' proforma.id %}" class="btn btn-sm btn-outline-warning mr-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'proformas:eliminar_proforma' proforma.id %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                No hay proformas registradas todavía.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="{% static 'js/proformas/proforma.js' %}"></script>
+{% endblock %}

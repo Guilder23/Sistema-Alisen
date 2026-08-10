@@ -58,7 +58,7 @@
         }, 2800);
     };
 
-    const actualizarBotonYTabla = (productoId, esPublicado) => {
+    const actualizarBotonYTabla = (productoId, esPublicado, enOferta) => {
         const btn = document.querySelector(`.btn-toggle-publish[data-product-id="${productoId}"]`);
         if (btn) {
             btn.dataset.action = esPublicado ? 'despublicar' : 'publicar';
@@ -85,6 +85,17 @@
                 } else {
                     badgePublica.className = 'badge-publica badge-publica-despublicado';
                     badgePublica.innerHTML = '<i class="fas fa-times-circle"></i> Despublicado';
+                }
+            }
+            // Actualizar columna 'Oferta' si existe
+            const badgeOferta = fila.querySelector('.badge-oferta');
+            if (badgeOferta) {
+                if (enOferta) {
+                    badgeOferta.className = 'badge-oferta badge-oferta-si';
+                    badgeOferta.innerHTML = '<i class="fas fa-tag"></i> En oferta';
+                } else {
+                    badgeOferta.className = 'badge-oferta badge-oferta-no';
+                    badgeOferta.textContent = 'No';
                 }
             }
         }
@@ -131,6 +142,17 @@
             document.querySelector('#modalToggleIconWrapper i').className = 'fas fa-eye-slash';
         }
 
+        // Inicializar checkbox de 'en oferta' según la fila
+        try {
+            const ofertaCheckbox = document.getElementById('modalToggleEnOferta');
+            if (ofertaCheckbox) {
+                const existeBadgeOferta = !!(fila && fila.querySelector('.badge-oferta-si'));
+                ofertaCheckbox.checked = existeBadgeOferta;
+            }
+        } catch (err) {
+            console.warn('No se pudo inicializar el checkbox de oferta', err);
+        }
+
         $('#modalTogglePublicar').modal('show');
     };
 
@@ -161,7 +183,7 @@
             const data = await response.json();
 
             if (response.ok && data.success) {
-                actualizarBotonYTabla(productoActual, data.publicado);
+                actualizarBotonYTabla(productoActual, data.publicado, data.en_oferta);
                 mostrarToast(
                     `Producto ${data.publicado ? 'publicado' : 'despublicado'} correctamente`,
                     'success',

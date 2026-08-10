@@ -123,6 +123,14 @@
                 <div class="modal-body">
                     <form id="checkoutForm">
                         <div class="form-group">
+                            <label for="deliveryOption">Opción de entrega *</label>
+                            <select class="form-control" id="deliveryOption" required>
+                                <option value="">Seleccione una opción</option>
+                                <option value="delivery">Delivery (envío a domicilio)</option>
+                                <option value="pickup">Recoger en tienda</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="customerName">Nombre completo *</label>
                             <input type="text" class="form-control" id="customerName" required>
                         </div>
@@ -130,17 +138,9 @@
                             <label for="customerPhone">Teléfono *</label>
                             <input type="tel" class="form-control" id="customerPhone" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="customerAddressGroup">
                             <label for="customerAddress">Dirección *</label>
                             <input type="text" class="form-control" id="customerAddress" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="deliveryOption">Opción de entrega *</label>
-                            <select class="form-control" id="deliveryOption" required>
-                                <option value="">Seleccione una opción</option>
-                                <option value="delivery">Delivery (envío a domicilio)</option>
-                                <option value="pickup">Recoger en tienda</option>
-                            </select>
                         </div>
                         <div class="form-group" id="deliveryNote" style="display: none;">
                             <small class="text-info">

@@ -608,6 +608,7 @@ def obtener_producto(request, id):
             'unidades_por_caja': producto.unidades_por_caja,
             'unidades_por_mayor': producto.unidades_por_mayor,
             'precio_unidad': float(producto.precio_unidad),
+            'precio_unidad_oferta': float(producto.precio_unidad_oferta) if producto.precio_unidad_oferta else 0,
             'precio_compra': float(producto.precio_compra),
             'precio_caja': float(producto.precio_caja),
             'precio_mayor': float(producto.precio_mayor),
@@ -1172,6 +1173,7 @@ def editar_precio_producto(request, id):
         # Obtener precios anteriores
         precios_anteriores = {
             'precio_unidad': float(producto.precio_unidad),
+            'precio_unidad_oferta': float(producto.precio_unidad_oferta) if producto.precio_unidad_oferta else 0,
             'precio_compra': float(producto.precio_compra),
             'precio_caja': float(producto.precio_caja),
             'precio_mayor': float(producto.precio_mayor),
@@ -1182,6 +1184,7 @@ def editar_precio_producto(request, id):
         
         # Obtener nuevos precios del formulario
         nuevo_precio_unidad = float(request.POST.get('precio_unidad', producto.precio_unidad))
+        nuevo_precio_unidad_oferta = float(request.POST.get('precio_unidad_oferta', producto.precio_unidad_oferta or 0))
         nuevo_precio_compra = float(request.POST.get('precio_compra', producto.precio_compra))
         nuevo_precio_caja = float(request.POST.get('precio_caja', producto.precio_caja))
         nuevo_precio_mayor = float(request.POST.get('precio_mayor', producto.precio_mayor))
@@ -1207,6 +1210,10 @@ def editar_precio_producto(request, id):
         if nuevo_precio_caja != precios_anteriores['precio_caja']:
             cambios_realizados.append(f"P. Caja: {precios_anteriores['precio_caja']} → {nuevo_precio_caja}")
             producto.precio_caja = nuevo_precio_caja
+
+        if nuevo_precio_unidad_oferta != precios_anteriores['precio_unidad_oferta']:
+            cambios_realizados.append(f"P. Unidad Oferta: {precios_anteriores['precio_unidad_oferta']} → {nuevo_precio_unidad_oferta}")
+            producto.precio_unidad_oferta = nuevo_precio_unidad_oferta
         
         if nuevo_precio_mayor != precios_anteriores['precio_mayor']:
             cambios_realizados.append(f"P. Mayor: {precios_anteriores['precio_mayor']} → {nuevo_precio_mayor}")

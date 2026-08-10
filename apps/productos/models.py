@@ -123,6 +123,7 @@ class Producto(models.Model):
     precio_caja = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     precio_mayor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     precio_unidad = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    precio_unidad_oferta = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, null=True, verbose_name='Precio unidad oferta')
     poliza = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, null=True)
     gastos = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, null=True)
     

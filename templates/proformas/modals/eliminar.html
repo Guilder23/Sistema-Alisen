@@ -1,0 +1,53 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Eliminar Proforma{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/proformas/modals/eliminar.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Eliminar Proforma</h3>
+            <p class="text-muted mb-0">Confirma si deseas eliminar esta proforma.</p>
+        </div>
+        <a href="{% url 'proformas:listar_proformas' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left mr-1"></i> Volver al listado
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="mb-3">
+                <strong>Código:</strong>
+                <p>{{ proforma.codigo }}</p>
+            </div>
+            <div class="mb-3">
+                <strong>Cliente:</strong>
+                <p>{{ proforma.cliente }}</p>
+            </div>
+            <div class="mb-3">
+                <strong>Total:</strong>
+                <p>{{ proforma.total|floatformat:2 }} {{ proforma.moneda }}</p>
+            </div>
+            <div class="mb-3">
+                <strong>Fecha:</strong>
+                <p>{{ proforma.fecha_elaboracion|date:'d/m/Y H:i' }}</p>
+            </div>
+
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt mr-1"></i> Confirmar eliminación
+                </button>
+                <a href="{% url 'proformas:listar_proformas' %}" class="btn btn-secondary ml-2">
+                    Cancelar
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

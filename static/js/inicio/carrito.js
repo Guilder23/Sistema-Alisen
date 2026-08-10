@@ -177,13 +177,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    deliveryOption?.addEventListener('change', () => {
+    const customerAddressGroup = document.getElementById('customerAddressGroup');
+    const customerAddressInput = document.getElementById('customerAddress');
+
+    const updateDeliveryFields = () => {
         if (deliveryOption.value === 'delivery') {
             deliveryNote.style.display = 'block';
+            customerAddressGroup.style.display = 'block';
+            customerAddressInput.required = true;
+        } else if (deliveryOption.value === 'pickup') {
+            deliveryNote.style.display = 'none';
+            customerAddressGroup.style.display = 'none';
+            customerAddressInput.required = false;
+            customerAddressInput.value = '';
         } else {
             deliveryNote.style.display = 'none';
+            customerAddressGroup.style.display = 'block';
+            customerAddressInput.required = true;
         }
-    });
+    };
+
+    updateDeliveryFields();
+
+    deliveryOption?.addEventListener('change', updateDeliveryFields);
 
     checkoutForm?.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -195,24 +211,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const customerName = document.getElementById('customerName').value.trim();
         const customerPhone = document.getElementById('customerPhone').value.trim();
-        const customerAddress = document.getElementById('customerAddress').value.trim();
+        const customerAddress = customerAddressInput.value.trim();
         const deliveryOptionValue = deliveryOption.value;
 
-        if (!customerName || !customerPhone || !customerAddress || !deliveryOptionValue) {
+        if (!customerName || !customerPhone || !deliveryOptionValue) {
             mostrarToast('Por favor, completa todos los campos requeridos.', 'error', 'Datos incompletos');
             return;
         }
+        if (deliveryOptionValue === 'delivery' && !customerAddress) {
+            mostrarToast('Por favor, ingresa la dirección para delivery.', 'error', 'Dirección requerida');
+            return;
+        }
 
-        const lines = items.map(item => `${item.nombre} x ${item.cantidad} = Bs ${formatCurrency(item.cantidad * item.precio)}`);
+        const lines = items.map(item => {
+            const label = item.en_oferta ? `${item.nombre} (OFERTA)` : item.nombre;
+            return `${label} x ${item.cantidad} = Bs ${formatCurrency(item.cantidad * item.precio)}`;
+        });
         const total = formatCurrency(calculateTotal(items));
         const deliveryText = deliveryOptionValue === 'delivery' ? 'Delivery (envío a domicilio)' : 'Recoger en tienda';
+        const addressLine = deliveryOptionValue === 'delivery' ? `Dirección: ${customerAddress}\n` : '';
         
         const message = encodeURIComponent(
             `Hola, quiero hacer un pedido:\n\n` +
             `📋 DATOS DEL CLIENTE:\n` +
             `Nombre: ${customerName}\n` +
             `Teléfono: ${customerPhone}\n` +
-            `Dirección: ${customerAddress}\n` +
+            addressLine +
             `Opción de entrega: ${deliveryText}\n\n` +
             `📦 PEDIDO:\n${lines.join('\n')}\n\n` +
             `💰 Total productos: Bs ${total}\n\n` +
