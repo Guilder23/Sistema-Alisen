@@ -1012,37 +1012,44 @@ function renderTarjetaProductoCompacta(producto) {
     const precioUnidadUsd = precioUnidadBs / obtenerTipoCambioActual();
     const precioCajaUsd = precioCajaBs / obtenerTipoCambioActual();
     const precioMayorUsd = precioMayorBs / obtenerTipoCambioActual();
-
-    const esDeposito = tipoVendedorActual === 'deposito';
+    const imagenUrl = producto.imagen_url || producto.foto || producto.imagen_principal_url || '/static/img/logoAlmacenn.png';
+    const nombreProducto = producto.nombre || 'Producto';
+    const codigoProducto = producto.codigo || 'SIN-CODIGO';
 
     return `
         <div class="producto-card-sugerido">
-            <div class="producto-card-sugerido-head">
-                <div class="producto-card-sugerido-codigo">${escapeHtml(producto.codigo || 'SIN-CODIGO')}</div>
+            <div class="producto-card-sugerido-imagen-wrap">
+                <img
+                    src="${escapeHtml(imagenUrl)}"
+                    alt="${escapeHtml(nombreProducto)}"
+                    class="producto-card-sugerido-imagen"
+                    loading="lazy"
+                    onerror="this.onerror=null;this.src='/static/img/logoAlmacenn.png';"
+                >
+            </div>
+
+            <div class="producto-card-sugerido-info">
+                <div class="producto-card-sugerido-nombre">${escapeHtml(nombreProducto)}</div>
+                <div class="producto-card-sugerido-codigo">${escapeHtml(codigoProducto)}</div>
             </div>
 
             <div class="producto-card-sugerido-meta">
-                <span class="chip-meta">Stock ${stock}</span>
-                ${stockCajas > 0 ? `<span class="chip-meta">${stockCajas} cajas</span>` : ''}
+                <span class="meta-stock">Stock ${stock}</span>
+                ${stockCajas > 0 ? `<span class="meta-cajas">${stockCajas} cajas</span>` : ''}
             </div>
 
             <div class="producto-card-sugerido-precios">
                 <div class="precio-mini-linea">
-                    <span class="precio-mini-label">Unidad</span>
-                    <span class="precio-mini-bs">Bs. ${Number(precioUnidadBs).toFixed(2)}</span>
-                    <span class="precio-mini-usd">$ ${Number(precioUnidadUsd).toFixed(2)}</span>
+                    <span class="precio-mini-label">Ud.</span>
+                    <span class="precio-mini-valor">Bs. ${Number(precioUnidadBs).toFixed(2)}</span>
                 </div>
-
                 <div class="precio-mini-linea">
                     <span class="precio-mini-label">Caja</span>
-                    <span class="precio-mini-bs">Bs. ${Number(precioCajaBs).toFixed(2)}</span>
-                    <span class="precio-mini-usd">$ ${Number(precioCajaUsd).toFixed(2)}</span>
+                    <span class="precio-mini-valor">Bs. ${Number(precioCajaBs).toFixed(2)}</span>
                 </div>
-
                 <div class="precio-mini-linea">
-                    <span class="precio-mini-label">Mayor</span>
-                    <span class="precio-mini-bs">Bs. ${Number(precioMayorBs).toFixed(2)}</span>
-                    <span class="precio-mini-usd">$ ${Number(precioMayorUsd).toFixed(2)}</span>
+                    <span class="precio-mini-label">May.</span>
+                    <span class="precio-mini-valor">Bs. ${Number(precioMayorBs).toFixed(2)}</span>
                 </div>
             </div>
 

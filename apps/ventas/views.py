@@ -944,6 +944,7 @@ def buscar_productos(request):
                 'precio_compra': float(p.precio_compra or 0),
                 'poliza': float(p.poliza or 0),
                 'gastos': float(p.gastos or 0),
+                'imagen_url': p.imagen_principal_url or '',
             })
 
         return JsonResponse({'productos': resultado})
