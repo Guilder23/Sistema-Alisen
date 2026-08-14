@@ -39,6 +39,12 @@ def index(request):
     productos = productos.order_by('-fecha_creacion')
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
 
+    for p in productos:
+        if p.en_oferta and p.precio_unidad_oferta and p.precio_unidad:
+            p.ahorro = Decimal(p.precio_unidad) - Decimal(p.precio_unidad_oferta)
+        else:
+            p.ahorro = Decimal('0')
+
     context = {
         'productos': productos,
         'categorias': categorias,
@@ -104,6 +110,12 @@ def tienda(request):
 
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
     genero_choices = Producto.GENERO_CHOICES
+
+    for p in productos:
+        if p.en_oferta and p.precio_unidad_oferta and p.precio_unidad:
+            p.ahorro = Decimal(p.precio_unidad) - Decimal(p.precio_unidad_oferta)
+        else:
+            p.ahorro = Decimal('0')
 
     context = {
         'productos': productos,
