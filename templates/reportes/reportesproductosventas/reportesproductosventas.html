@@ -1,0 +1,471 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Reporte de Ventas por Productos{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/reportes/reportesproductosventas/reportesproductosventas.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid" style="padding-top: 0;">
+    <div class="page-header" style="margin-top: 0.5rem;">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas fa-chart-line"></i>
+                Reporte de Ventas por Productos
+            </h1>
+            <p class="page-subtitle">
+                Análisis de rendimiento por producto: precio de compra, ventas y utilidad generada
+            </p>
+        </div>
+    </div>
+
+    <!-- Resumen general -->
+    <div class="row resumen-row mb-3">
+        <div class="col-md-2 mb-2">
+            <div class="resumen-card" style="border-left-color: #4e73df;">
+                <span class="resumen-label">Productos Vendidos</span>
+                <strong class="resumen-value">{{ total_productos }}</strong>
+                <span class="resumen-sublabel">SKU distintos</span>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
+            <div class="resumen-card" style="border-left-color: #36b9cc;">
+                <span class="resumen-label">Unidades Vendidas</span>
+                <strong class="resumen-value">{{ total_cantidad }}</strong>
+                {% if total_cajas > 0 %}
+                <span class="resumen-sublabel">{{ total_cajas }} cajas</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
+            <div class="resumen-card" style="border-left-color: #858796;">
+                <span class="resumen-label">N° Ventas</span>
+                <strong class="resumen-value">{{ total_num_ventas }}</strong>
+                <span class="resumen-sublabel">Transacciones</span>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
+            <div class="resumen-card" style="border-left-color: #f6c23e;">
+                <span class="resumen-label">Costo Total</span>
+                <div class="resumen-value-monto">
+                    <strong class="monto-numero text-costo">{{ total_costo|floatformat:2 }}</strong>
+                    <span class="monto-simbolo text-costo">Bs.</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
+            <div class="resumen-card" style="border-left-color: #1cc88a;">
+                <span class="resumen-label">Ventas Totales</span>
+                <div class="resumen-value-monto">
+                    <strong class="monto-numero text-ventas">{{ total_ventas_monto|floatformat:2 }}</strong>
+                    <span class="monto-simbolo text-ventas">Bs.</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-2">
+            <div class="resumen-card" style="border-left-color: #6610f2;">
+                <span class="resumen-label">Utilidad Neta</span>
+                <div class="resumen-value-monto">
+                    <strong class="monto-numero text-utilidad">{{ total_utilidad|floatformat:2 }}</strong>
+                    <span class="monto-simbolo text-utilidad">Bs.</span>
+                </div>
+                <span class="resumen-sublabel">
+                    Margen: <strong class="text-margen">{{ margen_global|floatformat:1 }}%</strong>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card card-filtros mb-3">
+        <div class="card-body py-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter"></i> Filtros
+                    {% if filtros_activos > 0 %}
+                    <span class="badge-filtros-count">{{ filtros_activos }}</span>
+                    {% endif %}
+                </h5>
+            </div>
+
+            <form method="GET" id="filtrosForm">
+                <!-- Primera fila -->
+                <div class="row mb-2">
+                    <div class="col-md-3 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-search"></i> Buscar Producto
+                        </label>
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                            </div>
+                            <input
+                                type="text"
+                                class="form-control form-control-sm border-left-0"
+                                name="buscar"
+                                id="buscarInput"
+                                placeholder="Código o nombre del producto..."
+                                value="{{ buscar }}"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-calendar-alt"></i> Fecha Desde
+                        </label>
+                        <input
+                            type="date"
+                            class="form-control form-control-sm"
+                            name="fecha_desde"
+                            id="fechaDesdeInput"
+                            value="{{ fecha_desde }}"
+                        >
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-calendar-alt"></i> Fecha Hasta
+                        </label>
+                        <input
+                            type="date"
+                            class="form-control form-control-sm"
+                            name="fecha_hasta"
+                            id="fechaHastaInput"
+                            value="{{ fecha_hasta }}"
+                        >
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-tags"></i> Categoría
+                        </label>
+                        <select class="form-control form-control-sm" name="categoria" id="categoriaFiltro">
+                            <option value="">Todas las categorías</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>
+                                {{ cat.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-venus-mars"></i> Género
+                        </label>
+                        <select class="form-control form-control-sm" name="genero" id="generoFiltro">
+                            <option value="">Todos los géneros</option>
+                            {% for key, label in GENERO_CHOICES %}
+                                {% if key %}
+                                <option value="{{ key }}" {% if genero == key %}selected{% endif %}>{{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-1 mb-2">
+                        <label class="small text-muted mb-1 d-block">&nbsp;</label>
+                    </div>
+                </div>
+
+                <!-- Segunda fila -->
+                <div class="row">
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-info-circle"></i> Estado Venta
+                        </label>
+                        <select class="form-control form-control-sm" name="estado_venta" id="estadoVentaFiltro">
+                            <option value="">Todos</option>
+                            <option value="pendiente" {% if estado_venta == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                            <option value="completada" {% if estado_venta == 'completada' %}selected{% endif %}>Completada</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-map-marker-alt"></i> Ubicación
+                        </label>
+                        <select class="form-control form-control-sm" name="ubicacion" id="ubicacionFiltro">
+                            <option value="">Todas las ubicaciones</option>
+                            {% for ubi in ubicaciones %}
+                            <option value="{{ ubi.id }}" {% if ubicacion_id == ubi.id|stringformat:"s" %}selected{% endif %}>
+                                {{ ubi.nombre_ubicacion|default:ubi }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-coins"></i> Venta Mín. (Bs.)
+                        </label>
+                        <input
+                            type="number"
+                            class="form-control form-control-sm"
+                            name="ventas_minimas"
+                            id="ventasMinimasInput"
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                            value="{{ ventas_minimas }}"
+                        >
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-chart-pie"></i> Utilidad Mín. (Bs.)
+                        </label>
+                        <input
+                            type="number"
+                            class="form-control form-control-sm"
+                            name="utilidad_minima"
+                            id="utilidadMinimaInput"
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                            value="{{ utilidad_minima }}"
+                        >
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1">
+                            <i class="fas fa-sort"></i> Ordenar por
+                        </label>
+                        <select class="form-control form-control-sm" name="ordenar" id="ordenarFiltro">
+                            <option value="utilidad_desc" {% if ordenar_por == 'utilidad_desc' or not ordenar_por %}selected{% endif %}>Utilidad (Mayor)</option>
+                            <option value="utilidad_asc" {% if ordenar_por == 'utilidad_asc' %}selected{% endif %}>Utilidad (Menor)</option>
+                            <option value="ventas_desc" {% if ordenar_por == 'ventas_desc' %}selected{% endif %}>Ventas (Mayor)</option>
+                            <option value="ventas_asc" {% if ordenar_por == 'ventas_asc' %}selected{% endif %}>Ventas (Menor)</option>
+                            <option value="cantidad_desc" {% if ordenar_por == 'cantidad_desc' %}selected{% endif %}>Cantidad (Mayor)</option>
+                            <option value="cantidad_asc" {% if ordenar_por == 'cantidad_asc' %}selected{% endif %}>Cantidad (Menor)</option>
+                            <option value="margen_desc" {% if ordenar_por == 'margen_desc' %}selected{% endif %}>Margen % (Mayor)</option>
+                            <option value="margen_asc" {% if ordenar_por == 'margen_asc' %}selected{% endif %}>Margen % (Menor)</option>
+                            <option value="nombre" {% if ordenar_por == 'nombre' %}selected{% endif %}>Nombre A-Z</option>
+                            <option value="codigo" {% if ordenar_por == 'codigo' %}selected{% endif %}>Código</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 mb-2">
+                        <label class="small text-muted mb-1 d-block">&nbsp;</label>
+                        <div class="d-flex" style="gap: 8px;">
+                            <button type="button" class="btn-accion btn-limpiar" onclick="limpiarFiltros()" title="Limpiar Filtros">
+                                <i class="fas fa-eraser"></i>
+                            </button>
+                            <button type="button" class="btn-accion btn-exportar" data-toggle="modal" data-target="#modalExportar" title="Exportar a Excel">
+                                <i class="fas fa-file-excel"></i>
+                            </button>
+                            <button type="button" class="btn-accion btn-imprimir" data-toggle="modal" data-target="#modalImprimir" title="Vista previa / Imprimir">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de reporte -->
+    <div class="card card-tabla">
+        <div class="table-responsive">
+            <table class="table table-hover tabla-productos mb-0" id="tablaProductosVentas">
+                <thead>
+                    <tr>
+                        <th style="width: 6%;">CÓDIGO</th>
+                        <th style="width: 18%;">PRODUCTO</th>
+                        <th style="width: 7%;" class="text-center">CATEGORÍA</th>
+                        <th style="width: 5%;" class="text-center">GÉNERO</th>
+                        <th style="width: 7%;" class="text-right">P. COMPRA</th>
+                        <th style="width: 6%;" class="text-center">CANT.</th>
+                        <th style="width: 6%;" class="text-center">CAJAS</th>
+                        <th style="width: 7%;" class="text-right">P. PROMEDIO</th>
+                        <th style="width: 8%;" class="text-right">COSTO TOTAL</th>
+                        <th style="width: 8%;" class="text-right">VENTAS</th>
+                        <th style="width: 8%;" class="text-right">UTILIDAD</th>
+                        <th style="width: 5%;" class="text-center">MARGEN</th>
+                        <th style="width: 5%;" class="text-center">N° VENTAS</th>
+                        <th style="width: 4%;" class="text-center">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items_reporte %}
+                    {% with prod=item.producto %}
+                    <tr>
+                        <td>
+                            <span class="codigo-producto">{{ prod.codigo }}</span>
+                        </td>
+                        <td>
+                            <div class="producto-info">
+                                {% if prod.imagen_principal_url %}
+                                <img src="{{ prod.imagen_principal_url }}" alt="{{ prod.nombre }}" class="producto-thumb">
+                                {% else %}
+                                <div class="producto-thumb-placeholder">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                {% endif %}
+                                <div class="producto-nombre-wrap">
+                                    <strong class="producto-nombre">{{ prod.nombre }}</strong>
+                                    {% if item.ubicaciones %}
+                                    <br><small class="text-muted">{{ item.ubicaciones|join:" • " }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            {% if prod.categoria %}
+                            <span class="badge-categoria">{{ prod.categoria.nombre }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if prod.genero %}
+                            <span class="badge-genero badge-genero-{{ prod.genero }}">{{ prod.get_genero_display }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            <span class="monto-compra">Bs. {{ prod.precio_compra|floatformat:2 }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="cantidad-unidades">{{ item.cantidad_total }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="cantidad-cajas">{{ item.cajas_total|default:"0" }}</span>
+                        </td>
+                        <td class="text-right">
+                            <span class="monto-promedio">Bs. {{ item.precio_promedio|floatformat:2 }}</span>
+                        </td>
+                        <td class="text-right">
+                            <span class="monto-costo">Bs. {{ item.costo_total|floatformat:2 }}</span>
+                        </td>
+                        <td class="text-right">
+                            <strong class="monto-ventas">Bs. {{ item.ventas_total|floatformat:2 }}</strong>
+                        </td>
+                        <td class="text-right">
+                            {% if item.utilidad >= 0 %}
+                            <strong class="monto-utilidad-pos">Bs. {{ item.utilidad|floatformat:2 }}</strong>
+                            {% else %}
+                            <strong class="monto-utilidad-neg">Bs. {{ item.utilidad|floatformat:2 }}</strong>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if item.margen >= 0 %}
+                            <span class="margen-positivo">{{ item.margen|floatformat:1 }}%</span>
+                            {% else %}
+                            <span class="margen-negativo">{{ item.margen|floatformat:1 }}%</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="num-ventas-badge">{{ item.num_ventas }}</span>
+                        </td>
+                        <td class="text-center">
+                            <button
+                                class="btn btn-sm btn-info btn-ver-detalle"
+                                onclick="verDetalleProducto(event)"
+                                title="Ver Detalle"
+                                data-producto-id="{{ prod.id }}"
+                                data-codigo="{{ prod.codigo }}"
+                                data-nombre="{{ prod.nombre }}"
+                                data-categoria="{% if prod.categoria %}{{ prod.categoria.nombre }}{% else %}-{% endif %}"
+                                data-genero="{% if prod.genero %}{{ prod.get_genero_display }}{% else %}-{% endif %}"
+                                data-precio-compra="{{ prod.precio_compra }}"
+                                data-cantidad-total="{{ item.cantidad_total }}"
+                                data-cajas-total="{{ item.cajas_total|default:0 }}"
+                                data-precio-promedio="{{ item.precio_promedio }}"
+                                data-costo-total="{{ item.costo_total }}"
+                                data-ventas-total="{{ item.ventas_total }}"
+                                data-utilidad="{{ item.utilidad }}"
+                                data-margen="{{ item.margen }}"
+                                data-num-ventas="{{ item.num_ventas }}"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="14" class="text-center py-4">
+                            <div class="tabla-vacia">
+                                <i class="fas fa-box-open fa-2x text-muted mb-2"></i>
+                                <p class="text-muted mb-0">No se encontraron productos con ventas</p>
+                                {% if filtros_activos > 0 %}
+                                <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="limpiarFiltros()">
+                                    <i class="fas fa-eraser"></i> Limpiar filtros
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if items_reporte.has_other_pages %}
+    <div class="d-flex justify-content-between align-items-center mt-3 mb-4">
+        <div class="text-muted">
+            <small>Mostrando {{ items_reporte.start_index }}-{{ items_reporte.end_index }} de {{ total_productos }} productos</small>
+        </div>
+
+        <nav aria-label="Paginación del reporte">
+            <ul class="pagination pagination-sm mb-0">
+                {% if items_reporte.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ items_reporte.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}" aria-label="Anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                </li>
+                {% endif %}
+
+                {% for num in items_reporte.paginator.page_range %}
+                    {% if items_reporte.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > items_reporte.number|add:'-3' and num < items_reporte.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if querystring %}&{{ querystring }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if items_reporte.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ items_reporte.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}" aria-label="Siguiente">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+    {% include 'reportes/reportesproductosventas/modal/modal_detalle.html' %}
+    {% include 'reportes/reportesproductosventas/modal/modal_exportar.html' %}
+    {% include 'reportes/reportesproductosventas/modal/modal_imprimir.html' %}
+
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="{% static 'js/reportes/reportesproductosventas/reportesproductosventas.js' %}"></script>
+<script src="{% static 'js/reportes/reportesproductosventas/modal/modal_detalle.js' %}"></script>
+<script src="{% static 'js/reportes/reportesproductosventas/modal/modal_exportar.js' %}"></script>
+<script src="{% static 'js/reportes/reportesproductosventas/modal/modal_imprimir.js' %}"></script>
+{% endblock %}

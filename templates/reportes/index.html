@@ -114,8 +114,31 @@
                 </div>
             </div>
         </div>
-    </div>
 
+        <!-- Reporte de Ventas por Productos -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="report-card">
+                <div class="report-card-body">
+                    <div class="report-card-header">
+                        <div class="report-icon report-icon-productos-ventas">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="report-info">
+                            <h5 class="report-title">Ventas x Productos</h5>
+                            <p class="report-label">Utilidad y ganancia por SKU</p>
+                        </div>
+                    </div>
+                    <p class="report-description">
+                        Rendimiento por producto con precio de compra, ventas, costo total, utilidad neta y margen de ganancia.
+                    </p>
+                    <a href="{% url 'reporte_ventas_productos' %}" class="report-btn btn-productos-ventas">
+                        <i class="fas fa-eye"></i> Ver Reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Información adicional -->
     <div class="row">
         <div class="col-12">

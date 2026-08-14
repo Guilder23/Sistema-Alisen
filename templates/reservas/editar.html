@@ -1,0 +1,136 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Editar reserva{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/reservas/editar.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title"><i class="fas fa-pencil-alt"></i> Editar reserva</h1>
+            <p class="page-subtitle">Modificar los datos principales de la reserva</p>
+        </div>
+    </div>
+
+    <div class="card form-card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <input type="text" name="cliente" value="{{ reserva.cliente }}" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Código</label>
+                            <input type="text" value="{{ reserva.codigo }}" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>NIT</label>
+                            <input type="text" name="nit" value="{{ reserva.nit|default:'' }}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" name="telefono" value="{{ reserva.telefono|default:'' }}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tipo de pago</label>
+                            <input type="text" value="{{ reserva.get_tipo_pago_display }}" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Razón social</label>
+                            <input type="text" name="razon_social" value="{{ reserva.razon_social|default:'' }}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Dirección</label>
+                            <input type="text" name="direccion" value="{{ reserva.direccion|default:'' }}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Total</label>
+                            <input type="text" value="{{ reserva.total }}" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <input type="text" value="{{ reserva.get_estado_display }}" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Comentario</label>
+                            <textarea name="comentario" class="form-control" rows="2">{{ reserva.comentario|default:'' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Observaciones</label>
+                            <textarea name="observaciones" class="form-control" rows="3">{{ reserva.observaciones|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h5>Productos de la reserva</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Modalidad</th>
+                                    <th>Precio unitario</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item.producto.nombre }}</td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>{{ item.get_modalidad_display }}</td>
+                                    <td>{{ item.precio_unitario }}</td>
+                                    <td>{{ item.subtotal }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-muted text-center">No hay productos asociados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar cambios</button>
+                    <a href="{% url 'reservas:listar_reservas' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/reservas/editar.js' %}"></script>
+{% endblock %}

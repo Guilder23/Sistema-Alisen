@@ -1,0 +1,347 @@
+.page-header {
+    margin-top: 0.5rem;
+}
+
+.resumen-row {
+    margin-top: 1rem;
+}
+
+.resumen-card {
+    background: white;
+    border-radius: 8px;
+    padding: 0.9rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #4e73df;
+    display: flex;
+    flex-direction: column;
+}
+
+.resumen-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.resumen-value {
+    font-size: 1.35rem;
+    color: #2c3e50;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.resumen-value-monto {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+}
+
+.resumen-value-monto .monto-numero {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.resumen-value-monto .monto-simbolo {
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+.resumen-sublabel {
+    font-size: 0.72rem;
+    color: #6c757d;
+    margin-top: 0.2rem;
+}
+
+.text-costo { color: #f39c12; }
+.text-ventas { color: #1cc88a; }
+.text-utilidad { color: #6610f2; }
+.text-margen { color: #6610f2; }
+
+.card-filtros {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+}
+
+.badge-filtros-count {
+    background: #e74a3b;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.form-control-sm {
+    font-size: 0.875rem;
+}
+
+.btn-accion {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #f8f9fc;
+    color: #5a5c69;
+}
+
+.btn-accion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-accion:active {
+    transform: translateY(0);
+}
+
+.btn-limpiar {
+    border-color: #e3e6f0;
+    background-color: #dfe6e9;
+    color: #636e72;
+}
+
+.btn-limpiar:hover {
+    background-color: #b2bec3;
+    color: #2d3436;
+    border-color: #b2bec3;
+}
+
+.btn-exportar {
+    border-color: #e3e6f0;
+    background-color: #d5f4e6;
+    color: #27ae60;
+}
+
+.btn-exportar:hover {
+    background-color: #a8e6cf;
+    color: #1e8449;
+    border-color: #a8e6cf;
+}
+
+.btn-imprimir {
+    border-color: #e3e6f0;
+    background-color: #fadbd8;
+    color: #c0392b;
+}
+
+.btn-imprimir:hover {
+    background-color: #f1948a;
+    color: #922b21;
+    border-color: #f1948a;
+}
+
+.card-tabla {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tabla-productos {
+    margin-bottom: 0;
+}
+
+.tabla-productos thead th {
+    background: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+    color: #5a5c69;
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    padding: 0.7rem 0.6rem;
+    vertical-align: middle;
+    letter-spacing: 0.2px;
+}
+
+.tabla-productos tbody td {
+    padding: 0.7rem 0.6rem;
+    vertical-align: middle;
+    font-size: 0.82rem;
+}
+
+.tabla-productos tbody tr:hover {
+    background-color: #f8f9fc;
+}
+
+.codigo-producto {
+    background: #4e73df;
+    color: white;
+    padding: 0.25rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.producto-info {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.producto-thumb {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid #e3e6f0;
+    background: #f8f9fc;
+}
+
+.producto-thumb-placeholder {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    background: #eaecf4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a7a9b5;
+    font-size: 1rem;
+    border: 1px solid #e3e6f0;
+}
+
+.producto-nombre-wrap {
+    min-width: 0;
+    flex: 1;
+}
+
+.producto-nombre {
+    color: #2c3e50;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 220px;
+    line-height: 1.2;
+}
+
+.badge-categoria {
+    display: inline-block;
+    background: #e3f2fd;
+    color: #1565c0;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.badge-genero {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-genero-mujer { background: #fce4ec; color: #880e4f; }
+.badge-genero-hombre { background: #e3f2fd; color: #0d47a1; }
+.badge-genero-niño { background: #fff3e0; color: #e65100; }
+.badge-genero-niña { background: #f3e5f5; color: #4a148c; }
+.badge-genero-unisex { background: #e8f5e9; color: #1b5e20; }
+
+.monto-compra { color: #f39c12; font-weight: 500; font-size: 0.8rem; white-space: nowrap; }
+.cantidad-unidades { font-weight: 700; color: #2c3e50; font-size: 0.95rem; }
+.cantidad-cajas { color: #858796; font-weight: 600; font-size: 0.85rem; }
+.monto-promedio { color: #36b9cc; font-weight: 500; font-size: 0.8rem; white-space: nowrap; }
+.monto-costo { color: #e67e22; font-weight: 600; font-size: 0.8rem; white-space: nowrap; }
+.monto-ventas { color: #1cc88a; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+.monto-utilidad-pos { color: #16a34a; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+.monto-utilidad-neg { color: #dc2626; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+
+.margen-positivo {
+    display: inline-block;
+    background: #dcfce7;
+    color: #166534;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.78rem;
+    min-width: 58px;
+    text-align: center;
+}
+
+.margen-negativo {
+    display: inline-block;
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.78rem;
+    min-width: 58px;
+    text-align: center;
+}
+
+.num-ventas-badge {
+    display: inline-block;
+    background: #f8f9fc;
+    color: #4e73df;
+    border: 1px solid #d1d3e2;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    min-width: 36px;
+    text-align: center;
+}
+
+.btn-ver-detalle {
+    background: #36b9cc;
+    border-color: #36b9cc;
+    color: white;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    transition: all 0.25s ease;
+}
+
+.btn-ver-detalle:hover {
+    background: #258391;
+    border-color: #258391;
+    transform: scale(1.08);
+    color: white;
+}
+
+.tabla-vacia {
+    padding: 2rem;
+    text-align: center;
+}
+
+.pagination .page-link {
+    color: #4e73df;
+    border: 1px solid #d1d3e2;
+    padding: 0.375rem 0.75rem;
+}
+
+.pagination .page-link:hover {
+    background-color: #eaecf4;
+    color: #4e73df;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}

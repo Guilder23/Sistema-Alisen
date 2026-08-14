@@ -1,5 +1,6 @@
 {% load static %}
 
+<!-- eslint-disable -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -130,10 +131,10 @@
                     </div>
                     <div class="col-md-3">
                         <p><strong>Tipo Venta:</strong> 
-                            {% if venta.vendedor.perfil.rol == 'tienda' %}
-                                <span class="badge badge-info">Tienda</span>
+                            {% if venta.tipo_venta %}
+                            <span class="badge badge-secondary">{{ tipo_venta_label }}</span>
                             {% else %}
-                                <span class="badge badge-primary">Almacén</span>
+                            <span class="text-muted">-</span>
                             {% endif %}
                         </p>
                     </div>
@@ -367,6 +368,7 @@
 <script src="{% static 'js/ventas/anulacion_comun.js' %}"></script>
 
 <script>
+/* eslint-disable */
 function anularVenta(ventaId) {
     if (!confirm('¿Está seguro que desea anular esta venta? El stock será devuelto.')) return;
 
@@ -430,6 +432,7 @@ function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
            document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '';
 }
+/* eslint-enable */
 </script>
 </body>
 </html>

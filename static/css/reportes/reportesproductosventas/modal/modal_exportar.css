@@ -1,0 +1,68 @@
+#modalExportar .modal-header {
+    background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%);
+}
+
+#modalExportar .modal-content {
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+#modalExportar .modal-body {
+    padding: 1.25rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#modalExportar .custom-control {
+    min-height: auto;
+    padding-left: 1.6rem;
+    margin-bottom: 0.35rem;
+}
+
+#modalExportar .custom-control-label {
+    font-size: 0.83rem;
+    padding-top: 2px;
+    color: #5a5c69;
+    cursor: pointer;
+    user-select: none;
+}
+
+#modalExportar .custom-control-input:checked ~ .custom-control-label {
+    color: #166534;
+    font-weight: 600;
+}
+
+#modalExportar .custom-control-input:checked ~ .custom-control-label::before {
+    background: #1cc88a;
+    border-color: #17a673;
+}
+
+#modalExportar .custom-checkbox .custom-control-input:checked ~ .custom-control-label::after {
+    color: white;
+}
+
+#modalExportar hr {
+    border-top-color: #e3e6f0;
+    margin: 0.75rem 0;
+}
+
+#modalExportar .modal-footer {
+    background: #f8f9fc;
+    border-top: 1px solid #e3e6f0;
+    padding: 0.8rem 1.25rem;
+}
+
+#modalExportar .btn-success {
+    background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%);
+    border-color: #17a673;
+    font-weight: 600;
+    padding: 0.45rem 1.2rem;
+}
+
+#modalExportar .btn-success:hover {
+    background: linear-gradient(135deg, #17a673 0%, #138560 100%);
+}
+
+#modalExportar .btn-secondary {
+    font-weight: 500;
+}

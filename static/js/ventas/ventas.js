@@ -165,6 +165,10 @@ function renderDetalleVenta(data) {
                 <div class="value">${data.tipo_pago === 'credito' ? 'Crédito' : 'Contado'}</div>
             </div>
             <div class="detalle-info-item">
+                <div class="label">Tipo Venta</div>
+                <div class="value">${data.tipo_venta_label || '-'}</div>
+            </div>
+            <div class="detalle-info-item">
                 <div class="label">Total</div>
                 <div class="value"><span class="font-weight-bold">${etiqueta} ${parseFloat(data.total).toFixed(2)}</span></div>
             </div>

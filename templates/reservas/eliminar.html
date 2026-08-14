@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Eliminar reserva{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/reservas/eliminar.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header danger-header">
+        <div class="page-header-content">
+            <h1 class="page-title"><i class="fas fa-trash"></i> Eliminar reserva</h1>
+            <p class="page-subtitle">Confirmación para eliminar esta reserva</p>
+        </div>
+    </div>
+
+    <div class="card form-card delete-card">
+        <div class="card-body text-center">
+            <h4>¿Seguro que deseas eliminar esta reserva?</h4>
+            <p><strong>{{ reserva.codigo }}</strong> - {{ reserva.cliente }}</p>
+            <p class="text-muted">Esta acción no se puede deshacer.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-actions justify-content-center">
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Confirmar eliminación</button>
+                    <a href="{% url 'reservas:listar_reservas' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/reservas/eliminar.js' %}"></script>
+{% endblock %}

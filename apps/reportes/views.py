@@ -665,3 +665,210 @@ def reporte_contenedores(request):
     }
     
     return render(request, 'reportes/contenedores/contenedores.html', context)
+
+
+@login_required
+def reporte_ventas_productos(request):
+    """Vista para reporte de ventas por producto con análisis de utilidad"""
+    from django.db.models import F, ExpressionWrapper, DecimalField, Sum, Count
+
+    detalles = DetalleVenta.objects.select_related(
+        'producto', 'producto__categoria', 'venta', 'venta__ubicacion', 'venta__vendedor'
+    ).filter(venta__estado__in=['completada', 'pendiente'])
+
+    buscar = request.GET.get('buscar', '').strip()
+    fecha_desde = request.GET.get('fecha_desde', '').strip()
+    fecha_hasta = request.GET.get('fecha_hasta', '').strip()
+    categoria_id = request.GET.get('categoria', '').strip()
+    genero = request.GET.get('genero', '').strip()
+    estado_venta = request.GET.get('estado_venta', '').strip()
+    ubicacion_id = request.GET.get('ubicacion', '').strip()
+    ordenar_por = request.GET.get('ordenar', 'utilidad_desc').strip()
+    utilidad_minima = request.GET.get('utilidad_minima', '').strip()
+    ventas_minimas = request.GET.get('ventas_minimas', '').strip()
+
+    if buscar:
+        detalles = detalles.filter(
+            Q(producto__nombre__icontains=buscar) |
+            Q(producto__codigo__icontains=buscar)
+        )
+
+    if fecha_desde:
+        try:
+            fecha_desde_dt = datetime.strptime(fecha_desde, '%Y-%m-%d')
+            detalles = detalles.filter(venta__fecha_elaboracion__gte=fecha_desde_dt)
+        except ValueError:
+            pass
+
+    if fecha_hasta:
+        try:
+            from datetime import timedelta
+            fecha_hasta_dt = datetime.strptime(fecha_hasta, '%Y-%m-%d')
+            fecha_hasta_dt = fecha_hasta_dt + timedelta(days=1) - timedelta(seconds=1)
+            detalles = detalles.filter(venta__fecha_elaboracion__lte=fecha_hasta_dt)
+        except ValueError:
+            pass
+
+    if categoria_id:
+        detalles = detalles.filter(producto__categoria_id=categoria_id)
+
+    if genero:
+        detalles = detalles.filter(producto__genero=genero)
+
+    if estado_venta:
+        detalles = detalles.filter(venta__estado=estado_venta)
+
+    if ubicacion_id:
+        detalles = detalles.filter(venta__ubicacion_id=ubicacion_id)
+
+    productos_agrupados = {}
+    for dv in detalles:
+        pid = dv.producto.id
+        if pid not in productos_agrupados:
+            productos_agrupados[pid] = {
+                'producto': dv.producto,
+                'cantidad_total': 0,
+                'cajas_total': 0,
+                'ventas_total': Decimal('0'),
+                'precio_compra_unit': dv.producto.precio_compra,
+                'num_ventas': 0,
+                'ubicaciones': set(),
+                'modalidades': {},
+            }
+        p = productos_agrupados[pid]
+        p['cantidad_total'] += dv.cantidad
+        p['cajas_total'] += dv.cantidad_cajas or 0
+        p['ventas_total'] += dv.subtotal
+        p['num_ventas'] += 1
+        if dv.venta.ubicacion_id:
+            p['ubicaciones'].add(dv.venta.ubicacion.nombre_ubicacion)
+        mod_key = dv.get_modalidad_display()
+        p['modalidades'][mod_key] = p['modalidades'].get(mod_key, 0) + dv.cantidad
+
+    items_reporte = []
+    for pid, data in productos_agrupados.items():
+        prod = data['producto']
+        costo_total = Decimal(prod.precio_compra) * Decimal(data['cantidad_total'])
+        utilidad = data['ventas_total'] - costo_total
+        if data['ventas_total'] > 0:
+            margen = (utilidad / data['ventas_total']) * Decimal('100')
+        else:
+            margen = Decimal('0')
+        precio_promedio = data['ventas_total'] / Decimal(data['cantidad_total']) if data['cantidad_total'] > 0 else Decimal('0')
+        items_reporte.append({
+            'producto': prod,
+            'cantidad_total': data['cantidad_total'],
+            'cajas_total': data['cajas_total'],
+            'costo_total': costo_total,
+            'ventas_total': data['ventas_total'],
+            'utilidad': utilidad,
+            'margen': margen,
+            'precio_promedio': precio_promedio,
+            'num_ventas': data['num_ventas'],
+            'ubicaciones': sorted(data['ubicaciones']),
+            'modalidades': data['modalidades'],
+        })
+
+    if utilidad_minima:
+        try:
+            umin = float(utilidad_minima)
+            items_reporte = [i for i in items_reporte if float(i['utilidad']) >= umin]
+        except ValueError:
+            pass
+
+    if ventas_minimas:
+        try:
+            vmin = float(ventas_minimas)
+            items_reporte = [i for i in items_reporte if float(i['ventas_total']) >= vmin]
+        except ValueError:
+            pass
+
+    if ordenar_por == 'nombre':
+        items_reporte.sort(key=lambda x: x['producto'].nombre)
+    elif ordenar_por == 'codigo':
+        items_reporte.sort(key=lambda x: x['producto'].codigo)
+    elif ordenar_por == 'cantidad_desc':
+        items_reporte.sort(key=lambda x: x['cantidad_total'], reverse=True)
+    elif ordenar_por == 'cantidad_asc':
+        items_reporte.sort(key=lambda x: x['cantidad_total'])
+    elif ordenar_por == 'ventas_desc':
+        items_reporte.sort(key=lambda x: x['ventas_total'], reverse=True)
+    elif ordenar_por == 'ventas_asc':
+        items_reporte.sort(key=lambda x: x['ventas_total'])
+    elif ordenar_por == 'utilidad_asc':
+        items_reporte.sort(key=lambda x: x['utilidad'])
+    elif ordenar_por == 'margen_desc':
+        items_reporte.sort(key=lambda x: x['margen'], reverse=True)
+    elif ordenar_por == 'margen_asc':
+        items_reporte.sort(key=lambda x: x['margen'])
+    else:
+        items_reporte.sort(key=lambda x: x['utilidad'], reverse=True)
+
+    total_cantidad = sum(i['cantidad_total'] for i in items_reporte)
+    total_cajas = sum(i['cajas_total'] for i in items_reporte)
+    total_costo = sum(i['costo_total'] for i in items_reporte)
+    total_ventas_monto = sum(i['ventas_total'] for i in items_reporte)
+    total_utilidad = sum(i['utilidad'] for i in items_reporte)
+    total_productos = len(items_reporte)
+    total_num_ventas = sum(i['num_ventas'] for i in items_reporte)
+    margen_global = (total_utilidad / total_ventas_monto * Decimal('100')) if total_ventas_monto > 0 else Decimal('0')
+
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    ubicaciones = PerfilUsuario.objects.filter(
+        id__in=Venta.objects.values_list('ubicacion_id', flat=True).distinct()
+    ).order_by('nombre_ubicacion')
+
+    filtros_activos = sum([
+        bool(buscar),
+        bool(fecha_desde),
+        bool(fecha_hasta),
+        bool(categoria_id),
+        bool(genero),
+        bool(estado_venta),
+        bool(ubicacion_id),
+        bool(utilidad_minima),
+        bool(ventas_minimas),
+    ])
+
+    paginator = Paginator(items_reporte, 10)
+    page = request.GET.get('page', 1)
+
+    try:
+        items_paginados = paginator.page(page)
+    except PageNotAnInteger:
+        items_paginados = paginator.page(1)
+    except EmptyPage:
+        items_paginados = paginator.page(paginator.num_pages)
+
+    query_params = request.GET.copy()
+    query_params.pop('page', None)
+    querystring = query_params.urlencode()
+
+    context = {
+        'items_reporte': items_paginados,
+        'categorias': categorias,
+        'ubicaciones': ubicaciones,
+        'total_productos': total_productos,
+        'total_cantidad': total_cantidad,
+        'total_cajas': total_cajas,
+        'total_costo': total_costo,
+        'total_ventas_monto': total_ventas_monto,
+        'total_utilidad': total_utilidad,
+        'total_num_ventas': total_num_ventas,
+        'margen_global': margen_global,
+        'filtros_activos': filtros_activos,
+        'buscar': buscar,
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta,
+        'categoria_id': categoria_id,
+        'genero': genero,
+        'estado_venta': estado_venta,
+        'ubicacion_id': ubicacion_id,
+        'ordenar_por': ordenar_por,
+        'utilidad_minima': utilidad_minima,
+        'ventas_minimas': ventas_minimas,
+        'querystring': querystring,
+        'GENERO_CHOICES': Producto.GENERO_CHOICES,
+    }
+
+    return render(request, 'reportes/reportesproductosventas/reportesproductosventas.html', context)

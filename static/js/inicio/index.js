@@ -78,4 +78,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addButtons.forEach(button => button.addEventListener('click', () => addItem(button)));
     updateCartCount(getCart());
+
+    const whatsappButtons = Array.from(document.querySelectorAll('.btn-whatsapp-buy'));
+    const comprarPorWhatsApp = (button) => {
+        const phone = button.dataset.whatsappNumber;
+        const name = button.dataset.productName || 'Producto';
+        const price = button.dataset.productPrice || '0';
+
+        if (!phone) return;
+
+        const message = `Hola 👋, estoy interesado/a en:\n\n📦 *Producto:* ${name}\n💰 *Precio:* Bs ${price}\n\n¿Podría darme más información?`;
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+    };
+    whatsappButtons.forEach(button => button.addEventListener('click', () => comprarPorWhatsApp(button)));
 });

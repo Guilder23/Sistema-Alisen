@@ -1,0 +1,218 @@
+.modal-header {
+    background: linear-gradient(135deg, #6610f2 0%, #4e73df 100%);
+    color: white;
+    border-bottom: none;
+    padding: 0.9rem 1.2rem;
+}
+
+.modal-header .modal-title {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.modal-header .close {
+    color: white;
+    opacity: 0.85;
+}
+
+.modal-header .close:hover {
+    opacity: 1;
+}
+
+.producto-imagen-card {
+    background: linear-gradient(135deg, #f8f9fc 0%, #eaecf4 100%);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.producto-imagen-wrapper {
+    width: 100%;
+    height: 160px;
+    border-radius: 8px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px dashed #d1d3e2;
+}
+
+.producto-imagen-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.info-section {
+    background: #f8f9fc;
+    border-radius: 8px;
+    padding: 0.9rem;
+}
+
+.info-section.info-basica {
+    background: white;
+    border: 1px solid #e3e6f0;
+}
+
+.section-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #5a5c69;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.info-item {
+    margin-bottom: 0.5rem;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.7rem;
+    color: #858796;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.1rem;
+}
+
+.info-item p {
+    font-size: 0.85rem;
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0;
+    line-height: 1.3;
+}
+
+.metric-card {
+    border-radius: 8px;
+    padding: 0.8rem;
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.metric-precio-compra { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); }
+.metric-precio-promedio { background: linear-gradient(135deg, #36b9cc 0%, #2980b9 100%); }
+.metric-cantidad { background: linear-gradient(135deg, #4e73df 0%, #2e59d9 100%); }
+.metric-num-ventas { background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%); }
+
+.metric-label {
+    font-size: 0.72rem;
+    opacity: 0.9;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.metric-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.metric-sub {
+    font-size: 0.7rem;
+    opacity: 0.85;
+    margin-top: 0.1rem;
+}
+
+.analisis-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.7rem;
+}
+
+.analisis-item {
+    background: white;
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    border-left: 4px solid;
+}
+
+.analisis-costo { border-left-color: #f39c12; }
+.analisis-ventas { border-left-color: #1cc88a; }
+.analisis-utilidad { border-left-color: #6610f2; }
+.analisis-margen { border-left-color: #4e73df; }
+
+.analisis-label {
+    font-size: 0.7rem;
+    color: #858796;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.15rem;
+}
+
+.analisis-valor {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.utilidad-bar-wrapper {
+    background: #f8f9fc;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.utilidad-bar-label {
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #5a5c69;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.utilidad-bar {
+    width: 100%;
+    height: 24px;
+    border-radius: 12px;
+    background: #e3e6f0;
+    overflow: hidden;
+    display: flex;
+}
+
+.utilidad-bar-costo {
+    background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+.utilidad-bar-utilidad {
+    background: linear-gradient(90deg, #6610f2 0%, #1cc88a 100%);
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+.utilidad-bar-legend {
+    margin-top: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #5a5c69;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 0.35rem;
+    vertical-align: middle;
+}
+
+.legend-costo { background: linear-gradient(135deg, #f39c12, #e67e22); }
+.legend-utilidad { background: linear-gradient(135deg, #6610f2, #1cc88a); }
+
+.modal-footer {
+    border-top: 1px solid #e3e6f0;
+    padding: 0.8rem 1rem;
+    background: #f8f9fc;
+    border-bottom-left-radius: 0.3rem;
+    border-bottom-right-radius: 0.3rem;
+}

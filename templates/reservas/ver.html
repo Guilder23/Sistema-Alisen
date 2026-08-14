@@ -1,0 +1,93 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Ver reserva{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/reservas/ver.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title"><i class="fas fa-bookmark"></i> {{ reserva.codigo }}</h1>
+            <p class="page-subtitle">Detalle de la reserva</p>
+        </div>
+    </div>
+
+    <div class="card detail-card">
+        <div class="card-body row">
+            <div class="col-md-6">
+                <p><strong>Cliente:</strong> {{ reserva.cliente }}</p>
+                <p><strong>Teléfono:</strong> {{ reserva.telefono|default:'-' }}</p>
+                <p><strong>NIT:</strong> {{ reserva.nit|default:'-' }}</p>
+                <p><strong>Razón social:</strong> {{ reserva.razon_social|default:'-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Tipo de venta:</strong> {{ reserva.get_tipo_pago_display }}</p>
+                <p><strong>Método de pago:</strong> {{ reserva.get_metodo_pago_display }}</p>
+                <p><strong>Subtotal:</strong> Bs. {{ reserva.subtotal }}</p>
+                <p><strong>Descuento:</strong> Bs. {{ reserva.descuento }}</p>
+                <p><strong>Total:</strong> Bs. {{ reserva.total }}</p>
+                <p><strong>Saldo pendiente:</strong> Bs. {{ saldo }}</p>
+                <p><strong>Estado:</strong> {{ reserva.get_estado_display }}</p>
+            </div>
+
+            <div class="col-12 mt-3">
+                <h5>Productos reservados</h5>
+                <table class="table table-sm">
+                    <thead>
+                        <tr><th>Producto</th><th>Modalidad</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.producto.nombre }}</td>
+                            <td>{{ item.get_modalidad_display }}</td>
+                            <td>{{ item.cantidad }}</td>
+                            <td>Bs. {{ item.precio_unitario }}</td>
+                            <td>Bs. {{ item.subtotal }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-muted">Sin productos</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-12 mt-3">
+                <h5>Pagos realizados</h5>
+                {% if pagos %}
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Fecha</th><th>Monto</th><th>Método</th><th>Observación</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for pago in pagos %}
+                            <tr>
+                                <td>{{ pago.fecha_pago|date:'d/m/Y H:i' }}</td>
+                                <td>Bs. {{ pago.monto }}</td>
+                                <td>{{ pago.get_metodo_pago_display }}</td>
+                                <td>{{ pago.observaciones|default:'-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-muted">Aún no hay pagos registrados.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-3">
+        <a href="{% url 'reservas:listar_reservas' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+        <a href="{% url 'reservas:amortizar_reserva' reserva.pk %}" class="btn btn-success"><i class="fas fa-credit-card"></i> Amortizar</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/reservas/ver.js' %}"></script>
+{% endblock %}

@@ -105,6 +105,15 @@ def obtener_label_modalidad(modalidad):
     return etiquetas.get(normalizar_modalidad(modalidad), 'Unidad')
 
 
+def obtener_label_tipo_venta(tipo_venta):
+    etiquetas = {
+        'tienda': 'Venta en Tienda',
+        'delivery': 'Delivery',
+        'envio_departamento': 'Envío a otro departamento',
+    }
+    return etiquetas.get(tipo_venta, '-')
+
+
 def obtener_tipo_vendedor_fallback_venta(venta):
     if getattr(venta.ubicacion, 'rol', '') == 'tienda':
         return 'tienda'
@@ -592,11 +601,13 @@ def listar_ventas(request):
         venta.total_display = convertir_monto_para_mostrar(venta, venta.total)
         venta.resumen_tipos_vendedor = obtener_resumen_tipos_vendedor_venta(venta)
         venta.descuento_info = obtener_info_descuento(venta)
+        venta.tipo_venta_label = obtener_label_tipo_venta(venta.tipo_venta)
 
     for venta in ventas_credito:
         venta.total_display = convertir_monto_para_mostrar(venta, venta.total)
         venta.resumen_tipos_vendedor = obtener_resumen_tipos_vendedor_venta(venta)
         venta.descuento_info = obtener_info_descuento(venta)
+        venta.tipo_venta_label = obtener_label_tipo_venta(venta.tipo_venta)
 
     total_ventas = ventas.count()
     total_contado = ventas_contado_qs.aggregate(total=Sum('total'))['total'] or Decimal('0.00')
@@ -944,6 +955,7 @@ def buscar_productos(request):
                 'precio_compra': float(p.precio_compra or 0),
                 'poliza': float(p.poliza or 0),
                 'gastos': float(p.gastos or 0),
+                'imagen_url': p.imagen_principal_url or '',
             })
 
         return JsonResponse({'productos': resultado})
@@ -1029,6 +1041,8 @@ def obtener_detalle_venta(request, id):
             'cliente': venta.cliente,
             'comentario': venta.comentario or '',
             'tipo_pago': venta.tipo_pago,
+            'tipo_venta': venta.tipo_venta or '',
+            'tipo_venta_label': obtener_label_tipo_venta(venta.tipo_venta),
             'estado': venta.estado,
             'moneda': venta.moneda,
             'moneda_simbolo': obtener_simbolo_moneda(venta.moneda),
@@ -1097,6 +1111,8 @@ def ver_venta(request, id):
             'tipo_cambio': str(venta.tipo_cambio),
             'total': str(convertir_monto_para_mostrar(venta, venta.total)),
             'tipo_pago': venta.tipo_pago,
+            'tipo_venta': venta.tipo_venta or '',
+            'tipo_venta_label': obtener_label_tipo_venta(venta.tipo_venta),
             'comentario': venta.comentario or '',
             'mostrar_amortizaciones': mostrar_amortizaciones,
             'total_amortizado': str(convertir_monto_para_mostrar(venta, total_amortizado)),
@@ -1118,6 +1134,7 @@ def ver_venta(request, id):
         'descuento_info': obtener_info_descuento(venta),
         'total_display': convertir_monto_para_mostrar(venta, venta.total),
         'resumen_tipos_vendedor': obtener_resumen_tipos_vendedor_venta(venta),
+        'tipo_venta_label': obtener_label_tipo_venta(venta.tipo_venta),
         'mostrar_amortizaciones': mostrar_amortizaciones,
         'amortizaciones': amortizaciones,
         'total_amortizado': convertir_monto_para_mostrar(venta, total_amortizado),
@@ -1756,6 +1773,7 @@ def listar_ventas_tienda(request):
         venta.total_display = convertir_monto_para_mostrar(venta, venta.total)
         venta.resumen_tipos_vendedor = obtener_resumen_tipos_vendedor_venta(venta)
         venta.descuento_info = obtener_info_descuento(venta)
+        venta.tipo_venta_label = obtener_label_tipo_venta(venta.tipo_venta)
 
     for venta in ventas_credito:
         total_amortizado = AmortizacionCredito.objects.filter(
@@ -1768,6 +1786,7 @@ def listar_ventas_tienda(request):
         venta.saldo_pendiente = convertir_monto_para_mostrar(venta, saldo_pendiente)
         venta.resumen_tipos_vendedor = obtener_resumen_tipos_vendedor_venta(venta)
         venta.descuento_info = obtener_info_descuento(venta)
+        venta.tipo_venta_label = obtener_label_tipo_venta(venta.tipo_venta)
         venta.mostrar_boton_amortizacion = (
             es_tienda_principal
             and venta.estado not in ['cancelada', 'anulada']
@@ -1929,6 +1948,7 @@ def guardar_venta_tienda(request):
                 comentario=comentario if comentario else None,
                 tipo_pago=tipo_pago,
                 metodo_pago=metodo_pago if metodo_pago else None,
+                tipo_venta=tipo_venta if tipo_venta else 'tienda',
                 moneda=moneda,
                 tipo_cambio=tipo_cambio,
                 estado='completada' if tipo_pago == 'contado' else 'pendiente',
