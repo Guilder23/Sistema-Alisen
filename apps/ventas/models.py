@@ -30,6 +30,12 @@ class Venta(models.Model):
         ('fijo', 'Monto fijo'),
         ('porcentaje', 'Porcentaje'),
     )
+
+    TIPOS_VENTA = (
+        ('tienda', 'Venta en Tienda'),
+        ('delivery', 'Delivery'),
+        ('envio_departamento', 'Envío a otro departamento'),
+    )
     
     codigo = models.CharField(max_length=50, unique=True)
     ubicacion = models.ForeignKey(PerfilUsuario, on_delete=models.CASCADE)
@@ -41,6 +47,7 @@ class Venta(models.Model):
     
     tipo_pago = models.CharField(max_length=20, choices=TIPOS_PAGO, default='contado')
     metodo_pago = models.CharField(max_length=20, choices=METODOS_PAGO, default='efectivo', blank=True, null=True)
+    tipo_venta = models.CharField(max_length=30, choices=TIPOS_VENTA, default='tienda', blank=True, null=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     
     moneda = models.CharField(max_length=10, choices=[('BOB', 'Bolivianos'), ('USD', 'Dólares')], default='BOB', help_text='Moneda en la que se realizó la venta')

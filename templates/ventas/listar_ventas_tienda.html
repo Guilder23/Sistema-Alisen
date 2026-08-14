@@ -214,6 +214,7 @@
                                     <th>Cliente</th>
                                     <th>Fecha</th>
                                     <th class="text-center">Origen</th>
+                                    <th class="text-center">Tipo Venta</th>
                                     <th class="text-center">Método Pago</th>
                                     <th class="text-right">Total</th>
                                     <th class="text-center">Estado</th>
@@ -233,6 +234,13 @@
                                         <span class="badge {% if venta.resumen_tipos_vendedor.codigo == 'mixto' %}badge-warning{% else %}badge-info{% endif %}">
                                             {{ venta.resumen_tipos_vendedor.label }}
                                         </span>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if venta.tipo_venta %}
+                                        <span class="badge badge-secondary">{{ venta.tipo_venta_label }}</span>
                                         {% else %}
                                         <span class="text-muted">-</span>
                                         {% endif %}
@@ -291,7 +299,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="8" class="text-center py-5 text-muted">
+                                    <td colspan="9" class="text-center py-5 text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                         No hay ventas al contado.
                                     </td>
@@ -312,6 +320,7 @@
                                     <th>Cliente</th>
                                     <th>Fecha</th>
                                     <th class="text-center">Origen</th>
+                                    <th class="text-center">Tipo Venta</th>
                                     <th class="text-center">Método Pago</th>
                                     <th class="text-right">Total</th>
                                     <th class="text-center">Saldo</th>
@@ -332,6 +341,13 @@
                                         <span class="badge {% if venta.resumen_tipos_vendedor.codigo == 'mixto' %}badge-warning{% else %}badge-info{% endif %}">
                                             {{ venta.resumen_tipos_vendedor.label }}
                                         </span>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if venta.tipo_venta %}
+                                        <span class="badge badge-secondary">{{ venta.tipo_venta_label }}</span>
                                         {% else %}
                                         <span class="text-muted">-</span>
                                         {% endif %}
@@ -412,7 +428,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="9" class="text-center py-5 text-muted">
+                                    <td colspan="10" class="text-center py-5 text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                         No hay ventas a crédito.
                                     </td>
@@ -433,6 +449,7 @@
                             <th>Cliente</th>
                             <th>Fecha</th>
                             <th class="text-center">Origen</th>
+                            <th class="text-center">Tipo Venta</th>
                             <th class="text-center">Método Pago</th>
                             <th class="text-right">Total</th>
                             <th class="text-center">Estado</th>
@@ -452,6 +469,13 @@
                                 <span class="badge {% if venta.resumen_tipos_vendedor.codigo == 'mixto' %}badge-warning{% else %}badge-info{% endif %}">
                                     {{ venta.resumen_tipos_vendedor.label }}
                                 </span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if venta.tipo_venta %}
+                                <span class="badge badge-secondary">{{ venta.tipo_venta_label }}</span>
                                 {% else %}
                                 <span class="text-muted">-</span>
                                 {% endif %}
@@ -510,7 +534,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
+                            <td colspan="9" class="text-center py-5 text-muted">
                                 <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                 No hay ventas registradas.
                                 <div class="mt-2">

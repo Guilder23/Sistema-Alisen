@@ -15,7 +15,9 @@
         guardarVentaTienda: "{% url 'ventas:guardar_venta_tienda' %}",
         listaTienda: "{% url 'ventas:listar_ventas_tienda' %}",
     };
+    /* eslint-disable no-template-curly-in-string */
     const tipoCambioActual = {{ tipo_cambio_actual|default:'6.93'|stringformat:'f' }};
+    /* eslint-enable no-template-curly-in-string */
     /* eslint-enable */
 </script>
 {% endblock %}
@@ -188,6 +190,17 @@
                                 required
                                 autocomplete="off"
                             >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="selectTipoVenta" class="label-campo">
+                                Tipo de Venta <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-control" id="selectTipoVenta" required>
+                                <option value="tienda" selected>Venta en Tienda</option>
+                                <option value="delivery">Delivery</option>
+                                <option value="envio_departamento">Envío a otro departamento</option>
+                            </select>
                         </div>
 
                         <div class="form-group">

@@ -11,6 +11,7 @@ let carrito = [];
 let productosActuales = {};
 let tipoVendedorActual = null;
 let tipoDescuentoActual = 'fijo';
+let tipoVentaActual = 'tienda';
 let debounceBusqueda = null;
 let secuenciaBusqueda = 0;
 
@@ -1280,6 +1281,15 @@ function inicializarBusqueda() {
         });
     }
 
+    const selectTipoVenta = document.getElementById('selectTipoVenta');
+    if (selectTipoVenta) {
+        tipoVentaActual = selectTipoVenta.value || 'tienda';
+
+        selectTipoVenta.addEventListener('change', function () {
+            tipoVentaActual = this.value || 'tienda';
+        });
+    }
+
     const selectMoneda = document.getElementById('selectMoneda');
     if (selectMoneda) {
         selectMoneda.addEventListener('change', function () {
@@ -1433,7 +1443,7 @@ function construirPayloadVenta() {
         comentario: document.getElementById('inputComentario')?.value.trim() || '',
         tipo_pago: document.getElementById('inputTipoPago')?.value || 'contado',
         metodo_pago: document.getElementById('inputMetodoPago')?.value || 'efectivo',
-        tipo_venta: tipoVendedorActual || 'tienda',
+        tipo_venta: tipoVentaActual || 'tienda',
         moneda: obtenerMonedaActual(),
         tipo_cambio: obtenerTipoCambioActual(),
         descuento: convertirBsAMoneda(detalleDescuento.descuentoBs).toFixed(2),
