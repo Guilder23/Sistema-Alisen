@@ -11,6 +11,7 @@ from django.urls import reverse
 
 from apps.productos.models import Producto
 from apps.inventario.models import Inventario
+from apps.ventas.models import DetalleVenta, Venta
 from .models import PagoReserva, ReservaItem, ReservaProducto
 
 
@@ -74,6 +75,71 @@ def parse_decimal(value, default='0'):
         return Decimal(str(value or default))
     except Exception:
         return Decimal(str(default))
+
+
+def generar_codigo_venta_desde_reserva():
+    ultima = Venta.objects.order_by('-id').first()
+    if ultima and ultima.codigo:
+        try:
+            numero = int(ultima.codigo.split('-')[1]) + 1
+        except (IndexError, ValueError):
+            numero = Venta.objects.count() + 1
+    else:
+        numero = 1
+    return f'VTA-{numero:04d}'
+
+
+def convertir_reserva_en_venta(reserva, usuario):
+    venta_existente = Venta.objects.filter(
+        cliente=reserva.cliente,
+        ubicacion=reserva.ubicacion,
+        total=reserva.total,
+        subtotal=reserva.subtotal,
+        fecha_elaboracion__date=reserva.fecha_reserva.date(),
+    ).count()
+    if venta_existente > 0:
+        return Venta.objects.filter(
+            cliente=reserva.cliente,
+            ubicacion=reserva.ubicacion,
+            total=reserva.total,
+            subtotal=reserva.subtotal,
+            fecha_elaboracion__date=reserva.fecha_reserva.date(),
+        ).order_by('-id').first()
+
+    venta = Venta.objects.create(
+        codigo=generar_codigo_venta_desde_reserva(),
+        ubicacion=reserva.ubicacion,
+        cliente=reserva.cliente,
+        telefono=reserva.telefono,
+        razon_social=reserva.razon_social,
+        direccion=reserva.direccion,
+        comentario=reserva.comentario,
+        tipo_pago=reserva.tipo_pago,
+        metodo_pago=reserva.metodo_pago,
+        estado='completada',
+        moneda=reserva.moneda,
+        tipo_cambio=reserva.tipo_cambio,
+        vendedor=usuario,
+        subtotal=reserva.subtotal,
+        descuento=reserva.descuento,
+        descuento_tipo=reserva.descuento_tipo,
+        descuento_valor=reserva.descuento_valor,
+        total=reserva.total,
+    )
+
+    for item in reserva.items.select_related('producto'):
+        DetalleVenta.objects.create(
+            venta=venta,
+            producto=item.producto,
+            cantidad=item.cantidad,
+            cantidad_cajas=0,
+            tipo_vendedor=reserva.inventario_tipo or 'tienda',
+            modalidad=item.modalidad,
+            precio_unitario=item.precio_unitario,
+            subtotal=item.subtotal,
+        )
+
+    return venta
 
 
 def aplicar_descuento(total, descuento_tipo, descuento_valor):
@@ -348,6 +414,7 @@ def amortizar_reserva(request, pk):
         nuevo_total_pagado = reserva.total_pagado
         if nuevo_total_pagado >= reserva.total:
             reserva.estado = 'completada'
+            convertir_reserva_en_venta(reserva, request.user)
         elif nuevo_total_pagado > 0:
             reserva.estado = 'parcial'
         reserva.save()

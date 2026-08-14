@@ -9,6 +9,7 @@ from apps.inventario.models import Inventario
 from apps.productos.models import Producto
 from apps.tiendas.models import Tienda
 from apps.usuarios.models import PerfilUsuario
+from apps.ventas.models import DetalleVenta, Venta
 from .models import PagoReserva, ReservaProducto
 
 
@@ -108,3 +109,46 @@ class ReservaProductoViewTests(TestCase):
         reserva = ReservaProducto.objects.get(cliente='Juan Reserva')
         self.client.post(reverse('reservas:anular_reserva', args=[reserva.pk]), data={'motivo': 'Prueba'})
         self.assertEqual(Inventario.objects.get(producto=producto, ubicacion=self.perfil).cantidad, 10)
+
+    def test_pago_completo_de_reserva_crea_venta_normal(self):
+        producto = Producto.objects.create(
+            codigo='P-002',
+            nombre='Pantalón Test',
+            precio_unidad=Decimal('80.00'),
+            precio_caja=Decimal('800.00'),
+            precio_mayor=Decimal('75.00'),
+            activo=True,
+        )
+        Inventario.objects.create(producto=producto, ubicacion=self.perfil, cantidad=10)
+
+        reserva = ReservaProducto.objects.create(
+            codigo='R-00010',
+            ubicacion=self.perfil,
+            cliente='Cliente de venta',
+            total=Decimal('160.00'),
+            subtotal=Decimal('160.00'),
+            registrado_por=self.user,
+            inventario_tipo='tienda',
+        )
+        ReservaProducto.objects.filter(pk=reserva.pk).update(total=Decimal('160.00'), subtotal=Decimal('160.00'))
+        ReservaItem = reserva.items.model
+        ReservaItem.objects.create(
+            reserva=reserva,
+            producto=producto,
+            cantidad=2,
+            modalidad='unidad',
+            precio_unitario=Decimal('80.00'),
+            subtotal=Decimal('160.00'),
+        )
+
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse('reservas:amortizar_reserva', args=[reserva.pk]),
+            data={'monto': '160.00', 'metodo_pago': 'efectivo', 'observaciones': 'Pago completo'}
+        )
+
+        self.assertEqual(response.status_code, 302)
+        reserva.refresh_from_db()
+        self.assertEqual(reserva.estado, 'completada')
+        self.assertTrue(Venta.objects.filter(cliente='Cliente de venta', total=Decimal('160.00')).exists())
+        self.assertTrue(DetalleVenta.objects.filter(venta__cliente='Cliente de venta').exists())
