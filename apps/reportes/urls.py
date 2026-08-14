@@ -9,4 +9,5 @@ urlpatterns = [
     path('ventas/comision/', views.reporte_ventas_comision_pdf, name='reporte_ventas_comision'),
     path('traspasos/', views.reporte_traspasos, name='reporte_traspasos'),
     path('contenedores/', views.reporte_contenedores, name='reporte_contenedores'),
+    path('ventas-productos/', views.reporte_ventas_productos, name='reporte_ventas_productos'),
 ]

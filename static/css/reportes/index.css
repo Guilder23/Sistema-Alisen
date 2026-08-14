@@ -97,6 +97,10 @@
     background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
 }
 
+.report-icon-productos-ventas {
+    background: linear-gradient(135deg, #6610f2 0%, #4e73df 100%);
+}
+
 .report-info {
     flex: 1;
 }
@@ -184,6 +188,16 @@
 
 .btn-traspasos:hover {
     background: #be2617;
+    color: white;
+}
+
+.btn-productos-ventas {
+    background: #6610f2;
+    color: white;
+}
+
+.btn-productos-ventas:hover {
+    background: #4e73df;
     color: white;
 }
 

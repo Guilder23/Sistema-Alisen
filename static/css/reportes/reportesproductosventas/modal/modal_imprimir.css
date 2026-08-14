@@ -1,0 +1,185 @@
+#modalImprimir .modal-dialog {
+    max-width: 95vw;
+}
+
+#modalImprimir .modal-content {
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+}
+
+#modalImprimir .config-panel-header {
+    padding: 0.8rem 1rem;
+    background: white;
+}
+
+#modalImprimir .config-columns-scroll {
+    padding: 1rem;
+    max-height: calc(100vh - 340px);
+    overflow-y: auto;
+}
+
+#modalImprimir .config-columns-scroll h6 {
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+#modalImprimir .custom-switch {
+    padding-left: 2.2rem;
+    margin-bottom: 0.4rem;
+}
+
+#modalImprimir .custom-switch .custom-control-label {
+    font-size: 0.8rem;
+    color: #5a5c69;
+    padding-top: 1px;
+}
+
+#modalImprimir .custom-switch .custom-control-label::before {
+    left: -2.2rem;
+    width: 36px;
+    height: 18px;
+    border-radius: 9px;
+    transition: all 0.2s ease;
+}
+
+#modalImprimir .custom-switch .custom-control-label::after {
+    left: calc(-2.2rem + 2px);
+    top: calc(0.25rem + 1px);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+#modalImprimir .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+    transform: translateX(18px);
+}
+
+#modalImprimir .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
+    background: #4e73df;
+    border-color: #4e73df;
+}
+
+#modalImprimir .config-panel-footer {
+    padding: 0.9rem;
+}
+
+#modalImprimir .btn-imprimir-modal {
+    background: linear-gradient(135deg, #4e73df 0%, #2e59d9 100%);
+    border-color: #2e59d9;
+    font-weight: 600;
+    padding: 0.5rem;
+}
+
+#modalImprimir .preview-container {
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+#modalImprimir .preview-paper {
+    background: white;
+    border-radius: 4px;
+    padding: 1.5rem;
+    max-width: 100%;
+    min-height: 70vh;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+#modalImprimir .myshadow {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+#modalImprimir .header-reporte {
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #e3e6f0;
+}
+
+#modalImprimir .header-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+#modalImprimir .header-center {
+    text-align: center;
+}
+
+#modalImprimir .header-right {
+    text-align: right;
+}
+
+#modalImprimir .logo-header-compact {
+    height: 42px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+#modalImprimir .resumen-impresion {
+    background: #f8f9fc;
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    border: 1px solid #e3e6f0;
+}
+
+#modalImprimir .resumen-imp-item {
+    text-align: center;
+    border-right: 1px solid #e3e6f0;
+    padding: 0.2rem 0.5rem;
+}
+
+#modalImprimir .resumen-imp-item:last-child {
+    border-right: none;
+}
+
+#modalImprimir .resumen-imp-item p {
+    font-size: 1rem;
+}
+
+#modalImprimir .preview-table-wrapper {
+    margin-top: 0.5rem;
+}
+
+#modalImprimir #tablaVistaPreviaProductos thead th {
+    background: #4e73df;
+    color: white;
+    border: 1px solid #3a56b3;
+    padding: 0.55rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+#modalImprimir #tablaVistaPreviaProductos tbody td {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.78rem;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+}
+
+#modalImprimir #tablaVistaPreviaProductos tbody tr:nth-child(even) {
+    background: #f8f9fc;
+}
+
+#modalImprimir.orientation-landscape .preview-paper {
+    width: 100%;
+    transform: none;
+}
+
+#modalImprimir.orientation-portrait .preview-paper {
+    max-width: 780px;
+    margin: 0 auto;
+}
+
+@media print {
+    .d-print-none { display: none !important; }
+    #modalImprimir .preview-container {
+        max-height: none;
+        overflow: visible;
+    }
+    #modalImprimir .preview-paper {
+        box-shadow: none;
+        border: none;
+    }
+}
