@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'apps.depositos',
     'apps.tiendas_virtuales',
     'apps.proformas',
+    'apps.reservas',
     # 'storages',  # Para almacenamiento en S3 (Blackblaze B2) - no se usa actualmente
     # 'rest_framework',  # Para la API REST - COMENTADO
     'apps.vendedores',

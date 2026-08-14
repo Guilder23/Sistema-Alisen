@@ -1,0 +1,110 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Reservas{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/reservas/reservas.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid reservas-page">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title"><i class="fas fa-bookmark"></i> Reservas de productos</h1>
+            <p class="page-subtitle">Control de reservas y amortizaciones por tienda</p>
+        </div>
+        <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle"></i> Nueva reserva
+        </a>
+    </div>
+
+    <div class="card card-filtros">
+        <div class="card-body py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-white border-right-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                        </div>
+                        <input type="text" class="form-control form-control-sm border-left-0" placeholder="Buscar por cliente, código o producto...">
+                    </div>
+                </div>
+                <div class="col-md-6 text-right">
+                    <span class="badge badge-info info-badge">{{ reservas|length }} reservas activas</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-tabla">
+        <div class="table-responsive">
+            <table class="table table-sm tabla-reservas mb-0">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Productos</th>
+                        <th>Tipo</th>
+                        <th>Total</th>
+                        <th>Pagado</th>
+                        <th>Saldo</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td><span class="codigo-badge">{{ reserva.codigo }}</span></td>
+                        <td>{{ reserva.cliente }}</td>
+                        <td>
+                            {% for item in reserva.items.all %}
+                                <div>{{ item.producto.nombre }} (x{{ item.cantidad }})</div>
+                            {% empty %}
+                                <span class="text-muted">-</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ reserva.get_tipo_pago_display }}</td>
+                        <td>Bs. {{ reserva.total }}</td>
+                        <td>Bs. {{ reserva.total_pagado }}</td>
+                        <td>Bs. {{ reserva.saldo_pendiente }}</td>
+                        <td class="estado-columna">
+                            {% if reserva.estado == 'pendiente' %}
+                                <span class="estado-badge estado-pendiente">Pendiente</span>
+                            {% elif reserva.estado == 'parcial' %}
+                                <span class="estado-badge estado-parcial">Parcial</span>
+                            {% elif reserva.estado == 'completada' %}
+                                <span class="estado-badge estado-completada">Completada</span>
+                            {% else %}
+                                <span class="estado-badge estado-anulada">Anulada</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center acciones-col">
+                            <a href="{% url 'reservas:ver_reserva' reserva.pk %}" class="btn btn-info btn-sm" title="Ver reserva"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'reservas:editar_reserva' reserva.pk %}" class="btn btn-warning btn-sm" title="Editar reserva"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'reservas:amortizar_reserva' reserva.pk %}" class="btn btn-success btn-sm" title="Amortizar"><i class="fas fa-credit-card"></i></a>
+                            <a href="{% url 'reservas:anular_reserva' reserva.pk %}" class="btn btn-secondary btn-sm" title="Anular"><i class="fas fa-ban"></i></a>
+                            <a href="{% url 'reservas:eliminar_reserva' reserva.pk %}" class="btn btn-danger btn-sm" title="Eliminar"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No hay reservas registradas</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/reservas/reservas.js' %}"></script>
+{% endblock %}

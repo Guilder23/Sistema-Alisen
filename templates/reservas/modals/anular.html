@@ -1,0 +1,38 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Anular reserva{% endblock %}
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/reservas/modals/anular.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header warning-header">
+        <div class="page-header-content">
+            <h1 class="page-title"><i class="fas fa-ban"></i> Anular reserva</h1>
+            <p class="page-subtitle">Registrar motivo de anulación</p>
+        </div>
+    </div>
+
+    <div class="card form-card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Motivo de anulación</label>
+                    <textarea name="motivo" class="form-control" rows="4" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-warning"><i class="fas fa-ban"></i> Confirmar anulación</button>
+                    <a href="{% url 'reservas:listar_reservas' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/reservas/modals/anular.js' %}"></script>
+{% endblock %}

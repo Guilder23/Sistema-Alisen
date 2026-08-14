@@ -195,6 +195,12 @@
                     <span>Ventas</span>
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{% url 'reservas:listar_reservas' %}" class="sidebar-link {% if 'reservas' in request.path %}active{% endif %}" title="Reservas">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Reservas</span>
+                </a>
+            </li>
             {% endif %}
 
             <!-- Proformas -->

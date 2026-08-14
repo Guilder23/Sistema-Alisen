@@ -1,0 +1,8 @@
+.detail-card {
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.06);
+}
+
+.detail-card p {
+    margin-bottom: 0.6rem;
+}

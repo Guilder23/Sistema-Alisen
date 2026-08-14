@@ -1,0 +1,10 @@
+.modal-reserva-ver .modal-content {
+    border-radius: 0.75rem;
+}
+
+.modal-reserva-ver .detail-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eef2f7;
+    padding: 0.5rem 0;
+}
