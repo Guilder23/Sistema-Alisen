@@ -359,11 +359,17 @@
 
                         <div class="form-group mb-4" id="metodoPagoSection">
                             <label class="label-campo d-block mb-2">Método de Pago</label>
-                            <select class="form-control" id="selectMetodoPago">
-                                <option value="efectivo">Efectivo</option>
-                                <option value="qr">QR</option>
-                                <option value="transferencia">Transferencia</option>
-                            </select>
+                            <div class="metodo-pago-selector" role="group" aria-label="Método de Pago">
+                                <button type="button" class="metodo-pago-option active" data-metodo="efectivo">
+                                    <i class="fas fa-money-bill-wave"></i><span>Efectivo</span>
+                                </button>
+                                <button type="button" class="metodo-pago-option" data-metodo="qr">
+                                    <i class="fas fa-qrcode"></i><span>QR</span>
+                                </button>
+                                <button type="button" class="metodo-pago-option" data-metodo="transferencia">
+                                    <i class="fas fa-exchange-alt"></i><span>Transferencia</span>
+                                </button>
+                            </div>
                             <input type="hidden" id="inputMetodoPago" value="efectivo">
                         </div>
 
