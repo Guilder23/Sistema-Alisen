@@ -1,5 +1,57 @@
 /* Estilos específicos para la página Tienda */
 .tienda-main { background: #f8fafc; min-height: calc(100vh - 96px); padding-top: 76px; }
+
+.tienda-filtros-superiores {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: .55rem .8rem;
+    padding: .85rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+}
+.tienda-filtros-superiores-label {
+    color: #64748b;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.tienda-filtros-superiores-label--subcategoria { grid-column: 1; }
+.tienda-filtros-superiores-scroll {
+    display: flex;
+    gap: .45rem;
+    min-width: 0;
+    overflow-x: auto;
+    padding: .1rem 0 .3rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    touch-action: pan-x;
+}
+.tienda-filtros-superiores-scroll::-webkit-scrollbar { display: none; }
+.tienda-filtro-chip {
+    flex: 0 0 auto;
+    padding: .42rem .8rem;
+    border: 1px solid #dbe3ee;
+    border-radius: 999px;
+    color: #475569;
+    background: #fff;
+    font-size: .8rem;
+    line-height: 1.2;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.tienda-filtro-chip:hover { color: #2563eb; border-color: #93c5fd; background: #eff6ff; }
+.tienda-filtro-chip.active { color: #fff; border-color: #2563eb; background: #2563eb; }
+
+@media (max-width: 991.98px) {
+    .tienda-filtros-superiores { grid-template-columns: 1fr; gap: .35rem; }
+    .tienda-filtros-superiores-label--subcategoria { grid-column: 1; margin-top: .35rem; }
+}
+
 .tienda-header { background: #06112b; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.08); }
 .tienda-header h1 { color: #fff; }
 .tienda-header .text-muted { color: rgba(248,247,244,0.7) !important; }

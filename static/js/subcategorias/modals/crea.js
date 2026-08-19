@@ -1,0 +1,1 @@
+(function(){'use strict';$(function(){$('#modalCrearSubcategoria form').on('submit',function(e){if(!this.nombre.value.trim()||!this.categoria.value){e.preventDefault();alert('Nombre y categoría son obligatorios.');}});});})();

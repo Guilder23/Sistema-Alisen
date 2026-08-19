@@ -29,6 +29,16 @@
                     <p class="text-muted mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} encontrado{{ productos|length|pluralize }}</p>
                 </div>
             </div>
+
+            <div class="tienda-filtros-superiores mb-4" aria-label="Filtros rápidos del catálogo">
+                <div class="tienda-filtros-superiores-label"><i class="fas fa-layer-group mr-2"></i>Subcategorías</div>
+                <div class="tienda-filtros-superiores-scroll">
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="tienda-filtro-chip {% if not subcategoria %}active{% endif %}">Todas</a>
+                    {% for sub in subcategorias %}
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}subcategoria={{ sub.id }}" class="tienda-filtro-chip {% if subcategoria == sub.id|stringformat:'s' %}active{% endif %}">{{ sub.nombre }}</a>
+                    {% endfor %}
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-3 mb-4 mb-lg-0">
                     <div class="card tienda-filtros sticky-top" id="tiendaFilters" style="top: 1rem;">

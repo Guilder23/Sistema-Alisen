@@ -127,6 +127,8 @@
                                     data-cantidad-recibida="{{ pc.cantidad_recibida }}"
                                     data-codigo="{{ pc.producto.codigo }}" 
                                     data-nombre="{{ pc.producto.nombre }}"
+                                    data-categoria="{{ pc.producto.categoria.nombre|default:'Sin categoría' }}"
+                                    data-subcategoria="{{ pc.producto.subcategoria.nombre|default:'Sin subcategoría' }}"
                                     title="Ver detalles">
                                 <i class="fas fa-eye"></i>
                             </button>

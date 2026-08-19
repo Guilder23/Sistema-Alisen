@@ -134,6 +134,17 @@
 }
 
 /*TABLA DE VENTAS*/
+.tabla-productos {
+    width: 1180px;
+    min-width: 1180px;
+}
+.tabla-productos .columna-comentario {
+    width: 145px;
+    max-width: 145px;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .tabla-productos thead th {
     background: var(--ventas-bg-light);
     color: var(--ventas-text-muted);
@@ -152,6 +163,11 @@
     padding: 1.25rem 1rem;
     border-bottom: 1px solid #f0f0f0;
     min-height: 65px;
+}
+.tabla-productos tbody td:not(.columna-comentario) {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
 }
 .tabla-productos tbody tr:hover {
     background-color: rgba(44, 111, 187, 0.04);
@@ -196,9 +212,9 @@
     gap: 0.3rem;
     font-size: 0.75rem !important;
     font-weight: 600 !important;
-    padding: 0.6rem 0.85rem !important;
-    border-radius: 12px !important;
-    letter-spacing: 0.3px;
+    padding: 0.28rem 0.52rem !important;
+    border-radius: 999px !important;
+    letter-spacing: 0.02em;
     white-space: nowrap;
     line-height: 1.2 !important;
     vertical-align: middle !important;    position: static !important;
@@ -212,16 +228,45 @@
     right: auto !important;
     margin: 0 auto !important;}
 .badge-completada {
-    background-color: #d4edda !important;
+    background-color: rgba(212, 237, 218, 0.72) !important;
     color: #1e7e34 !important;
 }
 .badge-pendiente {
-    background-color: #fff3cd !important;
+    background-color: rgba(255, 243, 205, 0.72) !important;
     color: #c77c11 !important;
 }
 .badge-cancelada {
-    background-color: #f8d7da !important;
+    background-color: rgba(248, 215, 218, 0.72) !important;
     color: #bd2130 !important;
+}
+
+.card-tabla tbody .badge-success {
+    background-color: rgba(40, 167, 69, 0.72) !important;
+}
+.card-tabla tbody .badge-info {
+    background-color: rgba(23, 162, 184, 0.72) !important;
+}
+.card-tabla tbody .badge-warning {
+    background-color: rgba(255, 193, 7, 0.72) !important;
+}
+.card-tabla tbody .badge-secondary {
+    background-color: rgba(108, 117, 125, 0.72) !important;
+}
+
+.card-tabla tbody td .badge:not(.badge-estado) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 150px;
+    padding: 0.28rem 0.55rem;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .saldo-cell {

@@ -83,11 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let locationName = '';
         let locationPhone = '';
 
-        if (selectedStoreRadios.length > 0) {
-            if (!store) {
-                mostrarToast('Selecciona una tienda para tu compra.', 'error', 'Tienda obligatoria');
-                return;
-            }
+        if (selectedStoreRadios.length > 0 && store) {
             selectedStock = store.stock;
             locationId = store.id;
             locationName = store.name;

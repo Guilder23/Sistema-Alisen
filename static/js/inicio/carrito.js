@@ -5,7 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const showFormButton = document.getElementById('showFormButton');
     const checkoutForm = document.getElementById('checkoutForm');
     const submitOrderButton = document.getElementById('submitOrderButton');
-    const deliveryOption = document.getElementById('deliveryOption');
+    const deliveryModal = document.getElementById('deliveryModal');
+    const deliveryOptions = document.querySelectorAll('.delivery-option');
+    const continueDeliveryButton = document.getElementById('continueDeliveryButton');
+    let selectedDelivery = '';
     const deliveryNote = document.getElementById('deliveryNote');
     const clearCartBtn = document.getElementById('clearCartBtn');
     const customerModal = document.getElementById('customerModal');
@@ -98,14 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (showFormButton) showFormButton.disabled = false;
 
         const storeNames = [...new Set(items.map(item => item.ubicacion_nombre).filter(Boolean))];
-        const storePhones = [...new Set(items.map(item => item.ubicacion_telefono).filter(Boolean))];
         const cartStoreNameElem = document.getElementById('cartStoreName');
         const cartStorePhoneElem = document.getElementById('cartStorePhone');
-        const selectedPhone = storePhones.length === 1 ? storePhones[0] : (storePhones[0] || '');
         const displayStoreName = storeNames.length === 1 ? storeNames[0] : (storeNames.length > 1 ? 'Varias tiendas' : 'Tienda no definida');
         if (cartStoreNameElem) cartStoreNameElem.textContent = displayStoreName;
-        if (cartStorePhoneElem) cartStorePhoneElem.textContent = selectedPhone || 'Sin teléfono';
-        if (submitOrderButton) submitOrderButton.dataset.phone = selectedPhone.replace(/^\+/, '') || submitOrderButton.dataset.phone || '';
+        if (cartStorePhoneElem) cartStorePhoneElem.textContent = '68504229';
+        if (submitOrderButton) submitOrderButton.dataset.phone = '68504229';
 
         cartContent.querySelectorAll('.quantity-control').forEach(button => {
             button.addEventListener('click', () => {
@@ -159,7 +160,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Validar carrito antes de abrir el modal
+    deliveryOptions.forEach(option => option.addEventListener('click', () => {
+        deliveryOptions.forEach(item => item.classList.remove('active'));
+        option.classList.add('active');
+        selectedDelivery = option.dataset.delivery || '';
+        if (continueDeliveryButton) continueDeliveryButton.disabled = !selectedDelivery;
+    }));
+
+    continueDeliveryButton?.addEventListener('click', () => {
+        if (!selectedDelivery) return;
+        $(deliveryModal).modal('hide');
+        configureCustomerFields();
+        $('#customerModal').modal('show');
+    });
+
+    const configureCustomerFields = () => {
+        const isDepartment = selectedDelivery === 'department';
+        const isDelivery = selectedDelivery === 'delivery';
+        const phoneGroup = document.getElementById('customerPhoneGroup');
+        const addressGroup = document.getElementById('customerAddressGroup');
+        const departmentGroup = document.getElementById('departmentGroup');
+        const provinceGroup = document.getElementById('provinceGroup');
+        const phoneInput = document.getElementById('customerPhone');
+        const addressInput = document.getElementById('customerAddress');
+        const departmentInput = document.getElementById('customerDepartment');
+        const provinceInput = document.getElementById('customerProvince');
+        phoneGroup.style.display = isDepartment ? 'block' : 'none';
+        addressGroup.style.display = isDelivery || isDepartment ? 'block' : 'none';
+        departmentGroup.style.display = isDepartment ? 'block' : 'none';
+        provinceGroup.style.display = isDepartment ? 'block' : 'none';
+        phoneInput.required = isDepartment;
+        addressInput.required = isDelivery || isDepartment;
+        departmentInput.required = isDepartment;
+        provinceInput.required = isDepartment;
+        document.getElementById('deliveryNote').style.display = isDelivery || isDepartment ? 'block' : 'none';
+    };
+
     showFormButton?.addEventListener('click', (e) => {
         const items = getCartItems();
         if (!items.length) {
@@ -173,33 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (customerModal) {
         customerModal.addEventListener('hidden.bs.modal', () => {
             checkoutForm.reset();
-            deliveryNote.style.display = 'none';
+            selectedDelivery = '';
+            deliveryOptions.forEach(item => item.classList.remove('active'));
+            if (continueDeliveryButton) continueDeliveryButton.disabled = true;
         });
     }
-
-    const customerAddressGroup = document.getElementById('customerAddressGroup');
-    const customerAddressInput = document.getElementById('customerAddress');
-
-    const updateDeliveryFields = () => {
-        if (deliveryOption.value === 'delivery') {
-            deliveryNote.style.display = 'block';
-            customerAddressGroup.style.display = 'block';
-            customerAddressInput.required = true;
-        } else if (deliveryOption.value === 'pickup') {
-            deliveryNote.style.display = 'none';
-            customerAddressGroup.style.display = 'none';
-            customerAddressInput.required = false;
-            customerAddressInput.value = '';
-        } else {
-            deliveryNote.style.display = 'none';
-            customerAddressGroup.style.display = 'block';
-            customerAddressInput.required = true;
-        }
-    };
-
-    updateDeliveryFields();
-
-    deliveryOption?.addEventListener('change', updateDeliveryFields);
 
     checkoutForm?.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -211,15 +225,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const customerName = document.getElementById('customerName').value.trim();
         const customerPhone = document.getElementById('customerPhone').value.trim();
-        const customerAddress = customerAddressInput.value.trim();
-        const deliveryOptionValue = deliveryOption.value;
+        const customerAddress = document.getElementById('customerAddress').value.trim();
+        const customerDepartment = document.getElementById('customerDepartment').value.trim();
+        const customerProvince = document.getElementById('customerProvince').value.trim();
+        const deliveryOptionValue = selectedDelivery;
 
-        if (!customerName || !customerPhone || !deliveryOptionValue) {
+        if (!customerName || !deliveryOptionValue) {
             mostrarToast('Por favor, completa todos los campos requeridos.', 'error', 'Datos incompletos');
             return;
         }
         if (deliveryOptionValue === 'delivery' && !customerAddress) {
             mostrarToast('Por favor, ingresa la dirección para delivery.', 'error', 'Dirección requerida');
+            return;
+        }
+        if (deliveryOptionValue === 'department' && (!customerPhone || !customerDepartment || !customerProvince || !customerAddress)) {
+            mostrarToast('Completa teléfono de referencia, departamento, provincia y dirección.', 'error', 'Datos incompletos');
             return;
         }
 
@@ -228,15 +248,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return `${label} x ${item.cantidad} = Bs ${formatCurrency(item.cantidad * item.precio)}`;
         });
         const total = formatCurrency(calculateTotal(items));
-        const deliveryText = deliveryOptionValue === 'delivery' ? 'Delivery (envío a domicilio)' : 'Recoger en tienda';
-        const addressLine = deliveryOptionValue === 'delivery' ? `Dirección: ${customerAddress}\n` : '';
+        const deliveryText = deliveryOptionValue === 'delivery' ? 'Delivery' : (deliveryOptionValue === 'department' ? 'Envío a departamento' : 'Recoger en tienda');
+        const addressLine = customerAddress ? `Dirección: ${customerAddress}\n` : '';
+        const departmentLine = deliveryOptionValue === 'department' ? `Departamento: ${customerDepartment}\nProvincia: ${customerProvince}\nTeléfono de referencia: ${customerPhone}\n` : '';
         
         const message = encodeURIComponent(
             `Hola, quiero hacer un pedido:\n\n` +
             `📋 DATOS DEL CLIENTE:\n` +
             `Nombre: ${customerName}\n` +
-            `Teléfono: ${customerPhone}\n` +
             addressLine +
+            departmentLine +
             `Opción de entrega: ${deliveryText}\n\n` +
             `📦 PEDIDO:\n${lines.join('\n')}\n\n` +
             `💰 Total productos: Bs ${total}\n\n` +

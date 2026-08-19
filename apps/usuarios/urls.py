@@ -15,8 +15,10 @@ urlpatterns = [
 
     # Public product storefront pages
     path('tienda/', views.tienda, name='tienda'),
+    path('tienda-mayorista/', views.tienda_mayorista, name='tienda_mayorista'),
     path('producto/<int:id>/', views.product_detail, name='product_detail'),
     path('carrito/', views.carrito, name='carrito'),
+    path('carrito-mayorista/', views.carrito_mayorista, name='carrito_mayorista'),
     path('nosotros/', views.nosotros, name='nosotros'),
     path('preguntas-frecuentes/', views.preguntas_frecuentes, name='preguntas_frecuentes'),
     

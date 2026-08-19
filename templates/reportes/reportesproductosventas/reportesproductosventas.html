@@ -272,7 +272,19 @@
     <!-- Tabla de reporte -->
     <div class="card card-tabla">
         <div class="table-responsive">
-            <table class="table table-hover tabla-productos mb-0" id="tablaProductosVentas">
+            <table
+                class="table table-hover tabla-productos mb-0"
+                id="tablaProductosVentas"
+                data-total-precio-compra="{{ total_precio_compra|floatformat:2 }}"
+                data-total-cantidad="{{ total_cantidad }}"
+                data-total-cajas="{{ total_cajas }}"
+                data-precio-promedio-global="{{ precio_promedio_global|floatformat:2 }}"
+                data-total-costo="{{ total_costo|floatformat:2 }}"
+                data-total-ventas="{{ total_ventas_monto|floatformat:2 }}"
+                data-total-utilidad="{{ total_utilidad|floatformat:2 }}"
+                data-margen-global="{{ margen_global|floatformat:1 }}"
+                data-total-num-ventas="{{ total_num_ventas }}"
+            >
                 <thead>
                     <tr>
                         <th style="width: 6%;">CÓDIGO</th>

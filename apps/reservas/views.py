@@ -289,7 +289,7 @@ def guardar_reserva(request):
                 subtotal=Decimal('0.00'),
                 total=Decimal('0.00'),
                 registrado_por=request.user,
-                estado='completada' if tipo_pago == 'contado' else 'pendiente',
+                estado='pendiente',
                 inventario_tipo=tipo_ubicacion,
             )
 

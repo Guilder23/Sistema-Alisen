@@ -1624,16 +1624,17 @@ function init() {
         });
     });
 
-    // Inicializar selector de método de pago
-    const selectMetodoPago = document.getElementById('selectMetodoPago');
-    if (selectMetodoPago) {
-        selectMetodoPago.addEventListener('change', function() {
+    const opcionesMetodoPago = document.querySelectorAll('.metodo-pago-option');
+    opcionesMetodoPago.forEach((opcion) => {
+        opcion.addEventListener('click', function() {
+            opcionesMetodoPago.forEach((elemento) => elemento.classList.remove('active'));
+            this.classList.add('active');
             const inputMetodoPago = document.getElementById('inputMetodoPago');
             if (inputMetodoPago) {
-                inputMetodoPago.value = this.value;
+                inputMetodoPago.value = this.dataset.metodo || 'efectivo';
             }
         });
-    }
+    });
 
     inicializarBusqueda();
     cargarProductosSugeridos();

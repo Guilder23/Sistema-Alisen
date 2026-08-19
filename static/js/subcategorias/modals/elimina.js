@@ -1,0 +1,1 @@
+(function(){'use strict';$(function(){$(document).on('click','.btn-eliminar-subcategoria',function(){const id=$(this).data('id');$('#eliminarSubNombre').text($(this).data('nombre'));$('#formEliminarSubcategoria').attr('action',`/subcategorias/${id}/eliminar/`);$('#modalEliminarSubcategoria').modal('show');});});})();

@@ -19,22 +19,28 @@
     <div class="card form-card">
         <div class="card-body">
             <div class="row mb-4">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="stat-box">
                         <span>Total</span>
-                        <strong>Bs. {{ reserva.total }}</strong>
+                        <strong>Bs. {{ reserva.total|floatformat:2 }}</strong>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="stat-box">
-                        <span>Pagado</span>
-                        <strong>Bs. {{ reserva.pagos.all|length|default:0 }}</strong>
+                        <span>Cantidad de pagos</span>
+                        <strong>{{ reserva.pagos.all|length }}</strong>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <span>Total dinero pagado</span>
+                        <strong>Bs. {{ reserva.total_pagado|floatformat:2 }}</strong>
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="stat-box highlight">
                         <span>Saldo</span>
-                        <strong>Bs. {{ reserva.total|floatformat:2 }}</strong>
+                        <strong>Bs. {{ reserva.saldo_pendiente|floatformat:2 }}</strong>
                     </div>
                 </div>
             </div>

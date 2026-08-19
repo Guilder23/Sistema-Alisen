@@ -33,6 +33,15 @@
     .row {
         margin-left: 0 !important;
         margin-right: 0 !important;
+    .ventas-tabla-scroll {
+        overflow-x: auto !important;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+    .ventas-tabla-scroll .tabla-productos {
+        min-width: 1180px;
+        width: 1180px !important;
+    }
     }
     
     [class*="col-"] {
@@ -43,9 +52,9 @@
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
         width: 100% !important;
-        max-width: 100% !important;
-        margin-left: -15px;
-        margin-right: -15px;
+                    <div class="table-responsive ventas-tabla-scroll">
+                    <div class="table-responsive ventas-tabla-scroll">
+            <div class="table-responsive ventas-tabla-scroll">
         padding-left: 15px;
         padding-right: 15px;
     }
@@ -216,6 +225,7 @@
                                     <th class="text-center">Origen</th>
                                     <th class="text-center">Tipo Venta</th>
                                     <th class="text-center">Método Pago</th>
+                                    <th class="text-center columna-comentario">Comentario</th>
                                     <th class="text-right">Total</th>
                                     <th class="text-center">Estado</th>
                                     <th class="text-center pr-3">Acciones</th>
@@ -256,6 +266,7 @@
                                         <span class="text-muted">-</span>
                                         {% endif %}
                                     </td>
+                                    <td class="columna-comentario" title="{{ venta.comentario|default:'' }}">{{ venta.comentario|default:'-'|truncatechars:28 }}</td>
                                     <td class="text-right font-weight-bold">
                                         {% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ venta.total|floatformat:2 }}
                                     </td>
@@ -299,7 +310,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="9" class="text-center py-5 text-muted">
+                                    <td colspan="10" class="text-center py-5 text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                         No hay ventas al contado.
                                     </td>
@@ -322,6 +333,7 @@
                                     <th class="text-center">Origen</th>
                                     <th class="text-center">Tipo Venta</th>
                                     <th class="text-center">Método Pago</th>
+                                    <th class="text-center columna-comentario">Comentario</th>
                                     <th class="text-right">Total</th>
                                     <th class="text-center">Saldo</th>
                                     <th class="text-center">Estado</th>
@@ -363,6 +375,7 @@
                                         <span class="text-muted">-</span>
                                         {% endif %}
                                     </td>
+                                    <td class="columna-comentario" title="{{ venta.comentario|default:'' }}">{{ venta.comentario|default:'-'|truncatechars:28 }}</td>
                                     <td class="text-right font-weight-bold">
                                         {% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ venta.total|floatformat:2 }}
                                     </td>
@@ -428,7 +441,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="10" class="text-center py-5 text-muted">
+                                    <td colspan="11" class="text-center py-5 text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                         No hay ventas a crédito.
                                     </td>
@@ -451,6 +464,7 @@
                             <th class="text-center">Origen</th>
                             <th class="text-center">Tipo Venta</th>
                             <th class="text-center">Método Pago</th>
+                            <th class="text-center columna-comentario">Comentario</th>
                             <th class="text-right">Total</th>
                             <th class="text-center">Estado</th>
                             <th class="text-center pr-3">Acciones</th>
@@ -491,6 +505,7 @@
                                 <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
+                            <td class="columna-comentario" title="{{ venta.comentario|default:'' }}">{{ venta.comentario|default:'-'|truncatechars:28 }}</td>
                             <td class="text-right font-weight-bold">
                                 {% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ venta.total|floatformat:2 }}
                             </td>
@@ -534,7 +549,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="9" class="text-center py-5 text-muted">
+                            <td colspan="10" class="text-center py-5 text-muted">
                                 <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                 No hay ventas registradas.
                                 <div class="mt-2">

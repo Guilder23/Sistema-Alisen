@@ -33,6 +33,26 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="categoria" class="form-label">Categoría <span class="text-danger">*</span></label>
+                                <select class="form-control" id="categoria" name="categoria" required>
+                                    <option value="">Seleccione una categoría</option>
+                                    {% for categoria in categorias %}
+                                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subcategoria" class="form-label">Subcategoría <span class="text-danger">*</span></label>
+                                <select class="form-control" id="subcategoria" name="subcategoria" required>
+                                    <option value="">Seleccione una subcategoría</option>
+                                    {% for subcategoria in subcategorias %}
+                                        <option value="{{ subcategoria.id }}" data-categoria="{{ subcategoria.categoria_id }}">{{ subcategoria.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
                                 <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
                                 <input 
                                     type="text" 
@@ -42,16 +62,6 @@
                                     required
                                     placeholder="Nombre del producto"
                                 >
-                            </div>
-
-                            <div class="form-group">
-                                <label for="categoria" class="form-label">Categoría <span class="text-danger">*</span></label>
-                                <select class="form-control" id="categoria" name="categoria" required>
-                                    <option value="">Seleccione una categoría</option>
-                                    {% for categoria in categorias %}
-                                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-                                    {% endfor %}
-                                </select>
                             </div>
 
                             <div class="form-group">

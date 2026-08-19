@@ -437,6 +437,25 @@
                     </tr>
                     {% endfor %}
                 </tbody>
+                {% if total_ventas %}
+                <tfoot>
+                    <tr class="fila-total-reporte">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-right"><strong class="text-bob">TOTAL BOB: Bs. {{ total_monto_bob|floatformat:2 }}</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+                {% endif %}
             </table>
         </div>
     </div>

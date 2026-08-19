@@ -1,0 +1,22 @@
+#modalCrearSubcategoria .modal-header,
+#modalEditarSubcategoria .modal-header {
+	background: #1e3a8a;
+	color: #ffffff;
+	padding: 1rem 1.5rem;
+	border-bottom: 3px solid #065f46;
+}
+
+#modalCrearSubcategoria .modal-body,
+#modalEditarSubcategoria .modal-body,
+#modalVerSubcategoria .modal-body {
+	padding: 1.25rem 1.5rem;
+}
+
+#modalCrearSubcategoria .modal-footer,
+#modalEditarSubcategoria .modal-footer,
+#modalVerSubcategoria .modal-footer,
+#modalEliminarSubcategoria .modal-footer {
+	background: #f8f9fa;
+	border: none;
+	padding: 0.875rem 1.5rem;
+}

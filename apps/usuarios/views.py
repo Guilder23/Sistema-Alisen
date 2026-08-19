@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from decimal import Decimal
 from apps.productos.models import Categoria, Producto
+from apps.subcategorias.models import Subcategoria
 from .models import PerfilUsuario
 
 
@@ -52,8 +53,8 @@ def index(request):
         'categoria': categoria_id,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
@@ -67,6 +68,7 @@ def tienda(request):
 
     buscar = request.GET.get('buscar', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
+    subcategoria_id = request.GET.get('subcategoria', '').strip()
     genero = request.GET.get('genero', '').strip()
     precio_min = request.GET.get('precio_min', '').strip()
     precio_max = request.GET.get('precio_max', '').strip()
@@ -83,6 +85,9 @@ def tienda(request):
 
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
+
+    if subcategoria_id:
+        productos = productos.filter(subcategoria_id=subcategoria_id)
 
     if genero:
         productos = productos.filter(genero=genero)
@@ -109,6 +114,7 @@ def tienda(request):
         productos = productos.order_by('-fecha_creacion')
 
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    subcategorias = Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre')
     genero_choices = Producto.GENERO_CHOICES
 
     for p in productos:
@@ -120,21 +126,94 @@ def tienda(request):
     context = {
         'productos': productos,
         'categorias': categorias,
+        'subcategorias': subcategorias,
         'genero_choices': genero_choices,
         'buscar': buscar,
         'categoria': categoria_id,
+        'subcategoria': subcategoria_id,
         'genero': genero,
         'precio_min': precio_min,
         'precio_max': precio_max,
         'orden': orden,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
     return render(request, 'inicio/tienda.html', context)
+
+
+def tienda_mayorista(request):
+    """Catálogo público con precios y cantidades mínimas mayoristas."""
+    buscar = request.GET.get('buscar', '').strip()
+    categoria_id = request.GET.get('categoria', '').strip()
+    subcategoria_id = request.GET.get('subcategoria', '').strip()
+    genero = request.GET.get('genero', '').strip()
+    precio_min = request.GET.get('precio_min', '').strip()
+    precio_max = request.GET.get('precio_max', '').strip()
+    orden = request.GET.get('orden', '').strip()
+
+    productos = Producto.objects.select_related('categoria', 'subcategoria').filter(
+        activo=True,
+        publicado=True,
+        precio_mayor__gt=0,
+    )
+    if buscar:
+        productos = productos.filter(
+            Q(codigo__icontains=buscar) |
+            Q(nombre__icontains=buscar) |
+            Q(descripcion__icontains=buscar) |
+            Q(categoria__nombre__icontains=buscar) |
+            Q(subcategoria__nombre__icontains=buscar)
+        )
+    if categoria_id:
+        productos = productos.filter(categoria_id=categoria_id)
+    if subcategoria_id:
+        productos = productos.filter(subcategoria_id=subcategoria_id)
+    if genero:
+        productos = productos.filter(genero=genero)
+    if precio_min:
+        try:
+            productos = productos.filter(precio_mayor__gte=Decimal(precio_min))
+        except Exception:
+            pass
+    if precio_max:
+        try:
+            productos = productos.filter(precio_mayor__lte=Decimal(precio_max))
+        except Exception:
+            pass
+
+    if orden == 'precio_asc':
+        productos = productos.order_by('precio_mayor')
+    elif orden == 'precio_desc':
+        productos = productos.order_by('-precio_mayor')
+    elif orden == 'nombre':
+        productos = productos.order_by('nombre')
+    else:
+        productos = productos.order_by('-fecha_creacion')
+
+    context = {
+        'productos': productos,
+        'categorias': Categoria.objects.filter(activo=True).order_by('nombre'),
+        'subcategorias': Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre'),
+        'genero_choices': Producto.GENERO_CHOICES,
+        'buscar': buscar,
+        'categoria': categoria_id,
+        'subcategoria': subcategoria_id,
+        'genero': genero,
+        'precio_min': precio_min,
+        'precio_max': precio_max,
+        'orden': orden,
+        'tienda_nombre': 'Alicen Imports',
+        'tienda_descripcion': 'Precios mayoristas para compras desde el mínimo indicado por producto.',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
+        'tienda_email': 'contacto@alicen.com',
+        'tienda_direccion': 'La Paz, Bolivia',
+    }
+    return render(request, 'inicio/tienda_mayorista.html', context)
 
 
 def product_detail(request, id):
@@ -245,6 +324,11 @@ def product_detail(request, id):
     total_tiendas = sum(t['cantidad'] for t in tiendas_stock)
     total_depositos = sum(d['cantidad'] for d in depositos_stock)
     total_otros = sum(o['cantidad'] for o in otros_stock)
+    departamentos_disponibles = sorted({
+        ubi['departamento'].strip()
+        for ubi in ubicaciones_disponibles
+        if ubi.get('departamento') and ubi['departamento'].strip()
+    })
 
     from apps.productos.utils_imagenes import youtube_embed_url
     imagenes = [
@@ -276,10 +360,11 @@ def product_detail(request, id):
         'total_tiendas': total_tiendas,
         'total_depositos': total_depositos,
         'total_otros': total_otros,
+        'departamentos_disponibles': departamentos_disponibles,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
@@ -297,12 +382,29 @@ def carrito(request):
         'categoria': categoria,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
     return render(request, 'inicio/carrito.html', context)
+
+
+def carrito_mayorista(request):
+    """Carrito público independiente para pedidos mayoristas."""
+    categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    context = {
+        'categorias': categorias,
+        'buscar': request.GET.get('buscar', '').strip(),
+        'categoria': request.GET.get('categoria', '').strip(),
+        'tienda_nombre': 'Alicen Imports',
+        'tienda_descripcion': 'Carrito de pedidos mayoristas.',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
+        'tienda_email': 'contacto@alicen.com',
+        'tienda_direccion': 'La Paz, Bolivia',
+    }
+    return render(request, 'inicio/carrito_mayorista.html', context)
 
 
 def nosotros(request):
@@ -315,8 +417,8 @@ def nosotros(request):
         'categoria': categoria,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
@@ -333,8 +435,8 @@ def preguntas_frecuentes(request):
         'categoria': categoria,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }

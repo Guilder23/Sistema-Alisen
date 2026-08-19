@@ -1,0 +1,53 @@
+@import url('/static/css/productos/categorias/categorias.css');
+
+.tabla-subcategorias {
+	font-size: 0.875rem;
+	width: 100%;
+	margin-bottom: 0;
+}
+
+.tabla-subcategorias thead th {
+	background: #3b82f6;
+	color: #ffffff;
+	font-weight: 600;
+	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	border: none;
+	padding: 0.875rem 0.75rem;
+	vertical-align: middle;
+}
+
+.tabla-subcategorias tbody td {
+	padding: 0.75rem;
+	vertical-align: middle;
+	border-bottom: 1px solid #e5e7eb;
+	background-color: #ffffff;
+}
+
+.tabla-subcategorias tbody tr:hover td {
+	background-color: #f9fafb;
+}
+
+.subcategoria-badge {
+	display: inline-block;
+	padding: 0.35rem 0.75rem;
+	background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+	color: #1e40af;
+	border-radius: 1rem;
+	font-weight: 600;
+	font-size: 0.813rem;
+	border: 1px solid #bfdbfe;
+}
+
+.tabla-subcategorias .btn-sm {
+	padding: 0.35rem 0.6rem;
+	font-size: 0.8rem;
+	min-width: 36px;
+	margin-right: 0.2rem;
+	border-radius: 0.375rem;
+}
+
+.acciones-col {
+	white-space: nowrap;
+}

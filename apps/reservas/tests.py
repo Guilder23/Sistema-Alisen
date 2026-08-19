@@ -66,6 +66,17 @@ class ReservaProductoViewTests(TestCase):
         self.assertContains(response, 'Cliente Demo')
         self.assertEqual(self.reserva.saldo_pendiente, Decimal('90.00'))
 
+    def test_estado_pago_no_marca_completada_sin_pagos(self):
+        reserva_sin_pago = ReservaProducto.objects.create(
+            codigo='R-00002',
+            ubicacion=self.perfil,
+            cliente='Cliente sin pagos',
+            total=Decimal('100.00'),
+            estado='completada',
+        )
+
+        self.assertEqual(reserva_sin_pago.estado_pago, 'pendiente')
+
     def test_guardar_reserva_descuenta_stock_y_anular_retorna_stock(self):
         producto = Producto.objects.create(
             codigo='P-001',
@@ -152,3 +163,39 @@ class ReservaProductoViewTests(TestCase):
         self.assertEqual(reserva.estado, 'completada')
         self.assertTrue(Venta.objects.filter(cliente='Cliente de venta', total=Decimal('160.00')).exists())
         self.assertTrue(DetalleVenta.objects.filter(venta__cliente='Cliente de venta').exists())
+
+    def test_reserva_de_contado_sin_pago_queda_pendiente(self):
+        producto = Producto.objects.create(
+            codigo='P-003',
+            nombre='Zapato Test',
+            precio_unidad=Decimal('100.00'),
+            activo=True,
+        )
+        Inventario.objects.create(producto=producto, ubicacion=self.perfil, cantidad=5)
+
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse('reservas:guardar_reserva'),
+            data={
+                'cliente': 'Cliente sin pago',
+                'tipo_pago': 'contado',
+                'metodo_pago': 'efectivo',
+                'moneda': 'BOB',
+                'tipo_cambio': '1',
+                'descuento_tipo': 'ninguno',
+                'descuento_valor': '0',
+                'ubicacion_tipo': 'tienda',
+                'items': [{
+                    'producto_id': producto.id,
+                    'cantidad': 1,
+                    'modalidad': 'unidad',
+                    'precio_unitario': '100.00',
+                }],
+            },
+            content_type='application/json',
+        )
+
+        self.assertTrue(response.json()['success'])
+        reserva = ReservaProducto.objects.get(cliente='Cliente sin pago')
+        self.assertEqual(reserva.estado, 'pendiente')
+        self.assertEqual(reserva.total_pagado, Decimal('0.00'))

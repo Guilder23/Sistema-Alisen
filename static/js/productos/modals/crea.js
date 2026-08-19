@@ -6,6 +6,13 @@
     'use strict';
     
     window.inicializarModalCrear = function() {
+        $('#categoria').on('change', function() {
+            const categoriaId = this.value;
+            $('#subcategoria option').each(function() {
+                $(this).toggle(!this.value || String(this.dataset.categoria) === categoriaId);
+            });
+            $('#subcategoria').val('');
+        });
         $('#modalCrearProducto').on('shown.bs.modal', function() {
             window.GaleriaProducto?.init(this);
         });
@@ -80,6 +87,7 @@
         const codigo = $('#codigo').val().trim();
         const nombre = $('#nombre').val().trim();
         const categoria = $('#categoria').val();
+        const subcategoria = $('#subcategoria').val();
         const unidades_por_caja = $('#unidades_por_caja').val();
         const unidades_por_mayor = $('#unidades_por_mayor').val();
         
@@ -98,6 +106,12 @@
         if (!categoria) {
             mostrarNotificacion('Debe seleccionar una categoría', 'warning');
             $('#categoria').focus();
+            return false;
+        }
+
+        if (!subcategoria) {
+            mostrarNotificacion('Debe seleccionar una subcategoría', 'warning');
+            $('#subcategoria').focus();
             return false;
         }
         

@@ -1,5 +1,6 @@
 /* Estilos para footerprincipal */
 .footer-principal { background: #06112b; color: #d4d4ce; }
+.footer-principal .footer-logo-principal { width: 190px; max-width: 100%; height: auto; display: block; }
 .footer-principal .footer-title { color: #ffffff; font-size: 1.3rem; margin-bottom: 1rem; }
 .footer-principal .footer-heading { color: #f2b300; margin-bottom: 1rem; font-size: 1rem; letter-spacing: 0.08em; }
 .footer-principal .footer-text { color: rgba(212,212,206,.86); margin-bottom: 0.75rem; line-height: 1.75; }
