@@ -102,6 +102,7 @@ class Producto(models.Model):
     codigo = models.CharField(max_length=100, unique=True)
     nombre = models.CharField(max_length=200)
     categoria = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True, blank=True, related_name='productos')
+    subcategoria = models.ForeignKey('subcategorias.Subcategoria', on_delete=models.SET_NULL, null=True, blank=True, related_name='productos')
     genero = models.CharField(max_length=20, choices=GENERO_CHOICES, blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
     foto = models.ImageField(upload_to='productos/', blank=True, null=True)

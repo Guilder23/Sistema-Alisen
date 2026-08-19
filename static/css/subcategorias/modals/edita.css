@@ -1,0 +1,7 @@
+#modalEditarSubcategoria .modal-content,
+#modalCrearSubcategoria .modal-content,
+#modalVerSubcategoria .modal-content,
+#modalEliminarSubcategoria .modal-content {
+	border-radius: 0.5rem;
+}
+#modalEditarSubcategoria .modal-content{border-radius:10px}

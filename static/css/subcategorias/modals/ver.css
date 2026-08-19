@@ -1,0 +1,14 @@
+#modalVerSubcategoria .modal-header {
+	background: #17a2b8;
+	color: #ffffff;
+	border-bottom: 2px solid #17a2b8;
+	padding: 1rem 1.5rem;
+}
+
+#modalVerSubcategoria h6 {
+	font-size: 0.938rem;
+	font-weight: 600;
+	color: #1e3a8a;
+	border-bottom: 2px solid #dbeafe !important;
+}
+#modalVerSubcategoria .modal-content{border-radius:10px}

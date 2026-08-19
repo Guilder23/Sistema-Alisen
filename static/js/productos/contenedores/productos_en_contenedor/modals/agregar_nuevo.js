@@ -80,11 +80,38 @@
                     option.textContent = cat.nombre;
                     selectNuevo.appendChild(option);
                 });
+                cargarSubcategorias();
             }
         })
         .catch(error => {
             console.error('Error cargando categorías:', error);
         });
+    }
+
+    function cargarSubcategorias() {
+        const categoriaId = document.getElementById('categoria_modal').value;
+        const selectSubcategoria = document.getElementById('subcategoria_modal');
+        selectSubcategoria.innerHTML = '<option value="">Seleccione una subcategoría</option>';
+        selectSubcategoria.disabled = !categoriaId;
+        if (!categoriaId) return;
+
+        fetch('/subcategorias/json/?categoria=' + encodeURIComponent(categoriaId), {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            (data.subcategorias || []).forEach(subcategoria => {
+                const option = document.createElement('option');
+                option.value = subcategoria.id;
+                option.textContent = subcategoria.nombre;
+                selectSubcategoria.appendChild(option);
+            });
+            selectSubcategoria.disabled = false;
+        })
+        .catch(error => console.error('Error cargando subcategorías:', error));
     }
     
     // Crear nueva categoría
@@ -154,6 +181,11 @@
             });
         }
 
+        const selectCategoria = document.getElementById('categoria_modal');
+        if (selectCategoria) {
+            selectCategoria.addEventListener('change', cargarSubcategorias);
+        }
+
         // Formulario para crear categoría
         const formCrearCategoria = document.getElementById('formCrearCategoriaDesdeProducto');
         if (formCrearCategoria) {
@@ -198,6 +230,7 @@
                 const codigo = document.getElementById('codigo_modal').value.trim();
                 const nombre = document.getElementById('nombre_modal').value.trim();
                 const categoria = document.getElementById('categoria_modal').value;
+                const subcategoria = document.getElementById('subcategoria_modal').value;
                 const unidadesPorCaja = document.getElementById('unidades_por_caja_modal').value;
                 const unidadesPorMayor = document.getElementById('unidades_por_mayor_modal').value;
                 const precioUnidad = document.getElementById('precio_unidad_modal').value;
@@ -209,6 +242,10 @@
                 }
                 if (!categoria) {
                     alert('Por favor selecciona una categoría');
+                    return;
+                }
+                if (!subcategoria) {
+                    alert('Por favor selecciona una subcategoría');
                     return;
                 }
                 if (!unidadesPorCaja || unidadesPorCaja < 1) {

@@ -6,6 +6,12 @@
     'use strict';
     
     window.inicializarModalEditar = function() {
+        $('#edit_categoria').on('change', function() {
+            const categoriaId = this.value;
+            $('#edit_subcategoria option').each(function() {
+                $(this).toggle(!this.value || String(this.dataset.categoria) === categoriaId);
+            });
+        });
         $('#modalEditarProducto').on('shown.bs.modal', function() {
             window.GaleriaProducto?.init(this);
         });
@@ -58,6 +64,8 @@
         $('#edit_codigo').val(data.codigo);
         $('#edit_nombre').val(data.nombre);
         $('#edit_categoria').val(data.categoria_id || '');
+        $('#edit_subcategoria').val(data.subcategoria_id || '');
+        $('#edit_categoria').trigger('change');
         $('#edit_descripcion').val(data.descripcion);
         $('#edit_stock').val(data.stock);
         $('#edit_unidades_por_caja').val(data.unidades_por_caja);

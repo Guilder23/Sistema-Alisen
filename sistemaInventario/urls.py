@@ -29,6 +29,7 @@ urlpatterns = [
     # URLs de las apps
     path('', include('apps.usuarios.urls')),
     path('productos/', include('apps.productos.urls')),
+    path('subcategorias/', include('apps.subcategorias.urls')),
     path('inventario/', include('apps.inventario.urls')),
     path('traspasos/', include('apps.traspasos.urls')),
     path('ventas/', include('apps.ventas.urls')),

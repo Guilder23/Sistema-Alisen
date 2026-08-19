@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # Apps del sistema
     'apps.usuarios',
     'apps.productos',
+    'apps.subcategorias',
     'apps.inventario',
     'apps.traspasos',
     'apps.ventas',

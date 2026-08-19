@@ -1,0 +1,8 @@
+#modalEliminarSubcategoria .modal-header {
+	padding: 1rem 1.5rem;
+}
+
+#modalEliminarSubcategoria .modal-body {
+	padding: 1.25rem 1.5rem;
+}
+#modalEliminarSubcategoria .modal-content{border-radius:10px}

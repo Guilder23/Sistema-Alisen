@@ -44,6 +44,7 @@
         // Información General
         $('#verNombre').text(data.nombre);
         $('#verCategoria').text(data.categoria_nombre || 'Sin categoría');
+        $('#verSubcategoria').text(data.subcategoria_nombre || 'Sin subcategoría');
         $('#verContenedor').text(data.contenedor_nombre || 'Sin contenedor');
         $('#verDescripcion').text(data.descripcion || 'Sin descripción');
         

@@ -67,6 +67,11 @@
                         </a>
                     </li>
                     <li class="sidebar-submenu-item">
+                        <a href="{% url 'subcategorias:listar' %}" class="sidebar-submenu-link {% if 'subcategorias' in url_actual %}active{% endif %}">
+                            Subcategorías
+                        </a>
+                    </li>
+                    <li class="sidebar-submenu-item">
                         <a href="{% url 'listar_contenedores' %}" class="sidebar-submenu-link {% if 'contenedores' in url_actual %}active{% endif %}">
                             Contenedores
                         </a>

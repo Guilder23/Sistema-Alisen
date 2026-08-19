@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 import json
 from .models import Categoria, Contenedor, Producto, HistorialProducto, ProductoDanado, ProductoContenedor, ProductoImagen
+from apps.subcategorias.models import Subcategoria
 from .utils_imagenes import guardar_media_producto, serializar_imagenes_producto, youtube_embed_url
 from apps.moneda.models import TipoCambio
 from apps.inventario.models import Inventario, MovimientoInventario
@@ -443,7 +444,7 @@ def listar_productos(request):
     estado = request.GET.get('estado', '')
     
     # Query base
-    productos_qs = Producto.objects.select_related('categoria').all().order_by('-fecha_creacion')
+    productos_qs = Producto.objects.select_related('categoria', 'subcategoria').all().order_by('-fecha_creacion')
     
     # Aplicar filtros
     if buscar:
@@ -476,6 +477,7 @@ def listar_productos(request):
         'is_paginated': page_obj.has_other_pages(),
         'paginator': paginator,
         'categorias': Categoria.objects.filter(activo=True).order_by('nombre'),
+        'subcategorias': Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre'),
         'contenedores': Contenedor.objects.filter(activo=True).order_by('nombre'),
         'buscar': buscar,
         'estado': estado,
@@ -500,6 +502,7 @@ def crear_producto(request):
             codigo = request.POST.get('codigo', '').strip()
             nombre = request.POST.get('nombre', '').strip()
             categoria_id = request.POST.get('categoria', '').strip()
+            subcategoria_id = request.POST.get('subcategoria', '').strip()
             descripcion = request.POST.get('descripcion', '')
             unidades_por_caja = request.POST.get('unidades_por_caja', 1)
             unidades_por_mayor = request.POST.get('unidades_por_mayor', 3)
@@ -516,9 +519,17 @@ def crear_producto(request):
                 messages.error(request, 'Debe seleccionar una categoría')
                 return redirect('listar_productos')
 
+            if not subcategoria_id:
+                messages.error(request, 'Debe seleccionar una subcategoría')
+                return redirect('listar_productos')
+
             categoria = Categoria.objects.filter(id=categoria_id, activo=True).first()
             if not categoria:
                 messages.error(request, 'La categoría seleccionada no es válida')
+                return redirect('listar_productos')
+            subcategoria = Subcategoria.objects.filter(id=subcategoria_id, categoria=categoria, activo=True).first()
+            if not subcategoria:
+                messages.error(request, 'La subcategoría seleccionada no pertenece a la categoría')
                 return redirect('listar_productos')
             
             # Verificar código único
@@ -533,6 +544,7 @@ def crear_producto(request):
                 codigo=codigo,
                 nombre=nombre,
                 categoria=categoria,
+                subcategoria=subcategoria,
                 descripcion=descripcion,
                 unidades_por_caja=int(unidades_por_caja),
                 unidades_por_mayor=unidades_por_mayor_int,
@@ -602,6 +614,8 @@ def obtener_producto(request, id):
             'codigo': producto.codigo,
             'nombre': producto.nombre,
             'categoria_id': producto.categoria_id if producto.categoria_id else '',
+            'subcategoria_id': producto.subcategoria_id if producto.subcategoria_id else '',
+            'subcategoria_nombre': producto.subcategoria.nombre if producto.subcategoria else 'Sin subcategoría',
             'categoria_nombre': producto.categoria.nombre if producto.categoria else 'Sin categoría',
             'descripcion': producto.descripcion or '',
             'stock': stock_disponible,
@@ -653,6 +667,7 @@ def editar_producto(request, id):
                 producto.codigo = request.POST.get('codigo', producto.codigo)
                 producto.nombre = request.POST.get('nombre', producto.nombre)
                 categoria_id = request.POST.get('categoria', '').strip()
+                subcategoria_id = request.POST.get('subcategoria', '').strip()
                 producto.descripcion = request.POST.get('descripcion', '')
                 producto.unidades_por_caja = int(request.POST.get('unidades_por_caja', producto.unidades_por_caja))
                 producto.unidades_por_mayor = max(int(request.POST.get('unidades_por_mayor', producto.unidades_por_mayor) or 3), 2)
@@ -668,12 +683,21 @@ def editar_producto(request, id):
                     messages.error(request, 'Debe seleccionar una categoría')
                     return redirect('listar_productos')
 
+                if not subcategoria_id:
+                    messages.error(request, 'Debe seleccionar una subcategoría')
+                    return redirect('listar_productos')
+
                 categoria = Categoria.objects.filter(id=categoria_id, activo=True).first()
                 if not categoria:
                     messages.error(request, 'La categoría seleccionada no es válida')
                     return redirect('listar_productos')
 
                 producto.categoria = categoria
+                subcategoria = Subcategoria.objects.filter(id=subcategoria_id, categoria=categoria, activo=True).first()
+                if not subcategoria:
+                    messages.error(request, 'La subcategoría seleccionada no pertenece a la categoría')
+                    return redirect('listar_productos')
+                producto.subcategoria = subcategoria
                 
                 guardar_media_producto(producto, request)
                 
@@ -1653,7 +1677,7 @@ def productos_en_contenedor(request, contenedor_id):
     # Obtener productos del contenedor
     productos_contenedor_qs = ProductoContenedor.objects.filter(
         contenedor=contenedor
-    ).select_related('producto').order_by('-fecha_creacion')
+    ).select_related('producto', 'producto__categoria', 'producto__subcategoria').order_by('-fecha_creacion')
 
     if buscar:
         productos_contenedor_qs = productos_contenedor_qs.filter(
@@ -1720,6 +1744,7 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                 codigo = request.POST.get('codigo')
                 nombre = request.POST.get('nombre')
                 categoria_id = request.POST.get('categoria')
+                subcategoria_id = request.POST.get('subcategoria')
                 descripcion = request.POST.get('descripcion', '').strip()
                 unidades_por_caja = int(request.POST.get('unidades_por_caja', 1))
                 unidades_por_mayor = max(int(request.POST.get('unidades_por_mayor', 3) or 3), 2)
@@ -1741,6 +1766,13 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                         return JsonResponse({'error': error_msg}, status=400)
                     messages.error(request, error_msg)
                     return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
+
+                if not subcategoria_id:
+                    error_msg = 'Debe seleccionar una subcategoría'
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'error': error_msg}, status=400)
+                    messages.error(request, error_msg)
+                    return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
                 
                 if cantidad <= 0:
                     error_msg = 'La cantidad debe ser mayor a 0'
@@ -1757,15 +1789,25 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                     messages.error(request, error_msg)
                     return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
                 
-                categoria = None
-                if categoria_id:
-                    categoria = get_object_or_404(Categoria, id=categoria_id)
+                categoria = get_object_or_404(Categoria, id=categoria_id, activo=True)
+                subcategoria = Subcategoria.objects.filter(
+                    id=subcategoria_id,
+                    categoria=categoria,
+                    activo=True,
+                ).first()
+                if not subcategoria:
+                    error_msg = 'La subcategoría seleccionada no pertenece a la categoría'
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'error': error_msg}, status=400)
+                    messages.error(request, error_msg)
+                    return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
                 
                 # Crear producto con todos los campos
                 producto = Producto.objects.create(
                     codigo=codigo,
                     nombre=nombre,
                     categoria=categoria,
+                    subcategoria=subcategoria,
                     descripcion=descripcion,
                     unidades_por_caja=unidades_por_caja,
                     unidades_por_mayor=unidades_por_mayor,
