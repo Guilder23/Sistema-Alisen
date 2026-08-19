@@ -171,10 +171,10 @@ function guardarReserva(event) {
     const razonSocial = document.getElementById('inputRazonSocial').value.trim();
     const direccion = document.getElementById('inputDireccion').value.trim();
     const comentario = document.getElementById('inputComentario').value.trim();
-    const tipoPago = document.getElementById('inputTipoPago').value;
+    const tipoPago = 'contado';
     const metodoPago = document.getElementById('inputMetodoPago').value;
-    const moneda = document.getElementById('inputMoneda').value;
-    const tipoCambio = document.getElementById('inputTipoCambio').value;
+    const moneda = 'BOB';
+    const tipoCambio = '1';
     const descuentoTipo = document.getElementById('selectDescuentoTipo').value;
     const descuentoValor = document.getElementById('inputDescuentoValor').value;
 

@@ -72,11 +72,11 @@
                         <td>Bs. {{ reserva.total_pagado }}</td>
                         <td>Bs. {{ reserva.saldo_pendiente }}</td>
                         <td class="estado-columna">
-                            {% if reserva.estado == 'pendiente' %}
+                            {% if reserva.estado_pago == 'pendiente' %}
                                 <span class="estado-badge estado-pendiente">Pendiente</span>
-                            {% elif reserva.estado == 'parcial' %}
+                            {% elif reserva.estado_pago == 'parcial' %}
                                 <span class="estado-badge estado-parcial">Parcial</span>
-                            {% elif reserva.estado == 'completada' %}
+                            {% elif reserva.estado_pago == 'completada' %}
                                 <span class="estado-badge estado-completada">Completada</span>
                             {% else %}
                                 <span class="estado-badge estado-anulada">Anulada</span>

@@ -72,6 +72,16 @@ class ReservaProducto(models.Model):
     def saldo_pendiente(self):
         return max(self.total - self.total_amortizado, Decimal('0.00'))
 
+    @property
+    def estado_pago(self):
+        if self.estado == 'anulada':
+            return 'anulada'
+        if self.total > 0 and self.total_pagado >= self.total:
+            return 'completada'
+        if self.total_pagado > 0:
+            return 'parcial'
+        return 'pendiente'
+
 
 class ReservaItem(models.Model):
     MODALIDADES = (
