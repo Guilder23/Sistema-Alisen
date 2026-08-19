@@ -339,6 +339,11 @@
                             Reporte de Traspasos
                         </a>
                     </li>
+                    <li class="sidebar-submenu-item">
+                        <a href="{% url 'reporte_ventas_productos' %}" class="sidebar-submenu-link {% if url_actual == 'reporte_traspasos' %}active{% endif %}">
+                            Reporte de Ventas Productos
+                        </a>
+                    </li>
                 </ul>
             </li>
             {% endwith %}

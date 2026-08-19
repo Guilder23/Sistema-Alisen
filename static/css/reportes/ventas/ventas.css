@@ -1,3 +1,13 @@
+.fila-total-reporte td {
+    background: #eef2f7;
+    border-top: 2px solid #64748b;
+    font-size: 0.85rem;
+    padding: 0.65rem 0.5rem;
+}
+
+.fila-total-reporte strong {
+    font-weight: 700;
+}
 /* Estilos personalizados para el reporte de ventas */
 .page-header {
     margin-top: 0.5rem;
