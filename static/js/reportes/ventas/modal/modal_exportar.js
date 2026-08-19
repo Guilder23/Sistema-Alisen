@@ -149,7 +149,7 @@ function exportarTablaVentas(columnasSeleccionadas = null) {
     
     // Si no se especifican columnas, exportar todas
     if (!columnasSeleccionadas) {
-        columnasSeleccionadas = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        columnasSeleccionadas = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     }
     
     // Obtener los datos de la tabla

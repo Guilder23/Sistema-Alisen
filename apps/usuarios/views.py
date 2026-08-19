@@ -68,6 +68,7 @@ def tienda(request):
 
     buscar = request.GET.get('buscar', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
+    subcategoria_id = request.GET.get('subcategoria', '').strip()
     genero = request.GET.get('genero', '').strip()
     precio_min = request.GET.get('precio_min', '').strip()
     precio_max = request.GET.get('precio_max', '').strip()
@@ -84,6 +85,9 @@ def tienda(request):
 
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
+
+    if subcategoria_id:
+        productos = productos.filter(subcategoria_id=subcategoria_id)
 
     if genero:
         productos = productos.filter(genero=genero)
@@ -110,6 +114,7 @@ def tienda(request):
         productos = productos.order_by('-fecha_creacion')
 
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    subcategorias = Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre')
     genero_choices = Producto.GENERO_CHOICES
 
     for p in productos:
@@ -121,9 +126,11 @@ def tienda(request):
     context = {
         'productos': productos,
         'categorias': categorias,
+        'subcategorias': subcategorias,
         'genero_choices': genero_choices,
         'buscar': buscar,
         'categoria': categoria_id,
+        'subcategoria': subcategoria_id,
         'genero': genero,
         'precio_min': precio_min,
         'precio_max': precio_max,

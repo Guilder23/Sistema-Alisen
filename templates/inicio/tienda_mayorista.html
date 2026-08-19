@@ -23,6 +23,13 @@
                 <div><span class="mayorista-kicker"><i class="fas fa-boxes mr-1"></i> Canal B2B</span><h1>Compra mayorista</h1><p class="mb-0">Precios especiales desde la cantidad minima indicada en cada producto.</p></div>
                 <a href="{% url 'carrito_mayorista' %}" class="btn btn-light"><i class="fas fa-shopping-cart mr-1"></i> Carrito mayorista <span class="badge badge-primary ml-1" id="mayoristaCartCount">0</span></a>
             </div>
+            <div class="tienda-filtros-superiores mb-4" aria-label="Filtros rápidos del catálogo mayorista">
+                <div class="tienda-filtros-superiores-label"><i class="fas fa-layer-group mr-2"></i>Subcategorías</div>
+                <div class="tienda-filtros-superiores-scroll">
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="tienda-filtro-chip {% if not subcategoria %}active{% endif %}">Todas</a>
+                    {% for sub in subcategorias %}<a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}subcategoria={{ sub.id }}" class="tienda-filtro-chip {% if subcategoria == sub.id|stringformat:'s' %}active{% endif %}">{{ sub.nombre }}</a>{% endfor %}
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-3 mb-4 mb-lg-0">
                     <div class="card tienda-filtros sticky-top" id="tiendaMayoristaFilters" style="top:1rem;">
