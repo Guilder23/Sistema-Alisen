@@ -52,8 +52,8 @@ def index(request):
         'categoria': categoria_id,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
@@ -129,8 +129,8 @@ def tienda(request):
         'orden': orden,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
@@ -245,6 +245,11 @@ def product_detail(request, id):
     total_tiendas = sum(t['cantidad'] for t in tiendas_stock)
     total_depositos = sum(d['cantidad'] for d in depositos_stock)
     total_otros = sum(o['cantidad'] for o in otros_stock)
+    departamentos_disponibles = sorted({
+        ubi['departamento'].strip()
+        for ubi in ubicaciones_disponibles
+        if ubi.get('departamento') and ubi['departamento'].strip()
+    })
 
     from apps.productos.utils_imagenes import youtube_embed_url
     imagenes = [
@@ -276,10 +281,11 @@ def product_detail(request, id):
         'total_tiendas': total_tiendas,
         'total_depositos': total_depositos,
         'total_otros': total_otros,
+        'departamentos_disponibles': departamentos_disponibles,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
@@ -297,8 +303,8 @@ def carrito(request):
         'categoria': categoria,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
@@ -315,8 +321,8 @@ def nosotros(request):
         'categoria': categoria,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }
@@ -333,8 +339,8 @@ def preguntas_frecuentes(request):
         'categoria': categoria,
         'tienda_nombre': 'Alicen Imports',
         'tienda_descripcion': 'Importamos calidad para toda Bolivia con envíos seguros y atención personalizada.',
-        'tienda_telefono': '+59170000000',
-        'tienda_whatsapp': '+59170000000',
+        'tienda_telefono': '+59168504229',
+        'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
     }

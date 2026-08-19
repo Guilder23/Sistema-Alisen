@@ -94,6 +94,35 @@
     color: #fff;
 }
 
+.delivery-options {
+    display: grid;
+    gap: 0.65rem;
+}
+.delivery-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #dbe3ef;
+    border-radius: 0.65rem;
+    background: #fff;
+    color: #24324a;
+    text-align: left;
+    cursor: pointer;
+}
+.delivery-option i {
+    width: 28px;
+    color: #1769aa;
+    text-align: center;
+}
+.delivery-option.active,
+.delivery-option:hover {
+    border-color: #16a974;
+    background: rgba(22, 169, 116, 0.08);
+    color: #08794e;
+}
+
 .proceso-pasos {
     list-style: none;
     padding: 0;
@@ -224,6 +253,7 @@
     border-radius: 28px;
     border: none;
     overflow: hidden;
+    max-height: calc(100vh - 2rem);
     box-shadow: 0 28px 80px rgba(15,23,42,0.16);
     background: #f8fafc;
 }
@@ -244,6 +274,8 @@
 }
 #customerModal .modal-body {
     padding: 1.25rem 1.4rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 #customerModal .modal-footer {
     border-top: none;
