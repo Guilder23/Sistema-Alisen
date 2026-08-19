@@ -20,23 +20,35 @@ function confirmarExportacion() {
     const rows = Array.from(tabla.querySelectorAll('tbody tr:not(:empty)'));
 
     const headers = columnas.map(i => headersOriginal[i] || ('Columna ' + i));
+    const escaparCsv = valor => `"${String(valor).replace(/"/g, '""')}"`;
 
-    let csv = headers.join(',') + '\n';
+    let csv = headers.map(escaparCsv).join(';') + '\r\n';
 
     rows.forEach(row => {
         const celdas = Array.from(row.querySelectorAll('td'));
         const fila = columnas.map(i => {
             if (celdas[i]) {
-                let txt = celdas[i].innerText.trim().replace(/\s+/g, ' ');
-                if (txt.includes(',') || txt.includes('"')) {
-                    txt = '"' + txt.replace(/"/g, '""') + '"';
-                }
-                return txt;
+                return celdas[i].innerText.trim().replace(/\s+/g, ' ');
             }
             return '';
         });
-        csv += fila.join(',') + '\n';
+        csv += fila.map(escaparCsv).join(';') + '\r\n';
     });
+
+    const totalValues = {
+        4: `Bs. ${tabla.dataset.totalPrecioCompra || '0.00'}`,
+        5: tabla.dataset.totalCantidad || '0',
+        6: tabla.dataset.totalCajas || '0',
+        7: `Bs. ${tabla.dataset.precioPromedioGlobal || '0.00'}`,
+        8: `Bs. ${tabla.dataset.totalCosto || '0.00'}`,
+        9: `Bs. ${tabla.dataset.totalVentas || '0.00'}`,
+        10: `Bs. ${tabla.dataset.totalUtilidad || '0.00'}`,
+        11: `${tabla.dataset.margenGlobal || '0.0'}%`,
+        12: tabla.dataset.totalNumVentas || '0',
+    };
+    csv += columnas.map((i, posicion) => escaparCsv(
+        posicion === 0 ? 'TOTALES' : (totalValues[i] || '-')
+    )).join(';') + '\r\n';
 
     const BOM = '\uFEFF';
     const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });

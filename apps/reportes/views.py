@@ -806,11 +806,13 @@ def reporte_ventas_productos(request):
 
     total_cantidad = sum(i['cantidad_total'] for i in items_reporte)
     total_cajas = sum(i['cajas_total'] for i in items_reporte)
+    total_precio_compra = sum((Decimal(i['producto'].precio_compra or 0) for i in items_reporte), Decimal('0'))
     total_costo = sum(i['costo_total'] for i in items_reporte)
     total_ventas_monto = sum(i['ventas_total'] for i in items_reporte)
     total_utilidad = sum(i['utilidad'] for i in items_reporte)
     total_productos = len(items_reporte)
     total_num_ventas = sum(i['num_ventas'] for i in items_reporte)
+    precio_promedio_global = (total_ventas_monto / Decimal(total_cantidad)) if total_cantidad > 0 else Decimal('0')
     margen_global = (total_utilidad / total_ventas_monto * Decimal('100')) if total_ventas_monto > 0 else Decimal('0')
 
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
@@ -851,6 +853,8 @@ def reporte_ventas_productos(request):
         'total_productos': total_productos,
         'total_cantidad': total_cantidad,
         'total_cajas': total_cajas,
+        'total_precio_compra': total_precio_compra,
+        'precio_promedio_global': precio_promedio_global,
         'total_costo': total_costo,
         'total_ventas_monto': total_ventas_monto,
         'total_utilidad': total_utilidad,

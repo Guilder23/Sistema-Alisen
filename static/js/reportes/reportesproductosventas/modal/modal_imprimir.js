@@ -74,33 +74,24 @@ function generarVistaPreviaTablaProductos() {
         tbody.appendChild(tr);
     });
 
+    const totalValues = {
+        4: `Bs. ${tablaOriginal.dataset.totalPrecioCompra || '0.00'}`,
+        5: tablaOriginal.dataset.totalCantidad || '0',
+        6: tablaOriginal.dataset.totalCajas || '0',
+        7: `Bs. ${tablaOriginal.dataset.precioPromedioGlobal || '0.00'}`,
+        8: `Bs. ${tablaOriginal.dataset.totalCosto || '0.00'}`,
+        9: `Bs. ${tablaOriginal.dataset.totalVentas || '0.00'}`,
+        10: `Bs. ${tablaOriginal.dataset.totalUtilidad || '0.00'}`,
+        11: `${tablaOriginal.dataset.margenGlobal || '0.0'}%`,
+        12: tablaOriginal.dataset.totalNumVentas || '0',
+    };
     const filaResumen = document.createElement('tr');
     filaResumen.style.fontWeight = '700';
     filaResumen.style.background = '#f8f9fc';
-    const tdInicio = document.createElement('td');
-    tdInicio.colSpan = Math.max(1, columnasVisibles.indexOf(8));
-    if (tdInicio.colSpan < 1) tdInicio.colSpan = 1;
-    tdInicio.textContent = 'TOTALES';
-    tdInicio.style.textAlign = 'right';
-    filaResumen.appendChild(tdInicio);
-
-    const totalTexts = [
-        '', '', '', '', '', '', '', '',
-        document.getElementById('resImpProductos') ? document.getElementById('resImpProductos').textContent : '',
-        document.getElementById('resImpCantidad') ? document.getElementById('resImpCantidad').textContent : '',
-        '', '', '',
-        document.getElementById('resImpVentas') ? document.getElementById('resImpVentas').textContent : '',
-        document.getElementById('resImpUtilidad') ? document.getElementById('resImpUtilidad').textContent : '',
-        '', '',
-    ];
-
-    columnasVisibles.slice(tdInicio.colSpan).forEach(i => {
+    columnasVisibles.forEach((i, posicion) => {
         const td = document.createElement('td');
-        if (i === 8) { td.textContent = totalTexts[8]; td.style.textAlign = 'center'; }
-        else if (i === 5) { td.textContent = totalTexts[9]; td.style.textAlign = 'center'; }
-        else if (i === 9) { td.textContent = totalTexts[13]; td.style.color = '#166534'; td.style.textAlign = 'right'; }
-        else if (i === 10) { td.textContent = totalTexts[14]; td.style.color = '#4e73df'; td.style.textAlign = 'right'; }
-        else { td.textContent = ''; }
+        td.textContent = posicion === 0 ? 'TOTALES' : (totalValues[i] || '-');
+        td.style.textAlign = i >= 4 ? 'right' : 'center';
         filaResumen.appendChild(td);
     });
 
