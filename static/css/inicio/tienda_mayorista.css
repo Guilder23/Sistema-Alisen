@@ -1,1 +1,32 @@
-.tienda-mayorista-page #mayoristaCartCount { background-color: #16c784; color: #fff; }
+.tienda-mayorista-page .tienda-main { background: #f5f7fb; }
+.tienda-mayorista-page .tienda-filtros-superiores-label,
+.tienda-mayorista-page .mayorista-price,
+.tienda-mayorista-page .mayorista-minimum { color: #047857; }
+.tienda-mayorista-page .mayorista-product-card .product-card-visual { position: relative; }
+.tienda-mayorista-page .mayorista-badge {
+	position: absolute;
+	top: .75rem;
+	left: .75rem;
+	z-index: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: .35rem;
+	padding: .35rem .6rem;
+	border-radius: 999px;
+	background: #0f766e;
+	color: #fff;
+	font-size: .72rem;
+	font-weight: 700;
+	line-height: 1.2;
+	box-shadow: 0 2px 8px rgba(15, 118, 110, .3);
+}
+.tienda-mayorista-page .tienda-filtro-chip.active,
+.tienda-mayorista-page .btn-add-mayorista,
+.tienda-mayorista-page .btn-primary { background-color: #0f766e; border-color: #0f766e; color: #fff; }
+.tienda-mayorista-page .tienda-filtro-chip.active:hover,
+.tienda-mayorista-page .btn-add-mayorista:hover,
+.tienda-mayorista-page .btn-primary:hover { background-color: #0b5f59; border-color: #0b5f59; color: #fff; }
+.tienda-mayorista-page .mayorista-badge { background: #0f766e; color: #fff; }
+.tienda-mayorista-page .mayorista-product-card { border-top: 3px solid #0f766e; }
+.tienda-mayorista-page .mayorista-minimum { background: #ecfdf5; border-radius: 5px; font-size: .72rem; font-weight: 700; padding: .4rem .55rem; margin-top: .65rem; }
+.tienda-mayorista-page .btn-outline-secondary:hover { background-color: #0f766e; border-color: #0f766e; color: #fff; }

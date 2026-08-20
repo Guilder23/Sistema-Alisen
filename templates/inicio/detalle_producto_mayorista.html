@@ -33,7 +33,7 @@
                     </div>
                 </div>
                 <div class="detail-info col-md-7">
-                    <span class="mayorista-detail-badge"><i class="fas fa-boxes mr-1"></i>Canal mayorista</span>
+                    <span class="offer-badge mayorista-detail-badge"><i class="fas fa-boxes mr-1"></i>Mayorista</span>
                     <h1>{{ producto.nombre }}</h1>
                     <p class="detail-category">{{ producto.categoria.nombre|default:'Sin categoría' }}</p>
                     <div class="description-accordion mb-3">
@@ -52,7 +52,7 @@
                         <input type="hidden" id="detailMayoristaMinimum" value="{{ producto.unidades_por_mayor }}">
                         <input type="hidden" id="detailMayoristaStock" value="{{ producto.stock }}">
                         <div class="product-quantity-group mr-2 mb-2"><label for="detailMayoristaQuantity" class="small">Cantidad</label><input type="number" id="detailMayoristaQuantity" class="form-control" min="{{ producto.unidades_por_mayor }}" max="{{ producto.stock }}" step="{{ producto.unidades_por_mayor }}" value="{{ producto.unidades_por_mayor }}"></div>
-                        <div class="detail-actions mt-2 mt-sm-0"><button type="submit" class="btn btn-primary mr-2"><i class="fas fa-cart-plus mr-1"></i>Agregar al carrito mayorista</button><a href="{% url 'carrito_mayorista' %}" class="btn btn-outline-secondary">Ir al carrito</a></div>
+                        <div class="detail-actions mt-2 mt-sm-0"><button type="submit" class="btn btn-primary mr-2"><i class="fas fa-cart-plus mr-1"></i>Agregar al carrito mayorista</button><button type="button" class="btn btn-success mr-2" id="detailMayoristaWhatsappButton"><i class="fab fa-whatsapp mr-1"></i>Pedir por WhatsApp</button><a href="{% url 'carrito_mayorista' %}" class="btn btn-outline-secondary">Ir al carrito</a></div>
                     </form>
                     <div class="detail-note mt-3 small"><p><strong><i class="fas fa-layer-group mr-1"></i>Compra mínima:</strong> {{ producto.unidades_por_mayor }} unidades.</p><p class="mb-0">Los precios y cantidades de este pedido pertenecen al canal mayorista.</p></div>
                 </div>

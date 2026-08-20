@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const productImage = document.getElementById('detailMayoristaProductImage')?.value || '';
     const minimum = Number(document.getElementById('detailMayoristaMinimum')?.value || 1);
     const stock = Number(document.getElementById('detailMayoristaStock')?.value || 0);
+    const whatsappButton = document.getElementById('detailMayoristaWhatsappButton');
 
     const getCart = () => {
         try { return JSON.parse(localStorage.getItem('alicen_cart_mayorista') || '{}'); } catch { return {}; }
@@ -36,6 +37,17 @@ document.addEventListener('DOMContentLoaded', () => {
         cart[productId] = { id: productId, nombre: productName, precio: productPrice, cantidad: nextQuantity, foto: productImage, stock, modalidad: 'mayorista', unidades_por_mayor: minimum };
         localStorage.setItem('alicen_cart_mayorista', JSON.stringify(cart));
         showToast(`${quantity} unidades agregadas al carrito mayorista.`, productName);
+    });
+
+    whatsappButton?.addEventListener('click', () => {
+        const quantity = parseInt(quantityInput?.value || minimum, 10);
+        if (!Number.isInteger(quantity) || quantity < minimum || quantity > stock) {
+            showToast(`La cantidad debe estar entre ${minimum} y ${stock} unidades.`, 'Cantidad inválida', true);
+            return;
+        }
+        const total = (quantity * productPrice).toFixed(2);
+        const message = encodeURIComponent(`Hola, quiero pedir este producto MAYORISTA.\n\nProducto: ${productName}\nCantidad: ${quantity}\nPrecio unitario mayorista: Bs ${productPrice.toFixed(2)}\nTotal: Bs ${total}`);
+        window.open(`https://wa.me/68504229?text=${message}`, '_blank');
     });
 
     const descriptionToggle = document.querySelector('.description-toggle');

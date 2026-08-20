@@ -1,6 +1,6 @@
 .detalle-mayorista-page { background: #f5f7fb; }
 .detalle-mayorista-page .detail-page { background: transparent; }
-.mayorista-detail-badge { display: inline-flex; align-items: center; padding: .42rem .7rem; border-radius: 999px; background: #0f766e; color: #fff; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .8rem; }
+.mayorista-detail-badge { background: #0f766e !important; color: #fff !important; }
 .mayorista-detail-price { color: #0f766e !important; font-size: 1.15rem; }
 .detalle-mayorista-page .detail-note { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
 .detalle-mayorista-page .detail-note strong { color: #047857; }
