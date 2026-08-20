@@ -1,6 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     const cartCountEl = document.getElementById('cartCount');
     const mobileCartCountEl = document.getElementById('mobileCartCount');
+    const mayoristaPage = document.body.classList.contains('tienda-mayorista-page')
+        || document.body.classList.contains('carrito-mayorista-page')
+        || document.body.classList.contains('detalle-mayorista-page');
+    const cartKey = mayoristaPage ? 'alicen_cart_mayorista' : 'alicen_cart';
+    if (mayoristaPage) {
+        document.querySelectorAll('.js-cart-link').forEach((link) => {
+            link.href = '/carrito-mayorista/';
+            link.title = 'Carrito mayorista';
+        });
+    }
     const searchInput = document.getElementById('navbarSearchInput');
     const searchForm = document.getElementById('navbarSearchForm');
     const productCards = Array.from(document.querySelectorAll('.product-card'));
@@ -40,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const getCart = () => {
-        try { return JSON.parse(localStorage.getItem('alicen_cart') || '{}'); } catch { return {}; }
+        try { return JSON.parse(localStorage.getItem(cartKey) || '{}'); } catch { return {}; }
     };
 
     const updateCartCount = () => {
@@ -78,6 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
 
     window.addEventListener('storage', (e) => {
-        if (e.key === 'alicen_cart') updateCartCount();
+        if (e.key === cartKey) updateCartCount();
     });
 });

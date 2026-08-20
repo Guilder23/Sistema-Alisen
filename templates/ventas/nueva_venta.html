@@ -89,7 +89,7 @@
                         <textarea class="form-control" id="inputComentario" rows="2"
                                   placeholder="Agrega un comentario para esta venta..." autocomplete="off"></textarea>
                     </div>
-
+{% comment %} 
                     <div class="form-group mb-0">
                         <label class="label-campo">Tipo de Pago</label>
                         <div class="tipo-pago-selector">
@@ -115,7 +115,7 @@
                             </div>
                         </div>
                         <input type="hidden" id="inputTipoPago" value="contado">
-                    </div>
+                    </div> {% endcomment %}
 
                     <div class="form-group mt-3" id="metodoPagoSection">
                         <label class="label-campo">Método de Pago</label>
@@ -127,7 +127,7 @@
                         <input type="hidden" id="inputMetodoPago" value="efectivo">
                     </div>
 
-                    <!-- SELECTOR DE MONEDA -->
+                    {% comment %} <!-- SELECTOR DE MONEDA -->
                     <div class="form-group mt-3">
                         <label class="label-campo">Moneda de Venta</label>
                         <select id="selectMoneda" class="form-control">
@@ -142,7 +142,7 @@
                             <i class="fas fa-info-circle mr-2"></i>
                             <strong>Tipo de Cambio Actual:</strong> 1 USD = Bs. <span id="tipoCambioDisplay">{{ tipo_cambio_actual|floatformat:2 }}</span>
                         </div>
-                    </div>
+                    </div> {% endcomment %}
 
                     <!-- SELECTOR USUARIO VENDEDOR (Depósito/Tienda) - Solo visible para tiendas -->
                     {% if user.perfil.rol == 'tienda' %}

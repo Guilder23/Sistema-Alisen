@@ -9,7 +9,7 @@
       <form class="mobile-navbar-search-form" action="{% url 'tienda' %}" method="get">
         <input class="form-control" type="search" name="buscar" placeholder="Buscar..." value="{{ buscar }}">
       </form>
-      <a class="nav-icon-btn" href="{% url 'carrito' %}" title="Carrito">
+      <a class="nav-icon-btn js-cart-link" href="{% url 'carrito' %}" title="Carrito">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-badge" id="mobileCartCount">0</span>
       </a>
@@ -59,7 +59,7 @@
           <a class="nav-link nav-link-btn" href="{% url 'preguntas_frecuentes' %}">FAQ</a>
         </li>
         <li class="nav-item mr-3">
-          <a class="nav-link nav-icon-btn" href="{% url 'carrito' %}" title="Carrito">
+          <a class="nav-link nav-icon-btn js-cart-link" href="{% url 'carrito' %}" title="Carrito">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-badge" id="cartCount">0</span>
           </a>

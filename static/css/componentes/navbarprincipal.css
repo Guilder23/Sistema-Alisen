@@ -103,6 +103,12 @@
   z-index: 2;
 }
 
+.tienda-mayorista-page .navbar-principal .cart-badge,
+.carrito-mayorista-page .navbar-principal .cart-badge,
+.detalle-mayorista-page .navbar-principal .cart-badge {
+  background: #16c784;
+}
+
 /* Search and category buttons */
 .navbar-principal .navbar-search-group { max-width: 300px; width: 100%; }
 .navbar-principal .navbar-search-group .input-group-text { 
