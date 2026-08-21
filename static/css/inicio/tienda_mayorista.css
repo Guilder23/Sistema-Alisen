@@ -1,4 +1,36 @@
 .tienda-mayorista-page .tienda-main { background: #f5f7fb; }
+.tienda-mayorista-page .tienda-filtros {
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(15, 23, 42, .06);
+	overflow: hidden;
+	background: #fff;
+}
+.tienda-mayorista-page .tienda-filtros .card-header {
+	border: none;
+	border-bottom: 1px solid #e2e8f0;
+	padding: 1rem 1.25rem;
+	background: #f8fafc !important;
+	color: #0f172a;
+	font-weight: 600;
+}
+.tienda-mayorista-page .tienda-filtros .card-body { padding: 1.25rem; }
+.tienda-mayorista-page .tienda-filtros .filtro-seccion h6 {
+	font-size: .85rem;
+	color: #64748b;
+	letter-spacing: .03em;
+	text-transform: uppercase;
+	font-weight: 600;
+	margin-bottom: .75rem;
+}
+.tienda-mayorista-page .tienda-filtros .form-control-sm {
+	border: 1px solid #d1d5db;
+	border-radius: .375rem;
+}
+.tienda-mayorista-page .tienda-filtros .form-control-sm:focus {
+	border-color: #0f766e;
+	box-shadow: 0 0 0 .2rem rgba(15, 118, 110, .12);
+}
 .tienda-mayorista-page .tienda-filtros-superiores-label,
 .tienda-mayorista-page .mayorista-price,
 .tienda-mayorista-page .mayorista-minimum { color: #047857; }
