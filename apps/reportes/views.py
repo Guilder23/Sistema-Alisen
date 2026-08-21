@@ -730,6 +730,7 @@ def reporte_ventas_productos(request):
                 'cantidad_total': 0,
                 'cajas_total': 0,
                 'ventas_total': Decimal('0'),
+                'descuento_total': Decimal('0'),
                 'precio_compra_unit': dv.producto.precio_compra,
                 'num_ventas': 0,
                 'ubicaciones': set(),
@@ -738,7 +739,8 @@ def reporte_ventas_productos(request):
         p = productos_agrupados[pid]
         p['cantidad_total'] += dv.cantidad
         p['cajas_total'] += dv.cantidad_cajas or 0
-        p['ventas_total'] += dv.subtotal
+        p['descuento_total'] += dv.descuento
+        p['ventas_total'] += dv.subtotal_neto
         p['num_ventas'] += 1
         if dv.venta.ubicacion_id:
             p['ubicaciones'].add(dv.venta.ubicacion.nombre_ubicacion)
@@ -761,6 +763,7 @@ def reporte_ventas_productos(request):
             'cajas_total': data['cajas_total'],
             'costo_total': costo_total,
             'ventas_total': data['ventas_total'],
+            'descuento_total': data['descuento_total'],
             'utilidad': utilidad,
             'margen': margen,
             'precio_promedio': precio_promedio,

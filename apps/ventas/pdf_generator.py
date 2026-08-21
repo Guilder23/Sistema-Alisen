@@ -451,8 +451,10 @@ def generar_pdf_venta_completo(venta):
         ancho_tabla * 0.10,  # Origen
         ancho_tabla * 0.16,  # Detalle
         ancho_tabla * 0.08,  # Cantidad
-        ancho_tabla * 0.10,  # P. Unitario
-        ancho_tabla * 0.11,  # Subtotal
+        ancho_tabla * 0.09,  # P. Unitario
+        ancho_tabla * 0.09,  # Subtotal bruto
+        ancho_tabla * 0.09,  # Descuento
+        ancho_tabla * 0.10,  # Subtotal real
     ]
 
     datos_tabla = [[
@@ -464,6 +466,8 @@ def generar_pdf_venta_completo(venta):
         Paragraph('Cantidad', style_header_cell),
         Paragraph('P. Unitario', style_header_cell),
         Paragraph('Subtotal', style_header_cell),
+        Paragraph('Descuento', style_header_cell),
+        Paragraph('Subtotal real', style_header_cell),
     ]]
     imagen_cache = {}
     def resolver_imagen_producto(producto):
@@ -514,6 +518,8 @@ def generar_pdf_venta_completo(venta):
         cantidad = int(detalle.cantidad)
         subtotal_base = detalle.subtotal if hasattr(detalle, 'subtotal') else (detalle.precio_unitario * cantidad)
         subtotal_valor = float(convertir_desde_bob_para_pdf(subtotal_base, venta))
+        descuento_valor = float(convertir_desde_bob_para_pdf(getattr(detalle, 'descuento', 0), venta))
+        subtotal_real_valor = subtotal_valor - descuento_valor
         tipo_vendedor = obtener_tipo_vendedor_detalle_pdf(detalle)
         modalidad = obtener_modalidad_detalle_pdf(detalle)
         cantidad_cajas = obtener_cantidad_cajas_pdf(detalle)
@@ -538,6 +544,8 @@ def generar_pdf_venta_completo(venta):
             Paragraph(str(cantidad), style_cell_center),
             Paragraph(f'{etiqueta_moneda} {precio:,.2f}', style_cell_right),
             Paragraph(f'{etiqueta_moneda} {subtotal_valor:,.2f}', style_cell_right),
+            Paragraph(f'-{etiqueta_moneda} {descuento_valor:,.2f}', style_cell_right),
+            Paragraph(f'{etiqueta_moneda} {subtotal_real_valor:,.2f}', style_cell_right),
         ])
 
     tabla_detalles = Table(
@@ -559,7 +567,7 @@ def generar_pdf_venta_completo(venta):
         ('ALIGN', (3, 1), (3, -1), 'CENTER'),   # Origen
         ('ALIGN', (4, 1), (4, -1), 'LEFT'),     # Detalle
         ('ALIGN', (5, 1), (5, -1), 'CENTER'),   # Cantidad
-        ('ALIGN', (6, 1), (7, -1), 'RIGHT'),    # Montos
+        ('ALIGN', (6, 1), (-1, -1), 'RIGHT'),   # Montos
 
         # Padding encabezado
         ('TOPPADDING', (0, 0), (-1, 0), 8),

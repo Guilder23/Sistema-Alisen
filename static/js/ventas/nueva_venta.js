@@ -446,6 +446,8 @@ function agregarAlCarrito(producto) {
         unidadesPorCaja: unidadesPorCaja,
         unidadesPorMayor: unidadesPorMayor,
         maximoCajas: obtenerMaximoCajasProducto(producto),
+        descuentoTipo: 'ninguno',
+        descuentoValor: 0,
         productoRaw: producto,
     });
 
@@ -486,6 +488,12 @@ function renderCarrito() {
             ? (item.cajas * item.unidadesPorCaja)
             : item.cantidad;
         const subtotal = (item.precioUnitario * unidadesOperativas).toFixed(2);
+        const descuento = item.descuentoTipo === 'porcentaje'
+            ? (parseFloat(subtotal) * Math.min(item.descuentoValor || 0, 100) / 100)
+            : item.descuentoTipo === 'fijo'
+                ? Math.max((item.precioUnitario - (item.descuentoValor || 0)) * unidadesOperativas, 0)
+                : 0;
+        const subtotalReal = Math.max(parseFloat(subtotal) - descuento, 0).toFixed(2);
         const precioEnDolares = (item.precioUnitario / tipoCambio).toFixed(2);
         const subtotalEnDolares = (parseFloat(subtotal) / tipoCambio).toFixed(2);
         const maximoCajas = Math.max(item.maximoCajas || 1, 1);
@@ -538,6 +546,19 @@ function renderCarrito() {
                         ${moneda === 'USD' ? `<div style="font-size: 0.85rem; color: #666;">Bs. ${subtotal}</div>` : `<div style="font-size: 0.85rem; color: #666;">$ ${subtotalEnDolares}</div>`}
                     </div>
                 </td>
+                <td class="text-center">
+                    <select class="form-control form-control-sm item-descuento-tipo" data-index="${index}">
+                        <option value="ninguno" ${item.descuentoTipo === 'ninguno' ? 'selected' : ''}>Sin descuento</option>
+                        <option value="fijo" ${item.descuentoTipo === 'fijo' ? 'selected' : ''}>Precio final / unidad</option>
+                        <option value="porcentaje" ${item.descuentoTipo === 'porcentaje' ? 'selected' : ''}>Porcentaje</option>
+                    </select>
+                    <input type="number" class="form-control form-control-sm mt-1 item-descuento-valor"
+                           data-index="${index}" min="0" step="0.01"
+                           value="${item.descuentoValor || 0}" ${item.descuentoTipo === 'ninguno' ? 'disabled' : ''}>
+                </td>
+                <td class="text-right font-weight-bold text-success">
+                    ${moneda === 'BOB' ? `Bs. ${subtotalReal}` : `$ ${(parseFloat(subtotalReal) / tipoCambio).toFixed(2)}`}
+                </td>
                 <td class="text-center pr-3">
                     <button class="btn-eliminar-item" data-index="${index}" title="Eliminar">
                         <i class="fas fa-times"></i>
@@ -569,6 +590,21 @@ function renderCarrito() {
         let val = parseInt($(this).val(), 10);
         if (isNaN(val) || val < 1) val = 1;
         establecerCantidadAlmacen(idx, val);
+    });
+
+    $body.find('.item-descuento-tipo').off('change').on('change', function () {
+        const item = carrito[$(this).data('index')];
+        if (!item) return;
+        item.descuentoTipo = $(this).val();
+        if (item.descuentoTipo === 'ninguno') item.descuentoValor = 0;
+        renderCarrito();
+        actualizarResumen();
+    });
+    $body.find('.item-descuento-valor').off('input').on('input', function () {
+        const item = carrito[$(this).data('index')];
+        if (!item) return;
+        item.descuentoValor = Math.max(0, parseFloat($(this).val()) || 0);
+        actualizarResumen();
     });
 
     // Evento eliminar
@@ -709,24 +745,22 @@ function actualizarResumen() {
     const etiqueta = moneda === 'USD' ? '$' : 'Bs.';
     const subtotalDisplay = moneda === 'USD' ? (totalPrecio / tipoCambio).toFixed(2) : totalPrecio.toFixed(2);
     
-    // Calcular descuento
-    const detalleDescuento = obtenerDetalleDescuentoActual(totalPrecio);
-    const descuentoBs = detalleDescuento.descuentoBs;
+    const descuentoBs = carrito.reduce((sum, item) => {
+        const unidades = item.modalidad === 'caja' ? item.cajas * item.unidadesPorCaja : item.cantidad;
+        const bruto = item.precioUnitario * unidades;
+        if (item.descuentoTipo === 'porcentaje') return sum + bruto * Math.min(item.descuentoValor, 100) / 100;
+        if (item.descuentoTipo === 'fijo') return sum + Math.max((item.precioUnitario - (item.descuentoValor || 0)) * unidades, 0);
+        return sum;
+    }, 0);
     const descuentoDisplay = moneda === 'USD' ? (descuentoBs / tipoCambio).toFixed(2) : descuentoBs.toFixed(2);
     const totalFinal = totalPrecio - descuentoBs;
     const totalDisplay = moneda === 'USD' ? (totalFinal / tipoCambio).toFixed(2) : totalFinal.toFixed(2);
 
     $('#resumenCantItems').text(totalItems);
     $('#resumenSubtotal').text(etiqueta + ' ' + subtotalDisplay);
+    $('#resumenDescuento').text(etiqueta + ' ' + descuentoDisplay);
     $('#resumenTotal').text(etiqueta + ' ' + totalDisplay);
     
-    // Actualizar resumen de descuento si existe
-    if ($('#descuentoResumen').length) {
-        $('#descuentoResumen').text(detalleDescuento.resumen);
-    }
-    if ($('#descuentoCalculo').length) {
-        $('#descuentoCalculo').text(`${etiqueta} ${subtotalDisplay} - ${etiqueta} ${descuentoDisplay} = ${etiqueta} ${totalDisplay}`);
-    }
 }
 
 // CARRITO: LIMPIAR TODO
@@ -799,7 +833,11 @@ function guardarVenta() {
         const unidades = item.modalidad === 'caja'
             ? (item.cajas * item.unidadesPorCaja)
             : item.cantidad;
-        totalFinal += item.precioUnitario * unidades;
+        const bruto = item.precioUnitario * unidades;
+        const descuento = item.descuentoTipo === 'porcentaje'
+            ? bruto * Math.min(item.descuentoValor, 100) / 100
+            : item.descuentoTipo === 'fijo' ? Math.max((item.precioUnitario - (item.descuentoValor || 0)) * unidades, 0) : 0;
+        totalFinal += bruto - descuento;
     });
     
     const monedaElement = document.getElementById('inputMoneda');
@@ -842,16 +880,6 @@ function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipo
     const $btn = $('#btnGuardarVenta');
     $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...');
 
-    // Calcular subtotal para descuento
-    const subtotalBs = carrito.reduce((sum, item) => {
-        const unidadesOperativas = item.modalidad === 'caja' 
-            ? (item.cajas * item.unidadesPorCaja) 
-            : item.cantidad;
-        return sum + (unidadesOperativas * item.precioUnitario);
-    }, 0);
-    
-    const detalleDescuento = obtenerDetalleDescuentoActual(subtotalBs);
-    const descuentoBs = detalleDescuento.descuentoBs;
     const metodoPago = $('#inputMetodoPago').val() || 'efectivo';
 
     const items = carrito.map(item => {
@@ -868,6 +896,10 @@ function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipo
             tipo_vendedor: 'almacen',
             unidades_operativas: unidadesOperativas,
             precio_unitario: convertirBsAMoneda(item.precioUnitario).toFixed(2),
+            descuento_tipo: item.descuentoTipo || 'ninguno',
+            descuento_valor: item.descuentoTipo === 'fijo'
+                ? convertirBsAMoneda(item.descuentoValor || 0)
+                : (item.descuentoValor || 0),
         };
     });
     
@@ -878,7 +910,7 @@ function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipo
     const tipoCambio = tipoCambioElement ? parseFloat(tipoCambioElement.value) : 1;
     const vendedorId = vendedorIdElement ? (vendedorIdElement.value || null) : null;
 
-    //OJO: Incluye telefono, razon_social, direccion, moneda/tipo_cambio, vendedor_id, descuento y metodo_pago
+    // Incluye datos de la venta y el descuento de cada producto dentro de items.
     const payload = {
         cliente: cliente,
         telefono: telefono,
@@ -887,9 +919,6 @@ function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipo
         comentario: comentario,
         tipo_pago: tipoPago,
         metodo_pago: metodoPago,
-        descuento_monto: descuentoBs,
-        descuento_tipo: tipoDescuentoActual,
-        descuento_valor: detalleDescuento.valorIngresado,
         moneda: moneda,
         tipo_cambio: tipoCambio,
         vendedor_id: vendedorId,
