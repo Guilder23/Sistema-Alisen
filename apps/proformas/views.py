@@ -1,4 +1,5 @@
 import json
+import os
 from decimal import Decimal
 
 import json
@@ -7,6 +8,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.db import models
 from django.db import transaction
 from django.db.models import Q
@@ -14,11 +16,11 @@ from django.http import FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from .models import Proforma, ProformaItem
 from apps.inventario.models import Inventario
@@ -217,49 +219,62 @@ def generar_pdf_proforma(request, id):
     header_style = ParagraphStyle(
         'Header',
         parent=styles['Heading1'],
-        alignment=TA_LEFT,
+        alignment=TA_CENTER,
         fontSize=16,
-        leading=20,
-        spaceAfter=12,
+        leading=18,
+        spaceAfter=4,
     )
     normal_style = ParagraphStyle(
         'Normal',
         parent=styles['BodyText'],
         alignment=TA_LEFT,
-        fontSize=10,
-        leading=14,
+        fontSize=9,
+        leading=10,
+    )
+    client_style = ParagraphStyle(
+        'ClientData',
+        parent=normal_style,
+        leading=10,
+        spaceAfter=0,
     )
     right_style = ParagraphStyle(
         'Right',
         parent=styles['BodyText'],
         alignment=TA_RIGHT,
-        fontSize=10,
-        leading=14,
+        fontSize=9,
+        leading=10,
     )
 
     elements = []
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logoAlmacen.png')
+    if os.path.exists(logo_path):
+        logo = Image(logo_path, width=1.7 * inch, height=0.42 * inch)
+        logo.hAlign = 'CENTER'
+        elements.append(logo)
+        elements.append(Spacer(1, 5))
     elements.append(Paragraph(f'Proforma {proforma.codigo}', header_style))
-    elements.append(Paragraph(f'<b>Cliente:</b> {proforma.cliente}', normal_style))
-    elements.append(Paragraph(f'<b>NIT:</b> {proforma.nit or "-"}', normal_style))
-    elements.append(Paragraph(f'<b>Teléfono:</b> {proforma.telefono or "-"}', normal_style))
-    elements.append(Paragraph(f'<b>Razón social:</b> {proforma.razon_social or "-"}', normal_style))
-    elements.append(Paragraph(f'<b>Dirección:</b> {proforma.direccion or "-"}', normal_style))
-    elements.append(Paragraph(f'<b>Comentario:</b> {proforma.comentario or "-"}', normal_style))
-    elements.append(Spacer(1, 12))
+    elements.append(Paragraph(
+        f'Fecha: {proforma.fecha_elaboracion.strftime("%d/%m/%Y %H:%M")}',
+        client_style,
+    ))
+    elements.append(Spacer(1, 8))
 
-    metadata_table = Table([
-        [
-            Paragraph(f'<b>Fecha:</b> {proforma.fecha_elaboracion.strftime("%d/%m/%Y %H:%M")}', normal_style),
-            Paragraph(f'<b>Moneda:</b> {proforma.moneda}', normal_style),
-            Paragraph(f'<b>Tipo de cambio:</b> {float(proforma.tipo_cambio):,.2f}', normal_style),
-        ]
-    ], colWidths=[2.5 * inch, 2.0 * inch, 2.0 * inch])
-    metadata_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    client_data = [
+        [Paragraph(f'<b>Cliente:</b> {proforma.cliente}', client_style)],
+        [Paragraph(f'<b>NIT:</b> {proforma.nit or "-"}', client_style)],
+        [Paragraph(f'<b>Teléfono:</b> {proforma.telefono or "-"}', client_style)],
+        [Paragraph(f'<b>Razón social:</b> {proforma.razon_social or "-"}', client_style)],
+        [Paragraph(f'<b>Dirección:</b> {proforma.direccion or "-"}', client_style)],
+    ]
+    client_table = Table(client_data, colWidths=[6.5 * inch])
+    client_table.setStyle(TableStyle([
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 1),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
     ]))
-    elements.append(metadata_table)
-    elements.append(Spacer(1, 18))
+    elements.append(client_table)
+    elements.append(Spacer(1, 8))
 
     items_data = [[
         Paragraph('<b>Producto</b>', normal_style),
@@ -301,6 +316,8 @@ def generar_pdf_proforma(request, id):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
     ]))
     elements.append(totals_table)
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph(f'<b>Comentario:</b> {proforma.comentario or "-"}', client_style))
 
     doc.build(elements)
     buffer.seek(0)
