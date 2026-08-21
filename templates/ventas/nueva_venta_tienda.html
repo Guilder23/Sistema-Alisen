@@ -151,6 +151,8 @@
                                         <th class="text-center" style="width: 110px;">Precio Unit.</th>
                                         <th class="text-center" style="width: 70px;">Cantidad</th>
                                         <th class="text-right" style="width: 180px;">Subtotal</th>
+                                        <th class="text-center" style="width: 180px;">Precio final / unidad</th>
+                                        <th class="text-right" style="width: 150px;">Subtotal real</th>
                                         <th class="text-center pr-3" style="width: 50px;"></th>
                                     </tr>
                                 </thead>
@@ -271,56 +273,9 @@
                             <strong id="resumenSubtotal">Bs. 0.00</strong>
                         </div>
 
-                        <div class="form-group my-3 pb-3 border-bottom" id="descuentoSection">
-                            <label class="label-campo">
-                                <i class="fas fa-percentage text-success mr-1"></i>Descuento (opcional)
-                            </label>
-
-                            <div class="mb-3 descuento-toolbar">
-                                <label class="descuento-toolbar-label mb-2">Tipo de Descuento:</label>
-                                <div class="btn-group btn-group-sm descuento-toggle-group d-flex" role="group">
-                                    <input type="radio" class="btn-check" name="tipoDescuento" id="descuentoFijo" value="fijo" checked>
-                                    <label class="btn btn-outline-success flex-fill" for="descuentoFijo">
-                                        <i class="fas fa-coins mr-1"></i>Monto fijo
-                                    </label>
-
-                                    <input type="radio" class="btn-check" name="tipoDescuento" id="descuentoPorcentaje" value="porcentaje">
-                                    <label class="btn btn-outline-success flex-fill" for="descuentoPorcentaje">
-                                        <i class="fas fa-percent mr-1"></i>Porcentaje (%)
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="input-group input-group-sm">
-                                <input
-                                    type="number"
-                                    class="form-control"
-                                    id="inputDescuento"
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    min="0"
-                                    value="0"
-                                    max="100"
-                                >
-                                <div class="input-group-append">
-                                    <span class="input-group-text bg-success text-white" id="tipoDescuentoUnidad">Bs.</span>
-                                </div>
-                            </div>
-
-                            <small class="form-text text-muted d-block mt-2">
-                                Máximo: subtotal (en monto) o 100% (en porcentaje)
-                            </small>
-
-                            <div class="descuento-feedback mt-3">
-                                <div class="d-flex justify-content-between align-items-center small">
-                                    <span class="text-muted">Descuento aplicado:</span>
-                                    <strong id="descuentoResumen">Sin descuento</strong>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center small mt-2">
-                                    <span class="text-muted">Cálculo final:</span>
-                                    <strong id="descuentoCalculo">Bs. 0.00 - Bs. 0.00 = Bs. 0.00</strong>
-                                </div>
-                            </div>
+                        <div class="alert alert-light border mb-3">
+                            <i class="fas fa-info-circle mr-2 text-success"></i>
+                            El precio final y descuento se configuran por producto en cada fila.
                         </div>
 
                         <div class="alert alert-light border descuento-bloqueado mb-3" id="descuentoBloqueado" style="display:none;">

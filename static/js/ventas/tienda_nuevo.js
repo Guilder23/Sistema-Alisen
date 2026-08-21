@@ -15,6 +15,18 @@ let tipoVentaActual = 'tienda';
 let debounceBusqueda = null;
 let secuenciaBusqueda = 0;
 
+function calcularDescuentoItemTienda(item) {
+    const bruto = item.subtotal_bs;
+    if (item.descuentoTipo === 'porcentaje') {
+        return bruto * Math.min(item.descuentoValor || 0, 100) / 100;
+    }
+    if (item.descuentoTipo === 'fijo') {
+        const precioFinalBs = convertirMonedaABs(item.descuentoValor || 0);
+        return Math.max(item.precio_unitario_bs - precioFinalBs, 0) * item.unidades_operativas;
+    }
+    return 0;
+}
+
 function obtenerURLs() {
     if (typeof URLS !== 'undefined' && URLS) {
         return URLS;
@@ -539,7 +551,9 @@ function agregarAlCarrito(producto, cantidad, modalidad, tipoVendedor = tipoVend
         tipo_vendedor_label: obtenerEtiquetaTipoVendedor(tipoVendedorFinal),
         precio_unitario_bs: precioBaseBs,
         unidades_operativas: 0,
-        subtotal_bs: 0
+        subtotal_bs: 0,
+        descuentoTipo: 'ninguno',
+        descuentoValor: 0
     };
     recalcularItemCarrito(item);
     carrito.push(item);
@@ -836,6 +850,19 @@ function renderCarrito() {
                     ${renderMontoDual(item.subtotal_bs)}
                 </td>
 
+                <td class="text-center">
+                    <select class="form-control form-control-sm item-descuento-tipo" data-index="${index}">
+                        <option value="ninguno" ${item.descuentoTipo === 'ninguno' ? 'selected' : ''}>Sin descuento</option>
+                        <option value="fijo" ${item.descuentoTipo === 'fijo' ? 'selected' : ''}>Precio final / unidad</option>
+                        <option value="porcentaje" ${item.descuentoTipo === 'porcentaje' ? 'selected' : ''}>Porcentaje</option>
+                    </select>
+                    <input type="number" min="0" step="0.01" class="form-control form-control-sm mt-1 item-descuento-valor" data-index="${index}" value="${item.descuentoValor || 0}" ${item.descuentoTipo === 'ninguno' ? 'disabled' : ''}>
+                </td>
+
+                <td class="text-right font-weight-bold text-success">
+                    ${renderMontoDual(Math.max(item.subtotal_bs - calcularDescuentoItemTienda(item), 0))}
+                </td>
+
                 <td class="text-center pr-3">
                     <button
                         type="button"
@@ -849,14 +876,24 @@ function renderCarrito() {
         `;
     }).join('');
 
+    tbody.querySelectorAll('.item-descuento-tipo').forEach((input) => input.addEventListener('change', function () {
+        const item = carrito[parseInt(this.dataset.index, 10)];
+        item.descuentoTipo = this.value;
+        if (this.value === 'ninguno') item.descuentoValor = 0;
+        renderCarrito();
+    }));
+    tbody.querySelectorAll('.item-descuento-valor').forEach((input) => input.addEventListener('input', function () {
+        carrito[parseInt(this.dataset.index, 10)].descuentoValor = Math.max(parseFloat(this.value) || 0, 0);
+        actualizarTotales();
+    }));
+
     actualizarTotales();
 }
 
 function actualizarTotales() {
     const subtotalBs = carrito.reduce((sum, item) => sum + item.subtotal_bs, 0);
     const cantidadItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-    const detalleDescuento = obtenerDetalleDescuentoActual(subtotalBs);
-    const descuentoBs = detalleDescuento.descuentoBs;
+    const descuentoBs = carrito.reduce((sum, item) => sum + calcularDescuentoItemTienda(item), 0);
 
     const totalBs = subtotalBs - descuentoBs;
 
@@ -869,7 +906,7 @@ function actualizarTotales() {
     if (resumenCantItems) resumenCantItems.textContent = cantidadItems;
     if (resumenSubtotal) resumenSubtotal.textContent = formatearMonto(subtotalBs);
     if (resumenTotal) resumenTotal.innerHTML = `<strong style="font-size: 1.3rem; display: block;">${formatearMonto(totalBs)}</strong>`;
-    if (descuentoResumen) descuentoResumen.textContent = detalleDescuento.resumen;
+    if (descuentoResumen) descuentoResumen.textContent = formatearMonto(descuentoBs);
     if (descuentoCalculo) descuentoCalculo.textContent = `${formatearMonto(subtotalBs)} - ${formatearMonto(descuentoBs)} = ${formatearMonto(totalBs)}`;
 }
 
@@ -1430,10 +1467,7 @@ function agregarDesdeResultadosDeposito(productoId, tipoVendedorContexto = 'depo
 
 function construirPayloadVenta() {
     const subtotalBs = carrito.reduce((sum, item) => sum + item.subtotal_bs, 0);
-    const detalleDescuento = obtenerDetalleDescuentoActual(subtotalBs);
-    const descuentoTipo = detalleDescuento.habilitado && detalleDescuento.valorIngresado > 0
-        ? tipoDescuentoActual
-        : 'ninguno';
+    const descuentoBs = carrito.reduce((sum, item) => sum + calcularDescuentoItemTienda(item), 0);
 
     return {
         cliente: document.getElementById('inputCliente')?.value.trim() || '',
@@ -1446,16 +1480,20 @@ function construirPayloadVenta() {
         tipo_venta: tipoVentaActual || 'tienda',
         moneda: obtenerMonedaActual(),
         tipo_cambio: obtenerTipoCambioActual(),
-        descuento: convertirBsAMoneda(detalleDescuento.descuentoBs).toFixed(2),
-        descuento_tipo: descuentoTipo,
-        descuento_valor: detalleDescuento.habilitado ? detalleDescuento.valorIngresado : 0,
+        descuento: convertirBsAMoneda(descuentoBs).toFixed(2),
+        descuento_tipo: 'ninguno',
+        descuento_valor: 0,
         items: carrito.map((item) => ({
             producto_id: item.producto.id,
             cantidad: item.cantidad,
             modalidad: item.modalidad,
             tipo_vendedor: obtenerTipoVendedorItem(item),
             precio_unitario: convertirBsAMoneda(item.precio_unitario_bs).toFixed(2),
-            unidades_operativas: item.unidades_operativas
+            unidades_operativas: item.unidades_operativas,
+            descuento_tipo: item.descuentoTipo || 'ninguno',
+            descuento_valor: item.descuentoTipo === 'fijo'
+                ? convertirBsAMoneda(item.descuentoValor || 0)
+                : (item.descuentoValor || 0)
         }))
     };
 }

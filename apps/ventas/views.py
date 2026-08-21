@@ -1995,9 +1995,9 @@ def guardar_venta_tienda(request):
                 estado='completada' if tipo_pago == 'contado' else 'pendiente',
                 vendedor=request.user,
                 subtotal=Decimal('0.00'),
-                descuento=descuento_valor,
-                descuento_tipo=descuento_tipo,
-                descuento_valor=descuento_valor,
+                descuento=Decimal('0.00'),
+                descuento_tipo='ninguno',
+                descuento_valor=Decimal('0.00'),
                 total=Decimal('0.00'),
             )
 
@@ -2081,6 +2081,24 @@ def guardar_venta_tienda(request):
                 producto = Producto.objects.select_for_update().get(id=producto_id)
 
                 subtotal_item = precio_unitario * unidades_a_descontar
+                item_descuento_tipo = (item.get('descuento_tipo') or 'ninguno').strip().lower()
+                item_descuento_valor = Decimal(str(item.get('descuento_valor', 0) or 0))
+                if item_descuento_tipo not in ['ninguno', 'fijo', 'porcentaje']:
+                    raise ValueError(f'Tipo de descuento inválido para "{producto.nombre}".')
+                if item_descuento_valor < 0:
+                    raise ValueError(f'El descuento no puede ser negativo para "{producto.nombre}".')
+                if item_descuento_tipo == 'porcentaje':
+                    item_descuento_valor = min(item_descuento_valor, Decimal('100.00'))
+                    item_descuento = (subtotal_item * item_descuento_valor / Decimal('100')).quantize(Decimal('0.01'))
+                elif item_descuento_tipo == 'fijo':
+                    precio_final_unitario = min(item_descuento_valor, precio_unitario)
+                    item_descuento = min(
+                        (precio_unitario - precio_final_unitario) * Decimal(str(unidades_a_descontar)),
+                        subtotal_item,
+                    ).quantize(Decimal('0.01'))
+                else:
+                    item_descuento_valor = Decimal('0.00')
+                    item_descuento = Decimal('0.00')
                 cantidad_guardada = unidades_a_descontar
                 precio_guardado = precio_unitario
 
@@ -2097,6 +2115,9 @@ def guardar_venta_tienda(request):
                     modalidad=modalidad,
                     precio_unitario=precio_guardado,
                     subtotal=subtotal_item,
+                    descuento=item_descuento,
+                    descuento_tipo=item_descuento_tipo if item_descuento > 0 else 'ninguno',
+                    descuento_valor=item_descuento_valor if item_descuento > 0 else Decimal('0.00'),
                 )
 
                 # Si es venta tienda o deposito, descontar del Inventario según tipo_venta
@@ -2110,30 +2131,16 @@ def guardar_venta_tienda(request):
                 # También descontar del stock universal (ProductoContenedor)
                # descontar_stock_desde_contenedores(producto, unidades_a_descontar)
 
-                total_venta += subtotal_item
+                total_venta += subtotal_item - item_descuento
 
-            # Aplicar descuento
-            actual_descuento = Decimal('0.00')
-            descuento_tipo_guardado = 'ninguno'
-            descuento_valor_guardado = Decimal('0.00')
-            if tipo_pago == 'contado' and descuento_tipo in ['fijo', 'porcentaje'] and descuento_valor > 0:
-                descuento_valor_guardado = descuento_valor.quantize(Decimal('0.01'))
-                descuento_tipo_guardado = descuento_tipo
-                if descuento_tipo == 'porcentaje':
-                    porcentaje = min(descuento_valor_guardado, Decimal('100.00'))
-                    actual_descuento = (total_venta * porcentaje / Decimal('100')).quantize(Decimal('0.01'))
-                    descuento_valor_guardado = porcentaje
-                else:
-                    actual_descuento = min(descuento_valor_guardado, total_venta)
-                    descuento_valor_guardado = actual_descuento
-                actual_descuento = min(actual_descuento, total_venta)
-            
-            total_final = total_venta - actual_descuento
+            subtotal_bruto = sum((detalle.subtotal for detalle in venta.detalles.all()), Decimal('0.00'))
+            actual_descuento = subtotal_bruto - total_venta
+            total_final = total_venta
 
-            venta.subtotal = total_venta
+            venta.subtotal = subtotal_bruto
             venta.descuento = actual_descuento
-            venta.descuento_tipo = descuento_tipo_guardado if actual_descuento > 0 else 'ninguno'
-            venta.descuento_valor = descuento_valor_guardado if actual_descuento > 0 else Decimal('0.00')
+            venta.descuento_tipo = 'ninguno'
+            venta.descuento_valor = Decimal('0.00')
             venta.total = total_final
             venta.save()
 
