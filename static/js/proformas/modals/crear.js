@@ -24,17 +24,16 @@ function formatCurrency(value) {
 
 const proformaItems = [];
 
+function calcularDescuentoItem(item) {
+    const bruto = item.precio_unitario * item.cantidad;
+    if (item.descuento_tipo === 'porcentaje') return bruto * Math.min(item.descuento_valor || 0, 100) / 100;
+    if (item.descuento_tipo === 'fijo') return Math.max(item.precio_unitario - (item.descuento_valor || 0), 0) * item.cantidad;
+    return 0;
+}
+
 function actualizarResumenProforma() {
     const subtotal = proformaItems.reduce((sum, item) => sum + item.precio_unitario * item.cantidad, 0);
-    const descuentoTipo = document.getElementById('selectDescuentoTipo').value;
-    const descuentoValor = parseNumber(document.getElementById('inputDescuentoValor').value);
-
-    let descuento = 0;
-    if (descuentoTipo === 'fijo') {
-        descuento = descuentoValor;
-    } else if (descuentoTipo === 'porcentaje') {
-        descuento = (subtotal * descuentoValor) / 100;
-    }
+    const descuento = proformaItems.reduce((sum, item) => sum + calcularDescuentoItem(item), 0);
 
     const total = Math.max(subtotal - descuento, 0);
     document.getElementById('subtotalGeneral').textContent = formatCurrency(subtotal);
@@ -49,7 +48,7 @@ function renderizarItemsProforma() {
     if (proformaItems.length === 0) {
         body.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center text-muted py-4">
+                <td colspan="8" class="text-center text-muted py-4">
                     Busca y agrega productos para construir la proforma.
                 </td>
             </tr>`;
@@ -67,6 +66,16 @@ function renderizarItemsProforma() {
                 </td>
                 <td>${item.modalidad}</td>
                 <td>${formatCurrency(item.precio_unitario * item.cantidad)}</td>
+                <td>
+                    <select class="form-control form-control-sm descuento-tipo-item" data-index="${index}">
+                        <option value="ninguno" ${item.descuento_tipo === 'ninguno' ? 'selected' : ''}>Sin descuento</option>
+                        <option value="fijo" ${item.descuento_tipo === 'fijo' ? 'selected' : ''}>Precio final / unidad</option>
+                        <option value="porcentaje" ${item.descuento_tipo === 'porcentaje' ? 'selected' : ''}>Porcentaje</option>
+                    </select>
+                    <input type="number" min="0" step="0.01" class="form-control form-control-sm mt-1 descuento-valor-item" data-index="${index}" value="${item.descuento_valor || 0}" ${item.descuento_tipo === 'ninguno' ? 'disabled' : ''}>
+                </td>
+                <td>${formatCurrency(calcularDescuentoItem(item))}</td>
+                <td class="font-weight-bold text-success">${formatCurrency(item.precio_unitario * item.cantidad - calcularDescuentoItem(item))}</td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-item" data-index="${index}">
                         <i class="fas fa-trash-alt"></i>
@@ -83,6 +92,17 @@ function renderizarItemsProforma() {
             renderizarItemsProforma();
         });
     });
+
+    document.querySelectorAll('.descuento-tipo-item').forEach((input) => input.addEventListener('change', function () {
+        const item = proformaItems[parseInt(this.dataset.index, 10)];
+        item.descuento_tipo = this.value;
+        if (this.value === 'ninguno') item.descuento_valor = 0;
+        renderizarItemsProforma();
+    }));
+    document.querySelectorAll('.descuento-valor-item').forEach((input) => input.addEventListener('input', function () {
+        proformaItems[parseInt(this.dataset.index, 10)].descuento_valor = parseNumber(this.value);
+        actualizarResumenProforma();
+    }));
 
     document.querySelectorAll('.btn-eliminar-item').forEach((button) => {
         button.addEventListener('click', function () {
@@ -132,6 +152,8 @@ function mostrarProductosResultado(productos) {
                     precio_unitario: producto.precio_unidad || 0,
                     cantidad: 1,
                     modalidad: 'unidad',
+                    descuento_tipo: 'ninguno',
+                    descuento_valor: 0,
                 });
             }
             renderizarItemsProforma();
@@ -170,8 +192,6 @@ function enviarProforma(event) {
     const direccion = document.getElementById('inputDireccion').value.trim();
     const comentario = document.getElementById('inputComentario').value.trim();
     const tipoUbicacion = document.getElementById('selectTipoUbicacion')?.value || 'tienda';
-    const descuentoTipo = document.getElementById('selectDescuentoTipo').value;
-    const descuentoValor = document.getElementById('inputDescuentoValor').value;
 
     if (!cliente) {
         Swal.fire({ icon: 'warning', title: 'Cliente requerido', text: 'Ingresa el nombre del cliente.' });
@@ -191,13 +211,13 @@ function enviarProforma(event) {
         direccion,
         comentario,
         tipo_ubicacion: tipoUbicacion,
-        descuento_tipo: descuentoTipo,
-        descuento_valor: descuentoValor,
         items: proformaItems.map((item) => ({
             producto_id: item.producto_id,
             cantidad: item.cantidad,
             modalidad: item.modalidad,
             precio_unitario: item.precio_unitario,
+            descuento_tipo: item.descuento_tipo,
+            descuento_valor: item.descuento_valor,
         })),
     };
 
@@ -239,11 +259,6 @@ function inicializarModalProforma() {
             buscarProductosProforma(buscarInput.value.trim());
         });
     }
-
-    const descuentoTipo = document.getElementById('selectDescuentoTipo');
-    const descuentoValor = document.getElementById('inputDescuentoValor');
-    if (descuentoTipo) descuentoTipo.addEventListener('change', actualizarResumenProforma);
-    if (descuentoValor) descuentoValor.addEventListener('input', actualizarResumenProforma);
 
     const form = document.getElementById('formCrearProforma');
     if (form) form.addEventListener('submit', enviarProforma);

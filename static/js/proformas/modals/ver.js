@@ -10,7 +10,7 @@ function renderProformaDetalle(data) {
     if (!data.items || data.items.length === 0) {
         body.innerHTML = `
             <tr>
-                <td colspan="5" class="text-center text-muted py-4">Esta proforma no tiene productos.</td>
+                <td colspan="7" class="text-center text-muted py-4">Esta proforma no tiene productos.</td>
             </tr>`;
         return;
     }
@@ -23,6 +23,8 @@ function renderProformaDetalle(data) {
                 <td>${item.cantidad}</td>
                 <td>${formatCurrency(item.precio_unitario)}</td>
                 <td>${formatCurrency(item.subtotal)}</td>
+                <td class="text-danger">- ${formatCurrency(item.descuento)}</td>
+                <td class="font-weight-bold text-success">${formatCurrency(item.subtotal_neto)}</td>
             </tr>`);
     });
 }

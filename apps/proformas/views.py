@@ -48,6 +48,24 @@ def aplicar_descuento(total, descuento_tipo, descuento_valor):
     return total
 
 
+def calcular_descuento_item(subtotal, precio_unitario, cantidad, descuento_tipo, descuento_valor):
+    tipo = (descuento_tipo or 'ninguno').strip().lower()
+    valor = parse_decimal(descuento_valor)
+    if tipo not in ['ninguno', 'fijo', 'porcentaje'] or valor < 0:
+        raise ValueError('Descuento de producto inválido.')
+    if tipo == 'porcentaje':
+        valor = min(valor, Decimal('100.00'))
+        descuento = (subtotal * valor / Decimal('100')).quantize(Decimal('0.01'))
+    elif tipo == 'fijo':
+        precio_final = min(valor, precio_unitario)
+        descuento = min((precio_unitario - precio_final) * Decimal(str(cantidad)), subtotal)
+    else:
+        tipo = 'ninguno'
+        valor = Decimal('0.00')
+        descuento = Decimal('0.00')
+    return tipo, valor.quantize(Decimal('0.01')), descuento.quantize(Decimal('0.01'))
+
+
 def es_almacen(request):
     return hasattr(request.user, 'perfil') and request.user.perfil.rol == 'almacen'
 
@@ -180,6 +198,10 @@ def obtener_proforma(request, id):
             'modalidad': item.modalidad,
             'precio_unitario': float(item.precio_unitario),
             'subtotal': float(item.subtotal),
+            'descuento': float(item.descuento),
+            'subtotal_neto': float(item.subtotal_neto),
+            'descuento_tipo': item.descuento_tipo,
+            'descuento_valor': float(item.descuento_valor),
         })
 
     return JsonResponse({
@@ -282,6 +304,8 @@ def generar_pdf_proforma(request, id):
         Paragraph('<b>Cantidad</b>', normal_style),
         Paragraph('<b>Precio</b>', normal_style),
         Paragraph('<b>Subtotal</b>', normal_style),
+        Paragraph('<b>Descuento</b>', normal_style),
+        Paragraph('<b>Subtotal real</b>', normal_style),
     ]]
 
     for item in proforma.items.select_related('producto').all():
@@ -291,9 +315,11 @@ def generar_pdf_proforma(request, id):
             Paragraph(str(item.cantidad), right_style),
             Paragraph(f'{float(item.precio_unitario):,.2f}', right_style),
             Paragraph(f'{float(item.subtotal):,.2f}', right_style),
+            Paragraph(f'- {float(item.descuento):,.2f}', right_style),
+            Paragraph(f'{float(item.subtotal_neto):,.2f}', right_style),
         ])
 
-    items_table = Table(items_data, colWidths=[2.5 * inch, 1.2 * inch, 0.8 * inch, 1.1 * inch, 1.1 * inch])
+    items_table = Table(items_data, colWidths=[2.0 * inch, 1.0 * inch, 0.65 * inch, 0.85 * inch, 0.85 * inch, 0.95 * inch, 0.95 * inch])
     items_table.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 0.25, colors.grey),
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
@@ -307,7 +333,7 @@ def generar_pdf_proforma(request, id):
 
     totals_data = [
         [Paragraph('<b>Subtotal</b>', normal_style), Paragraph(f'{float(proforma.subtotal):,.2f}', right_style)],
-        [Paragraph('<b>Descuento</b>', normal_style), Paragraph(f'{float(proforma.descuento_valor):,.2f}', right_style)],
+        [Paragraph('<b>Descuento</b>', normal_style), Paragraph(f'{float(proforma.descuento):,.2f}', right_style)],
         [Paragraph('<b>Total</b>', normal_style), Paragraph(f'{float(proforma.total):,.2f}', right_style)],
     ]
     totals_table = Table(totals_data, colWidths=[4.0 * inch, 2.0 * inch])
@@ -372,8 +398,9 @@ def guardar_proforma(request):
                 comentario=comentario or None,
                 moneda=moneda,
                 tipo_cambio=tipo_cambio,
-                descuento_tipo=descuento_tipo,
-                descuento_valor=descuento_valor,
+                descuento_tipo='ninguno',
+                descuento_valor=Decimal('0.00'),
+                descuento=Decimal('0.00'),
                 subtotal=Decimal('0.00'),
                 total=Decimal('0.00'),
                 usuario=request.user,
@@ -402,6 +429,11 @@ def guardar_proforma(request):
                     precio_unitario = parse_decimal(producto.precio_unidad or '0')
 
                 subtotal_item = precio_unitario * cantidad
+                item_descuento_tipo = item.get('descuento_tipo', 'ninguno')
+                item_descuento_valor = parse_decimal(item.get('descuento_valor', '0'))
+                item_descuento_tipo, item_descuento_valor, item_descuento = calcular_descuento_item(
+                    subtotal_item, precio_unitario, cantidad, item_descuento_tipo, item_descuento_valor
+                )
                 ProformaItem.objects.create(
                     proforma=proforma,
                     producto=producto,
@@ -409,12 +441,16 @@ def guardar_proforma(request):
                     modalidad=modalidad,
                     precio_unitario=precio_unitario,
                     subtotal=subtotal_item,
+                    descuento=item_descuento,
+                    descuento_tipo=item_descuento_tipo,
+                    descuento_valor=item_descuento_valor,
                 )
                 subtotal_general += subtotal_item
+            descuento_general = sum((item.descuento for item in proforma.items.all()), Decimal('0.00'))
 
-            total = aplicar_descuento(subtotal_general, descuento_tipo, descuento_valor)
             proforma.subtotal = subtotal_general
-            proforma.total = total if total >= 0 else Decimal('0.00')
+            proforma.descuento = descuento_general
+            proforma.total = subtotal_general - descuento_general
             proforma.save()
 
         return JsonResponse({
@@ -474,8 +510,9 @@ def actualizar_proforma(request, id):
             proforma.comentario = comentario or None
             proforma.moneda = moneda
             proforma.tipo_cambio = tipo_cambio
-            proforma.descuento_tipo = descuento_tipo
-            proforma.descuento_valor = descuento_valor
+            proforma.descuento_tipo = 'ninguno'
+            proforma.descuento_valor = Decimal('0.00')
+            proforma.descuento = Decimal('0.00')
             proforma.usuario = request.user
             proforma.save()
 
@@ -495,6 +532,11 @@ def actualizar_proforma(request, id):
                     precio_unitario = parse_decimal(producto.precio_unidad or '0')
 
                 subtotal_item = precio_unitario * cantidad
+                item_descuento_tipo = item.get('descuento_tipo', 'ninguno')
+                item_descuento_valor = parse_decimal(item.get('descuento_valor', '0'))
+                item_descuento_tipo, item_descuento_valor, item_descuento = calcular_descuento_item(
+                    subtotal_item, precio_unitario, cantidad, item_descuento_tipo, item_descuento_valor
+                )
                 ProformaItem.objects.create(
                     proforma=proforma,
                     producto=producto,
@@ -502,12 +544,16 @@ def actualizar_proforma(request, id):
                     modalidad=modalidad,
                     precio_unitario=precio_unitario,
                     subtotal=subtotal_item,
+                    descuento=item_descuento,
+                    descuento_tipo=item_descuento_tipo,
+                    descuento_valor=item_descuento_valor,
                 )
                 subtotal_general += subtotal_item
 
-            total = aplicar_descuento(subtotal_general, descuento_tipo, descuento_valor)
+            descuento_general = sum((item.descuento for item in proforma.items.all()), Decimal('0.00'))
             proforma.subtotal = subtotal_general
-            proforma.total = total if total >= 0 else Decimal('0.00')
+            proforma.descuento = descuento_general
+            proforma.total = subtotal_general - descuento_general
             proforma.save()
 
         return JsonResponse({
