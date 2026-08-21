@@ -328,35 +328,6 @@
                             El descuento solo está disponible para ventas al contado.
                         </div>
 
-                        <div class="form-group mb-4">
-                            <label class="label-campo d-block mb-2">Tipo de Pago</label>
-                            <div class="tipo-pago-selector tipo-pago-selector--resumen">
-                                <div class="tipo-pago-option active" data-tipo="contado">
-                                    <div class="tipo-pago-icon">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
-                                    <div>
-                                        <strong>Al Contado</strong>
-                                        <small class="d-block text-muted">Pago completo ahora</small>
-                                    </div>
-                                    <i class="fas fa-check-circle check-icon"></i>
-                                </div>
-
-                                {% if es_tienda_principal %}
-                                <div class="tipo-pago-option" data-tipo="credito">
-                                    <div class="tipo-pago-icon tipo-pago-icon--credito">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                    <div>
-                                        <strong>A Crédito</strong>
-                                        <small class="d-block text-muted">Pago en cuotas</small>
-                                    </div>
-                                    <i class="fas fa-check-circle check-icon"></i>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
                         <div class="form-group mb-4" id="metodoPagoSection">
                             <label class="label-campo d-block mb-2">Método de Pago</label>
                             <div class="metodo-pago-selector" role="group" aria-label="Método de Pago">

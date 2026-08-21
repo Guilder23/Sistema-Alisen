@@ -1891,7 +1891,8 @@ def guardar_venta_tienda(request):
     razon_social = data.get('razon_social', '').strip()
     direccion = data.get('direccion', '').strip()
     comentario = data.get('comentario', '').strip()
-    tipo_pago = data.get('tipo_pago', 'contado')
+    # Las ventas de tienda se registran únicamente como contado.
+    tipo_pago = 'contado'
     metodo_pago = data.get('metodo_pago', 'efectivo')
     tipo_venta = data.get('tipo_venta', '').strip().lower()  # compatibilidad con payload antiguo
     moneda = data.get('moneda', 'BOB').upper()

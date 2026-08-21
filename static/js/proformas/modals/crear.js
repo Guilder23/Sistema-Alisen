@@ -146,7 +146,8 @@ function buscarProductosProforma(query) {
         return;
     }
 
-    fetch(`${PROFORMAS_URLS.buscarProductos}?q=${encodeURIComponent(query)}`)
+    const tipoUbicacion = document.getElementById('selectTipoUbicacion')?.value || 'tienda';
+    fetch(`${PROFORMAS_URLS.buscarProductos}?q=${encodeURIComponent(query)}&tipo_ubicacion=${encodeURIComponent(tipoUbicacion)}`)
         .then((response) => response.json())
         .then((data) => {
             if (data.productos) {
@@ -168,8 +169,7 @@ function enviarProforma(event) {
     const razonSocial = document.getElementById('inputRazonSocial').value.trim();
     const direccion = document.getElementById('inputDireccion').value.trim();
     const comentario = document.getElementById('inputComentario').value.trim();
-    const moneda = document.getElementById('inputMoneda').value;
-    const tipoCambio = document.getElementById('inputTipoCambio').value;
+    const tipoUbicacion = document.getElementById('selectTipoUbicacion')?.value || 'tienda';
     const descuentoTipo = document.getElementById('selectDescuentoTipo').value;
     const descuentoValor = document.getElementById('inputDescuentoValor').value;
 
@@ -190,8 +190,7 @@ function enviarProforma(event) {
         razon_social: razonSocial,
         direccion,
         comentario,
-        moneda,
-        tipo_cambio: tipoCambio,
+        tipo_ubicacion: tipoUbicacion,
         descuento_tipo: descuentoTipo,
         descuento_valor: descuentoValor,
         items: proformaItems.map((item) => ({
@@ -231,6 +230,13 @@ function inicializarModalProforma() {
     if (buscarInput) {
         buscarInput.addEventListener('input', function () {
             buscarProductosProforma(this.value.trim());
+        });
+    }
+
+    const tipoUbicacion = document.getElementById('selectTipoUbicacion');
+    if (tipoUbicacion) {
+        tipoUbicacion.addEventListener('change', function () {
+            buscarProductosProforma(buscarInput.value.trim());
         });
     }
 

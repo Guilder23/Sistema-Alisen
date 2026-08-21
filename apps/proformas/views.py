@@ -21,6 +21,7 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from .models import Proforma, ProformaItem
+from apps.inventario.models import Inventario
 from apps.productos.models import Producto
 
 
@@ -49,12 +50,32 @@ def es_almacen(request):
     return hasattr(request.user, 'perfil') and request.user.perfil.rol == 'almacen'
 
 
+def es_tienda(request):
+    return hasattr(request.user, 'perfil') and request.user.perfil.rol == 'tienda'
+
+
 def verificar_permiso_proformas(request):
     if not request.user.is_authenticated:
         return False
     if request.user.is_superuser or request.user.is_staff:
         return True
-    return es_almacen(request)
+    return es_almacen(request) or es_tienda(request)
+
+
+def obtener_stock_proforma(producto, perfil, tipo_ubicacion='tienda'):
+    if perfil is None:
+        return producto.stock
+    if perfil.rol == 'almacen':
+        return producto.stock
+    if perfil.rol != 'tienda' or not perfil.tienda_id:
+        return 0
+    if tipo_ubicacion not in ['tienda', 'deposito']:
+        tipo_ubicacion = 'tienda'
+    return sum(Inventario.objects.filter(
+        producto=producto,
+        ubicacion__tienda_id=perfil.tienda_id,
+        ubicacion__rol=tipo_ubicacion,
+    ).values_list('cantidad', flat=True))
 
 
 @login_required
@@ -71,7 +92,9 @@ def modal_proforma(request):
     if not verificar_permiso_proformas(request):
         messages.error(request, 'No tiene permiso para gestionar proformas.')
         return redirect('dashboard')
-    return render(request, 'proformas/modals/crear.html', {})
+    return render(request, 'proformas/modals/crear.html', {
+        'es_tienda': es_tienda(request),
+    })
 
 
 @login_required
@@ -110,6 +133,8 @@ def buscar_productos(request):
     if not verificar_permiso_proformas(request):
         return JsonResponse({'productos': []}, status=403)
     query = request.GET.get('q', '').strip()
+    perfil = getattr(request.user, 'perfil', None)
+    tipo_ubicacion = request.GET.get('tipo_ubicacion', 'tienda')
     productos = Producto.objects.filter(activo=True)
     if query:
         productos = productos.filter(
@@ -119,11 +144,14 @@ def buscar_productos(request):
 
     data = []
     for producto in productos:
+        stock = obtener_stock_proforma(producto, perfil, tipo_ubicacion) if perfil else 0
+        if stock <= 0:
+            continue
         data.append({
             'id': producto.id,
             'codigo': producto.codigo,
             'nombre': producto.nombre,
-            'stock': getattr(producto, 'stock', 0),
+            'stock': stock,
             'precio_unidad': float(producto.precio_unidad or 0),
             'precio_caja': float(producto.precio_caja or 0),
             'precio_mayor': float(producto.precio_mayor or 0),
@@ -303,6 +331,7 @@ def guardar_proforma(request):
     tipo_cambio = parse_decimal(data.get('tipo_cambio', '1'))
     descuento_tipo = data.get('descuento_tipo', 'ninguno')
     descuento_valor = parse_decimal(data.get('descuento_valor', '0'))
+    tipo_ubicacion = data.get('tipo_ubicacion', 'tienda')
     items = data.get('items', [])
 
     if not cliente:
@@ -344,6 +373,14 @@ def guardar_proforma(request):
                     raise ValueError('Cada producto debe tener una cantidad mayor a cero.')
 
                 producto = Producto.objects.get(pk=producto_id)
+                stock_disponible = obtener_stock_proforma(
+                    producto, getattr(request.user, 'perfil', None), tipo_ubicacion
+                )
+                if cantidad > stock_disponible:
+                    raise ValueError(
+                        f'Stock insuficiente para "{producto.nombre}". '
+                        f'Disponible: {stock_disponible}.'
+                    )
                 if precio_unitario <= 0:
                     precio_unitario = parse_decimal(producto.precio_unidad or '0')
 
