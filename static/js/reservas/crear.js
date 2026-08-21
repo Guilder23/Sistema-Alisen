@@ -28,17 +28,16 @@ function formatCurrency(value) {
 
 const reservaItems = [];
 
+function calcularDescuentoItem(item) {
+    const bruto = Number(item.precio_unitario) * Number(item.cantidad);
+    if (item.descuento_tipo === 'porcentaje') return bruto * Math.min(item.descuento_valor || 0, 100) / 100;
+    if (item.descuento_tipo === 'fijo') return Math.max(Number(item.precio_unitario) - (item.descuento_valor || 0), 0) * Number(item.cantidad);
+    return 0;
+}
+
 function actualizarResumenReserva() {
     const subtotal = roundMoney(reservaItems.reduce((sum, item) => sum + (Number(item.precio_unitario) * Number(item.cantidad)), 0));
-    const descuentoTipo = document.getElementById('selectDescuentoTipo').value;
-    const descuentoValor = parseNumber(document.getElementById('inputDescuentoValor').value);
-
-    let descuento = 0;
-    if (descuentoTipo === 'fijo') {
-        descuento = roundMoney(descuentoValor);
-    } else if (descuentoTipo === 'porcentaje') {
-        descuento = roundMoney((subtotal * descuentoValor) / 100);
-    }
+    const descuento = roundMoney(reservaItems.reduce((sum, item) => sum + calcularDescuentoItem(item), 0));
 
     const total = roundMoney(Math.max(subtotal - descuento, 0));
     document.getElementById('subtotalGeneral').textContent = formatCurrency(subtotal);
@@ -53,7 +52,7 @@ function renderizarItemsReserva() {
     if (reservaItems.length === 0) {
         body.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center text-muted py-4">Busca y agrega productos para construir la reserva.</td>
+                <td colspan="8" class="text-center text-muted py-4">Busca y agrega productos para construir la reserva.</td>
             </tr>`;
         actualizarResumenReserva();
         return;
@@ -69,6 +68,15 @@ function renderizarItemsReserva() {
                 </td>
                 <td>${item.modalidad}</td>
                 <td>${formatCurrency(item.precio_unitario * item.cantidad)}</td>
+                <td>
+                    <select class="form-control form-control-sm descuento-tipo-item" data-index="${index}">
+                        <option value="ninguno" ${item.descuento_tipo === 'ninguno' ? 'selected' : ''}>Sin descuento</option>
+                        <option value="fijo" ${item.descuento_tipo === 'fijo' ? 'selected' : ''}>Precio final / unidad</option>
+                        <option value="porcentaje" ${item.descuento_tipo === 'porcentaje' ? 'selected' : ''}>Porcentaje</option>
+                    </select>
+                    <input type="number" min="0" step="0.01" class="form-control form-control-sm mt-1 descuento-valor-item" data-index="${index}" value="${item.descuento_valor || 0}" ${item.descuento_tipo === 'ninguno' ? 'disabled' : ''}>
+                </td>
+                <td class="font-weight-bold text-success">${formatCurrency(item.precio_unitario * item.cantidad - calcularDescuentoItem(item))}</td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-item" data-index="${index}">
                         <i class="fas fa-trash-alt"></i>
@@ -93,6 +101,17 @@ function renderizarItemsReserva() {
             renderizarItemsReserva();
         });
     });
+
+    document.querySelectorAll('.descuento-tipo-item').forEach((input) => input.addEventListener('change', function () {
+        const item = reservaItems[parseInt(this.dataset.index, 10)];
+        item.descuento_tipo = this.value;
+        if (this.value === 'ninguno') item.descuento_valor = 0;
+        renderizarItemsReserva();
+    }));
+    document.querySelectorAll('.descuento-valor-item').forEach((input) => input.addEventListener('input', function () {
+        reservaItems[parseInt(this.dataset.index, 10)].descuento_valor = parseNumber(this.value);
+        actualizarResumenReserva();
+    }));
 
     actualizarResumenReserva();
 }
@@ -134,6 +153,8 @@ function mostrarProductosResultado(productos) {
                     precio_unitario: producto.precio_unidad || 0,
                     cantidad: 1,
                     modalidad: 'unidad',
+                    descuento_tipo: 'ninguno',
+                    descuento_valor: 0,
                 });
             }
             renderizarItemsReserva();
@@ -175,8 +196,6 @@ function guardarReserva(event) {
     const metodoPago = document.getElementById('inputMetodoPago').value;
     const moneda = 'BOB';
     const tipoCambio = '1';
-    const descuentoTipo = document.getElementById('selectDescuentoTipo').value;
-    const descuentoValor = document.getElementById('inputDescuentoValor').value;
 
     if (!cliente) {
         Swal.fire({ icon: 'warning', title: 'Cliente requerido', text: 'Ingresa el nombre del cliente.' });
@@ -199,14 +218,14 @@ function guardarReserva(event) {
         metodo_pago: metodoPago,
         moneda,
         tipo_cambio: tipoCambio,
-        descuento_tipo: descuentoTipo,
-        descuento_valor: descuentoValor,
         ubicacion_tipo: document.getElementById('selectUbicacionInventario')?.value || 'tienda',
         items: reservaItems.map((item) => ({
             producto_id: item.producto_id,
             cantidad: item.cantidad,
             modalidad: item.modalidad,
             precio_unitario: item.precio_unitario,
+            descuento_tipo: item.descuento_tipo,
+            descuento_valor: item.descuento_valor,
         })),
     };
 
@@ -242,11 +261,7 @@ function inicializarFormularioReserva() {
         });
     }
 
-    const descuentoTipo = document.getElementById('selectDescuentoTipo');
-    const descuentoValor = document.getElementById('inputDescuentoValor');
     const ubicacionInventario = document.getElementById('selectUbicacionInventario');
-    if (descuentoTipo) descuentoTipo.addEventListener('change', actualizarResumenReserva);
-    if (descuentoValor) descuentoValor.addEventListener('input', actualizarResumenReserva);
     if (ubicacionInventario) {
         ubicacionInventario.addEventListener('change', function () {
             const query = document.getElementById('inputBuscarProducto')?.value.trim() || '';

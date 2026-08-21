@@ -1,0 +1,9 @@
+.detalle-mayorista-page { background: #f5f7fb; }
+.detalle-mayorista-page .detail-page { background: transparent; }
+.mayorista-detail-badge { background: #0f766e !important; color: #fff !important; }
+.mayorista-detail-price { color: #0f766e !important; font-size: 1.15rem; }
+.detalle-mayorista-page .detail-note { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+.detalle-mayorista-page .detail-note strong { color: #047857; }
+.detalle-mayorista-page .detail-actions .btn-primary { background: #0f766e; border-color: #0f766e; }
+.detalle-mayorista-page .detail-actions .btn-primary:hover { background: #0b5f59; border-color: #0b5f59; }
+.detalle-mayorista-page .similar-card-body .precio { color: #0f766e; }

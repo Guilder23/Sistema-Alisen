@@ -296,6 +296,7 @@
                         <th style="width: 6%;" class="text-center">CAJAS</th>
                         <th style="width: 7%;" class="text-right">P. PROMEDIO</th>
                         <th style="width: 8%;" class="text-right">COSTO TOTAL</th>
+                        <th style="width: 7%;" class="text-right">DESCUENTO</th>
                         <th style="width: 8%;" class="text-right">VENTAS</th>
                         <th style="width: 8%;" class="text-right">UTILIDAD</th>
                         <th style="width: 5%;" class="text-center">MARGEN</th>
@@ -357,6 +358,9 @@
                             <span class="monto-costo">Bs. {{ item.costo_total|floatformat:2 }}</span>
                         </td>
                         <td class="text-right">
+                            <span class="text-danger">Bs. {{ item.descuento_total|floatformat:2 }}</span>
+                        </td>
+                        <td class="text-right">
                             <strong class="monto-ventas">Bs. {{ item.ventas_total|floatformat:2 }}</strong>
                         </td>
                         <td class="text-right">
@@ -403,7 +407,7 @@
                     {% endwith %}
                     {% empty %}
                     <tr>
-                        <td colspan="14" class="text-center py-4">
+                        <td colspan="15" class="text-center py-4">
                             <div class="tabla-vacia">
                                 <i class="fas fa-box-open fa-2x text-muted mb-2"></i>
                                 <p class="text-muted mb-0">No se encontraron productos con ventas</p>

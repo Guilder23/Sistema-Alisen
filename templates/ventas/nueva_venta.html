@@ -89,7 +89,7 @@
                         <textarea class="form-control" id="inputComentario" rows="2"
                                   placeholder="Agrega un comentario para esta venta..." autocomplete="off"></textarea>
                     </div>
-
+{% comment %} 
                     <div class="form-group mb-0">
                         <label class="label-campo">Tipo de Pago</label>
                         <div class="tipo-pago-selector">
@@ -115,7 +115,7 @@
                             </div>
                         </div>
                         <input type="hidden" id="inputTipoPago" value="contado">
-                    </div>
+                    </div> {% endcomment %}
 
                     <div class="form-group mt-3" id="metodoPagoSection">
                         <label class="label-campo">Método de Pago</label>
@@ -127,7 +127,7 @@
                         <input type="hidden" id="inputMetodoPago" value="efectivo">
                     </div>
 
-                    <!-- SELECTOR DE MONEDA -->
+                    {% comment %} <!-- SELECTOR DE MONEDA -->
                     <div class="form-group mt-3">
                         <label class="label-campo">Moneda de Venta</label>
                         <select id="selectMoneda" class="form-control">
@@ -142,7 +142,7 @@
                             <i class="fas fa-info-circle mr-2"></i>
                             <strong>Tipo de Cambio Actual:</strong> 1 USD = Bs. <span id="tipoCambioDisplay">{{ tipo_cambio_actual|floatformat:2 }}</span>
                         </div>
-                    </div>
+                    </div> {% endcomment %}
 
                     <!-- SELECTOR USUARIO VENDEDOR (Depósito/Tienda) - Solo visible para tiendas -->
                     {% if user.perfil.rol == 'tienda' %}
@@ -278,6 +278,8 @@
                                         <th class="text-center" style="width: 90px;">Precio</th>
                                         <th class="text-center" style="width: 130px;">Unidades</th>
                                         <th class="text-right" style="width: 100px;">Subtotal</th>
+                                        <th class="text-center" style="width: 150px;">Precio final / unidad</th>
+                                        <th class="text-right" style="width: 110px;">Subtotal real</th>
                                         <th class="text-center pr-3" style="width: 50px;"></th>
                                     </tr>
                                 </thead>
@@ -296,62 +298,14 @@
                             <span class="text-muted">Subtotal (<span id="resumenCantItems">0</span> items):</span>
                             <span class="font-weight-bold" id="resumenSubtotal">Bs. 0.00</span>
                         </div>
-
-                        <div class="form-group my-3 pb-3 border-bottom" id="descuentoSection">
-                            <label class="label-campo">
-                                <i class="fas fa-percentage text-success mr-1"></i>Descuento (opcional)
-                            </label>
-
-                            <div class="mb-3 descuento-toolbar">
-                                <label class="descuento-toolbar-label mb-2">Tipo de Descuento:</label>
-                                <div class="btn-group btn-group-sm descuento-toggle-group d-flex" role="group">
-                                    <input type="radio" class="btn-check" name="tipoDescuento" id="descuentoFijo" value="fijo" checked>
-                                    <label class="btn btn-outline-success flex-fill" for="descuentoFijo">
-                                        <i class="fas fa-coins mr-1"></i>Monto fijo
-                                    </label>
-
-                                    <input type="radio" class="btn-check" name="tipoDescuento" id="descuentoPorcentaje" value="porcentaje">
-                                    <label class="btn btn-outline-success flex-fill" for="descuentoPorcentaje">
-                                        <i class="fas fa-percent mr-1"></i>Porcentaje (%)
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="input-group input-group-sm">
-                                <input
-                                    type="number"
-                                    class="form-control"
-                                    id="inputDescuento"
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    min="0"
-                                    value="0"
-                                    max="100"
-                                >
-                                <div class="input-group-append">
-                                    <span class="input-group-text bg-success text-white" id="tipoDescuentoUnidad">Bs.</span>
-                                </div>
-                            </div>
-
-                            <small class="form-text text-muted d-block mt-2">
-                                Máximo: subtotal (en monto) o 100% (en porcentaje)
-                            </small>
-
-                            <div class="descuento-feedback mt-3">
-                                <div class="d-flex justify-content-between align-items-center small">
-                                    <span class="text-muted">Descuento aplicado:</span>
-                                    <strong id="descuentoResumen">Sin descuento</strong>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center small mt-2">
-                                    <span class="text-muted">Cálculo final:</span>
-                                    <strong id="descuentoCalculo">Bs. 0.00 - Bs. 0.00 = Bs. 0.00</strong>
-                                </div>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-danger">Descuento total:</span>
+                            <span class="font-weight-bold text-danger" id="resumenDescuento">Bs. 0.00</span>
                         </div>
 
-                        <div class="alert alert-light border descuento-bloqueado mb-3" id="descuentoBloqueado" style="display:none;">
-                            <i class="fas fa-lock mr-2 text-muted"></i>
-                            El descuento solo está disponible para ventas al contado.
+                        <div class="alert alert-light border mb-3">
+                            <i class="fas fa-info-circle mr-2 text-success"></i>
+                            En monto fijo, ingrese el precio final por unidad después del descuento.
                         </div>
 
                         <hr class="my-2">

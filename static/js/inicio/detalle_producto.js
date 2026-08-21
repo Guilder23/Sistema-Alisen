@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultStock = parseInt(quantityInput?.max || '0', 10);
     const cartCount = document.getElementById('cartCount');
     const selectedStoreRadios = document.querySelectorAll('.selected-store-radio');
+    const whatsappButton = document.getElementById('detailWhatsappButton');
 
     const getSelectedStore = () => {
         const selected = document.querySelector('.selected-store-radio:checked');
@@ -129,6 +130,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         addToCart(quantity);
+    });
+
+    whatsappButton?.addEventListener('click', () => {
+        const quantity = parseInt(quantityInput?.value || '1', 10);
+        const store = getSelectedStore();
+        const maxAllowed = store ? store.stock : defaultStock;
+        if (!Number.isInteger(quantity) || quantity < 1 || quantity > maxAllowed) {
+            mostrarToast(`La cantidad debe estar entre 1 y ${maxAllowed} unidades.`, 'error', 'Cantidad inválida');
+            return;
+        }
+        const total = (quantity * productPrice).toFixed(2);
+        const priceLabel = productOferta ? 'Precio unitario de oferta' : 'Precio unitario';
+        const locationLine = store?.name ? `\nUbicación: ${store.name}` : '';
+        const message = encodeURIComponent(`Hola, quiero pedir este producto.\n\nProducto: ${productName}\nCantidad: ${quantity}\n${priceLabel}: Bs ${productPrice.toFixed(2)}\nTotal: Bs ${total}${locationLine}`);
+        window.open(`https://wa.me/68504229?text=${message}`, '_blank');
     });
 
     updateCartCount(getCart());

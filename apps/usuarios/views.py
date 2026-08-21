@@ -216,7 +216,7 @@ def tienda_mayorista(request):
     return render(request, 'inicio/tienda_mayorista.html', context)
 
 
-def product_detail(request, id):
+def product_detail(request, id, mayorista=False):
     """Página pública: detalle de producto para la tienda virtual"""
     from apps.inventario.models import Inventario
     from apps.depositos.models import Deposito as DepositoModel
@@ -367,8 +367,15 @@ def product_detail(request, id):
         'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
+        'es_mayorista': mayorista,
     }
-    return render(request, 'inicio/detalle_producto.html', context)
+    template = 'inicio/detalle_producto_mayorista.html' if mayorista else 'inicio/detalle_producto.html'
+    return render(request, template, context)
+
+
+def product_detail_mayorista(request, id):
+    """Página pública de detalle para el canal mayorista."""
+    return product_detail(request, id, mayorista=True)
 
 
 def carrito(request):
@@ -393,8 +400,17 @@ def carrito(request):
 def carrito_mayorista(request):
     """Carrito público independiente para pedidos mayoristas."""
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    productos_mayoristas = Producto.objects.filter(
+        activo=True,
+        publicado=True,
+        precio_mayor__gt=0,
+    ).values('id', 'precio_mayor')
     context = {
         'categorias': categorias,
+        'precios_mayoristas': {
+            str(producto['id']): float(producto['precio_mayor'])
+            for producto in productos_mayoristas
+        },
         'buscar': request.GET.get('buscar', '').strip(),
         'categoria': request.GET.get('categoria', '').strip(),
         'tienda_nombre': 'Alicen Imports',

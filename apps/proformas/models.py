@@ -55,6 +55,9 @@ class ProformaItem(models.Model):
     modalidad = models.CharField(max_length=20, choices=MODALIDADES, default='unidad')
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)
+    descuento = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    descuento_tipo = models.CharField(max_length=20, choices=Proforma.TIPOS_DESCUENTO, default='ninguno')
+    descuento_valor = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     class Meta:
         verbose_name = 'Item de Proforma'
@@ -62,3 +65,7 @@ class ProformaItem(models.Model):
 
     def __str__(self):
         return f'{self.producto.nombre} x {self.cantidad}'
+
+    @property
+    def subtotal_neto(self):
+        return max(self.subtotal - self.descuento, 0)

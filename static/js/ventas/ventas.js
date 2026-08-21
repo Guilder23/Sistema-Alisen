@@ -215,6 +215,8 @@ function renderDetalleVenta(data) {
                         <th class="text-center">Cant.</th>
                         <th class="text-right">P. Unit.</th>
                         <th class="text-right">Subtotal</th>
+                        <th class="text-right">Descuento</th>
+                        <th class="text-right">Neto</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -231,6 +233,8 @@ function renderDetalleVenta(data) {
                     <td class="text-center">${item.cantidad}</td>
                     <td class="text-right">${etiqueta} ${parseFloat(item.precio_unitario).toFixed(2)}</td>
                     <td class="text-right font-weight-bold">${etiqueta} ${parseFloat(item.subtotal).toFixed(2)}</td>
+                    <td class="text-right text-danger">- ${etiqueta} ${parseFloat(item.descuento || 0).toFixed(2)}</td>
+                    <td class="text-right font-weight-bold">${etiqueta} ${parseFloat(item.subtotal_neto || item.subtotal).toFixed(2)}</td>
                 </tr>
             `;
         });
@@ -239,7 +243,7 @@ function renderDetalleVenta(data) {
     if (parseFloat(data.descuento || 0) > 0) {
         html += `
                     <tr>
-                        <td colspan="6" class="text-right"><strong>Descuento:</strong></td>
+                        <td colspan="8" class="text-right"><strong>Descuento total:</strong></td>
                         <td class="text-right text-danger"><strong>- ${etiqueta} ${parseFloat(data.descuento).toFixed(2)}</strong></td>
                     </tr>
         `;
@@ -247,7 +251,7 @@ function renderDetalleVenta(data) {
 
     html += `
                     <tr class="total-row">
-                        <td colspan="6" class="text-right"><strong>TOTAL:</strong></td>
+                        <td colspan="8" class="text-right"><strong>TOTAL REAL:</strong></td>
                         <td class="text-right"><strong>${etiqueta} ${parseFloat(data.total).toFixed(2)}</strong></td>
                     </tr>
                 </tbody>

@@ -137,6 +137,9 @@ def convertir_reserva_en_venta(reserva, usuario):
             modalidad=item.modalidad,
             precio_unitario=item.precio_unitario,
             subtotal=item.subtotal,
+            descuento=item.descuento,
+            descuento_tipo=item.descuento_tipo,
+            descuento_valor=item.descuento_valor,
         )
 
     return venta
@@ -150,6 +153,24 @@ def aplicar_descuento(total, descuento_tipo, descuento_valor):
     if descuento_tipo == 'fijo':
         return total - parse_decimal(descuento_valor)
     return total
+
+
+def calcular_descuento_item(subtotal, precio_unitario, cantidad, descuento_tipo, descuento_valor):
+    tipo = (descuento_tipo or 'ninguno').strip().lower()
+    valor = parse_decimal(descuento_valor)
+    if tipo not in ['ninguno', 'fijo', 'porcentaje'] or valor < 0:
+        raise ValueError('Descuento de producto inválido.')
+    if tipo == 'porcentaje':
+        valor = min(valor, Decimal('100.00'))
+        descuento = subtotal * valor / Decimal('100')
+    elif tipo == 'fijo':
+        precio_final = min(valor, precio_unitario)
+        descuento = (precio_unitario - precio_final) * Decimal(str(cantidad))
+    else:
+        tipo = 'ninguno'
+        valor = Decimal('0.00')
+        descuento = Decimal('0.00')
+    return tipo, valor.quantize(Decimal('0.01')), min(descuento, subtotal).quantize(Decimal('0.01'))
 
 
 @login_required
@@ -284,8 +305,9 @@ def guardar_reserva(request):
                 metodo_pago=metodo_pago,
                 moneda=moneda,
                 tipo_cambio=tipo_cambio,
-                descuento_tipo=descuento_tipo,
-                descuento_valor=descuento_valor,
+                descuento_tipo='ninguno',
+                descuento_valor=Decimal('0.00'),
+                descuento=Decimal('0.00'),
                 subtotal=Decimal('0.00'),
                 total=Decimal('0.00'),
                 registrado_por=request.user,
@@ -312,6 +334,13 @@ def guardar_reserva(request):
                 descontar_stock_reserva(producto, cantidad, perfil, tipo_ubicacion)
 
                 subtotal_item = precio_unitario * Decimal(str(cantidad))
+                item_descuento_tipo, item_descuento_valor, item_descuento = calcular_descuento_item(
+                    subtotal_item,
+                    precio_unitario,
+                    cantidad,
+                    item.get('descuento_tipo', 'ninguno'),
+                    item.get('descuento_valor', '0'),
+                )
                 ReservaItem.objects.create(
                     reserva=reserva,
                     producto=producto,
@@ -319,14 +348,16 @@ def guardar_reserva(request):
                     modalidad=modalidad,
                     precio_unitario=precio_unitario,
                     subtotal=subtotal_item,
+                    descuento=item_descuento,
+                    descuento_tipo=item_descuento_tipo,
+                    descuento_valor=item_descuento_valor,
                 )
                 subtotal_general += subtotal_item
 
-            total = aplicar_descuento(subtotal_general, descuento_tipo, descuento_valor)
-            total = max(total, Decimal('0.00'))
+            descuento_general = sum((item.descuento for item in reserva.items.all()), Decimal('0.00'))
             reserva.subtotal = subtotal_general
-            reserva.descuento = subtotal_general - total if total < subtotal_general else Decimal('0.00')
-            reserva.total = total
+            reserva.descuento = descuento_general
+            reserva.total = subtotal_general - descuento_general
             reserva.save()
 
         return JsonResponse({'success': True, 'redirect': reverse('reservas:listar_reservas'), 'reserva_id': reserva.id, 'codigo': reserva.codigo})

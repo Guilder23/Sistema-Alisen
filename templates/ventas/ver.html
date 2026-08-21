@@ -185,6 +185,8 @@
                                 <th class="text-center">Cantidad</th>
                                 <th class="text-right">P. Unitario</th>
                                 <th class="text-right">Subtotal</th>
+                                <th class="text-right">Descuento</th>
+                                <th class="text-right">Neto</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -199,6 +201,8 @@
                                 <td class="text-center">{{ detalle.cantidad }}</td>
                                 <td class="text-right">{% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ detalle.precio_unitario|floatformat:2 }}</td>
                                 <td class="text-right"><strong>{% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ detalle.subtotal|floatformat:2 }}</strong></td>
+                                <td class="text-right text-danger">-{% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ detalle.descuento|floatformat:2 }}</td>
+                                <td class="text-right"><strong>{% if venta.moneda == 'USD' %}${% else %}Bs.{% endif %} {{ detalle.subtotal_neto|floatformat:2 }}</strong></td>
                             </tr>
                             {% endfor %}
                         </tbody>

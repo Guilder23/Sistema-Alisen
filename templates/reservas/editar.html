@@ -100,6 +100,8 @@
                                     <th>Modalidad</th>
                                     <th>Precio unitario</th>
                                     <th>Subtotal</th>
+                                    <th>Descuento</th>
+                                    <th>Subtotal real</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -110,10 +112,12 @@
                                     <td>{{ item.get_modalidad_display }}</td>
                                     <td>{{ item.precio_unitario }}</td>
                                     <td>{{ item.subtotal }}</td>
+                                    <td>- {{ item.descuento }}</td>
+                                    <td>{{ item.subtotal_neto }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-muted text-center">No hay productos asociados.</td>
+                                    <td colspan="7" class="text-muted text-center">No hay productos asociados.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

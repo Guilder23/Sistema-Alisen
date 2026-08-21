@@ -96,6 +96,9 @@ class DetalleVenta(models.Model):
     modalidad = models.CharField(max_length=20, choices=MODALIDADES, default='unidad', blank=True)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    descuento_tipo = models.CharField(max_length=20, choices=Venta.TIPOS_DESCUENTO, default='ninguno')
+    descuento_valor = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
     class Meta:
         verbose_name = 'Detalle de Venta'
@@ -103,6 +106,10 @@ class DetalleVenta(models.Model):
     
     def __str__(self):
         return f"{self.producto.nombre} - {self.cantidad}"
+
+    @property
+    def subtotal_neto(self):
+        return max(self.subtotal - self.descuento, 0)
 
 
 class AmortizacionCredito(models.Model):
