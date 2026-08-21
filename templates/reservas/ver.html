@@ -38,7 +38,7 @@
                 <h5>Productos reservados</h5>
                 <table class="table table-sm">
                     <thead>
-                        <tr><th>Producto</th><th>Modalidad</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr>
+                        <tr><th>Producto</th><th>Modalidad</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th>Descuento</th><th>Subtotal real</th></tr>
                     </thead>
                     <tbody>
                         {% for item in items %}
@@ -48,9 +48,11 @@
                             <td>{{ item.cantidad }}</td>
                             <td>Bs. {{ item.precio_unitario }}</td>
                             <td>Bs. {{ item.subtotal }}</td>
+                            <td class="text-danger">- Bs. {{ item.descuento }}</td>
+                            <td class="font-weight-bold text-success">Bs. {{ item.subtotal_neto }}</td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" class="text-muted">Sin productos</td></tr>
+                        <tr><td colspan="7" class="text-muted">Sin productos</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
