@@ -2,21 +2,231 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito Mayorista | {{ tienda_nombre }}</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" href="{% static 'css/estilos.css' %}"><link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}"><link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}"><link rel="stylesheet" href="{% static 'css/inicio/carrito.css' %}"><link rel="stylesheet" href="{% static 'css/inicio/carrito_mayorista.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito Mayorista (B2B) | {{ tienda_nombre }}</title>
+    <meta name="description" content="Revisa tu pedido mayorista por volumen y envíalo directo por WhatsApp.">
+
+    <!-- Bootstrap CSS & Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/inicio/carrito.css' %}">
+    <link rel="stylesheet" href="{% static 'css/inicio/carrito_mayorista.css' %}">
+    <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
 <body class="carrito-mayorista-page">
     {% include 'componentes/navbarprincipal.html' %}
-    <main class="cart-page container py-4" style="padding-top:130px;">
-        <section class="cart-hero"><div class="cart-header-panel d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4"><div><span class="eyebrow mayorista-eyebrow">Canal B2B</span><h1 class="h4 mb-1">Carrito mayorista</h1><p class="small text-muted mb-0">Los productos y precios de este carrito son exclusivos del canal mayorista.</p></div><div class="cart-actions-top mt-3 mt-md-0"><a href="{% url 'tienda_mayorista' %}" class="btn btn-link">Seguir comprando</a><button id="clearCartBtn" class="btn btn-outline-danger">Vaciar carrito</button></div></div>
-            <div class="row cart-layout-row"><div class="col-lg-8 mb-4 mb-lg-0"><div id="cartContent" class="cart-content cart-items-col bg-white p-3 rounded shadow-sm"></div></div><div class="col-lg-4"><aside class="cart-summary-col sticky-top" style="top:1rem;"><div class="cart-summary-box bg-white rounded shadow-sm p-4"><h5 class="font-weight-bold mb-3"><i class="fas fa-boxes text-success mr-2"></i>Resumen mayorista</h5><div class="resumen-filas mb-3"><div class="d-flex justify-content-between mb-2"><span class="text-muted">Unidades</span><strong id="cartItemCount">0</strong></div><hr class="my-2"><div class="d-flex justify-content-between cart-total-final"><span>Total</span><span>Bs <span id="cartTotal">0.00</span></span></div></div><button id="showFormButton" class="btn btn-success btn-block btn-checkout-whatsapp" data-toggle="modal" data-target="#deliveryModal"><i class="fab fa-whatsapp mr-2"></i>Enviar pedido mayorista</button></div></aside></div></div>
-        </section>
+
+    <main class="cart-main-wrapper container py-3 py-md-4">
+        <!-- Encabezado del Carrito Mayorista -->
+        <div class="cart-header-panel d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4">
+            <div>
+                <span class="section-eyebrow text-success"><i class="fas fa-boxes mr-1"></i> Canal Mayorista B2B</span>
+                <h1 class="h4 font-weight-bold mb-1">Carrito de Compras Mayorista</h1>
+                <p class="text-muted small mb-0">Precios y cantidades correspondientes al catálogo mayorista para negocios.</p>
+            </div>
+            <div class="cart-header-actions mt-3 mt-md-0 d-flex gap-2">
+                <a href="{% url 'tienda_mayorista' %}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-plus mr-1"></i> Agregar más productos
+                </a>
+                <button id="clearCartBtn" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-trash-alt mr-1"></i> Vaciar carrito
+                </button>
+            </div>
+        </div>
+
+        <div class="row cart-layout-row">
+            <!-- Artículos Mayoristas -->
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <div id="cartContent" class="cart-items-container bg-white p-3 p-md-4 rounded-lg shadow-sm border mayorista-items-container">
+                    <!-- Dinámico por JS -->
+                </div>
+            </div>
+
+            <!-- Resumen Lateral Mayorista -->
+            <div class="col-lg-4">
+                <aside class="cart-summary-sidebar sticky-top" style="top: calc(var(--navbar-height) + 16px);">
+                    <div class="cart-summary-card bg-white rounded-lg shadow-sm border p-4 mayorista-summary-card">
+                        <h5 class="font-weight-bold mb-3 d-flex align-items-center text-success">
+                            <i class="fas fa-boxes mr-2"></i> Resumen Mayorista
+                        </h5>
+
+                        <div class="summary-rows mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Total unidades:</span>
+                                <strong id="cartItemCount" class="text-success">0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Despacho / Embalaje:</span>
+                                <span class="badge badge-outline-success">A coordinar</span>
+                            </div>
+                            <hr class="my-3">
+                            <div class="d-flex justify-content-between align-items-center cart-total-block">
+                                <span class="font-weight-bold">Total Mayorista:</span>
+                                <span class="cart-total-amount text-success font-weight-bold">Bs <span id="cartTotal">0.00</span></span>
+                            </div>
+                        </div>
+
+                        <button id="showFormButton" class="btn btn-success btn-block btn-checkout-main" data-toggle="modal" data-target="#deliveryModal">
+                            <i class="fab fa-whatsapp mr-2"></i> Enviar Pedido Mayorista
+                        </button>
+
+                        <div class="mt-4 pt-3 border-top small text-muted">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fas fa-check-double text-success"></i>
+                                <span>Precios de importación por lote</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-truck-loading text-success"></i>
+                                <span>Despacho consolidado a nivel nacional</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
     </main>
-    {% include 'componentes/footerprincipal.html' %}
-    <div class="modal fade" id="deliveryModal" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fas fa-truck mr-2"></i>Opción de entrega mayorista</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div><div class="modal-body"><p class="font-weight-bold">¿Cómo deseas recibir tu pedido?</p><div class="delivery-options"><button type="button" class="delivery-option" data-delivery="delivery"><i class="fas fa-truck"></i><span>Delivery</span></button><button type="button" class="delivery-option" data-delivery="pickup"><i class="fas fa-store"></i><span>Recoger en tienda</span></button><button type="button" class="delivery-option" data-delivery="department"><i class="fas fa-map-marked-alt"></i><span>Envío a departamento</span></button></div></div><div class="modal-footer"><button type="button" class="btn btn-success" id="continueDeliveryButton" disabled>Continuar</button></div></div></div></div>
-    <div class="modal fade" id="customerModal" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fas fa-user mr-2"></i>Datos del pedido mayorista</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div><div class="modal-body"><form id="checkoutForm"><div class="form-group"><label for="customerName">Nombre completo *</label><input type="text" class="form-control" id="customerName" required></div><div class="form-group" id="customerPhoneGroup" style="display:none;"><label for="customerPhone">Teléfono de referencia *</label><input type="tel" class="form-control" id="customerPhone"></div><div class="form-group" id="customerLocationGroup"><label for="customerLocation">Ubicación (link de Google Maps) *</label><input type="url" class="form-control" id="customerLocation" placeholder="https://maps.google.com/..." inputmode="url"></div><div class="form-group" id="departmentGroup" style="display:none;"><label for="customerDepartment">Departamento *</label><input type="text" class="form-control" id="customerDepartment"></div><div class="form-group" id="provinceGroup" style="display:none;"><label for="customerProvince">Provincia *</label><input type="text" class="form-control" id="customerProvince"></div><div class="form-group" id="deliveryNote" style="display:none;"><small class="text-info"><i class="fas fa-info-circle mr-1"></i>El costo de envío se confirmará por WhatsApp.</small></div></form></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button><button type="submit" form="checkoutForm" id="submitOrderButton" data-phone="68504229" class="btn btn-success"><i class="fab fa-whatsapp mr-2"></i>Enviar pedido por WhatsApp</button></div></div></div></div>
+
+    <!-- Modal Paso 1: Opciones de Entrega Mayorista -->
+    <div class="modal fade modal-modern" id="deliveryModal" tabindex="-1" role="dialog" aria-labelledby="deliveryModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold" id="deliveryModalTitle">
+                        <i class="fas fa-truck mr-2 text-success"></i>Entrega de Pedido Mayorista
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body py-4">
+                    <div class="delivery-options-grid">
+                        <div class="delivery-option-card" data-delivery="delivery">
+                            <div class="option-icon text-success"><i class="fas fa-truck-moving"></i></div>
+                            <div class="option-info">
+                                <strong class="option-title">Entrega a Local / Negocio</strong>
+                                <small class="text-muted">Despacho en dirección o tienda comercial.</small>
+                            </div>
+                            <i class="fas fa-check-circle check-indicator"></i>
+                        </div>
+
+                        <div class="delivery-option-card" data-delivery="pickup">
+                            <div class="option-icon text-info"><i class="fas fa-warehouse"></i></div>
+                            <div class="option-info">
+                                <strong class="option-title">Retiro en Depósito / Almacén</strong>
+                                <small class="text-muted">Retira directamente en nuestro depósito central.</small>
+                            </div>
+                            <i class="fas fa-check-circle check-indicator"></i>
+                        </div>
+
+                        <div class="delivery-option-card" data-delivery="department">
+                            <div class="option-icon text-primary"><i class="fas fa-map-marked-alt"></i></div>
+                            <div class="option-info">
+                                <strong class="option-title">Envío Interdepartamental</strong>
+                                <small class="text-muted">Despacho por transporte o flota a tu departamento.</small>
+                            </div>
+                            <i class="fas fa-check-circle check-indicator"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success font-weight-bold" id="continueDeliveryButton" disabled>
+                        Continuar <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Paso 2: Datos del Pedido Mayorista -->
+    <div class="modal fade modal-modern" id="customerModal" tabindex="-1" role="dialog" aria-labelledby="customerModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold" id="customerModalTitle">
+                        <i class="fas fa-user-tie mr-2 text-success"></i>Datos del Cliente Mayorista
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body py-3">
+                    <form id="checkoutForm">
+                        <div class="form-group mb-3">
+                            <label for="customerName" class="form-label font-weight-bold small">Nombre / Nombre del Negocio *</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-building text-muted"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="customerName" placeholder="Ej: Distribuidora Los Andes / Juan Pérez" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3" id="customerLocationGroup">
+                            <label for="customerLocation" class="form-label font-weight-bold small">Ubicación o Dirección en Google Maps *</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-map-pin text-muted"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="customerLocation" placeholder="Ej: https://maps.app.goo.gl/... o dirección exacta">
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3" id="customerPhoneGroup" style="display: none;">
+                            <label for="customerPhone" class="form-label font-weight-bold small">Teléfono / Celular de Contacto *</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-phone text-muted"></i></span>
+                                </div>
+                                <input type="tel" class="form-control" id="customerPhone" placeholder="Ej: 71234567">
+                            </div>
+                        </div>
+
+                        <div class="row gx-2" id="departmentRow">
+                            <div class="col-6">
+                                <div class="form-group mb-3" id="departmentGroup" style="display: none;">
+                                    <label for="customerDepartment" class="form-label font-weight-bold small">Departamento *</label>
+                                    <input type="text" class="form-control" id="customerDepartment" placeholder="Ej: Cochabamba...">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-3" id="provinceGroup" style="display: none;">
+                                    <label for="customerProvince" class="form-label font-weight-bold small">Ciudad / Municipio *</label>
+                                    <input type="text" class="form-control" id="customerProvince" placeholder="Ej: Sacaba, Quillacollo...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success py-2 px-3 small mb-0" id="deliveryNote">
+                            <i class="fas fa-info-circle mr-1"></i> Despacho mayorista coordinado vía WhatsApp con cotización de transporte.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="checkoutForm" id="submitOrderButton" data-phone="59168504229" class="btn btn-success font-weight-bold">
+                        <i class="fab fa-whatsapp mr-2"></i> Enviar Pedido Mayorista
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{ precios_mayoristas|json_script:"preciosMayoristas" }}
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script><script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script><script src="{% static 'js/componentes/navbarprincipal.js' %}"></script><script src="{% static 'js/inicio/carrito_mayorista.js' %}"></script>
+
+    {% include 'componentes/footerprincipal.html' %}
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/componentes/navbarprincipal.js' %}"></script>
+    <script src="{% static 'js/inicio/carrito_mayorista.js' %}"></script>
 </body>
 </html>

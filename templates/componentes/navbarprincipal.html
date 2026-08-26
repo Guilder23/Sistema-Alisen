@@ -1,71 +1,90 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-dark navbar-principal py-3 fixed-top">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
-      <img src="{% static 'img/logoAlmacen.png' %}" alt="Logo" class="mr-2" style="height:30px;">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-principal fixed-top">
+  <div class="container navbar-principal-container">
+    <!-- Brand Logo (Solo el Logo, sin texto de nombre) -->
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}" title="Inicio">
+      <img src="{% static 'img/logoAlmacen.png' %}" alt="Logo" class="brand-logo">
     </a>
 
+    <!-- Mobile Top Actions (Search + Menu Toggle) -->
     <div class="mobile-navbar-actions">
       <form class="mobile-navbar-search-form" action="{% url 'tienda' %}" method="get">
-        <input class="form-control" type="search" name="buscar" placeholder="Buscar..." value="{{ buscar }}">
+        <div class="input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+          </div>
+          <input class="form-control" type="search" name="buscar" placeholder="Buscar..." value="{{ buscar }}">
+        </div>
       </form>
-      <a class="nav-icon-btn js-cart-link" href="{% url 'carrito' %}" title="Carrito">
+      <a class="nav-icon-btn d-none d-sm-inline-flex js-cart-link" href="{% url 'carrito' %}" title="Carrito">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-badge" id="mobileCartCount">0</span>
       </a>
-      <button class="navbar-toggler mobile-menu-toggle" type="button" aria-label="Toggle navigation">
+      <button class="navbar-toggler mobile-menu-toggle" type="button" aria-label="Abrir menú">
         <i class="fas fa-bars"></i>
       </button>
     </div>
 
+    <!-- Desktop Navigation -->
     <div class="navbar-collapse desktop-nav">
-      <form class="form-inline my-2 my-lg-0 ml-3 position-relative" id="navbarSearchForm" action="{% url 'tienda' %}" method="get">
-        <div class="d-flex align-items-stretch">
-          <div class="input-group input-group-sm shadow-sm navbar-search-group">
+      <!-- Search Form with Categories Dropdown -->
+      <form class="form-inline ml-3 position-relative navbar-search-form" id="navbarSearchForm" action="{% url 'tienda' %}" method="get">
+        <div class="d-flex align-items-center navbar-search-wrapper">
+          <div class="input-group input-group-sm navbar-search-group">
             <div class="input-group-prepend">
-              <span class="input-group-text bg-transparent border-right-0"><i class="fas fa-search"></i></span>
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
             </div>
-            <input class="form-control border-left-0" id="navbarSearchInput" type="search" name="buscar" placeholder="Buscar productos, marcas, tallas" aria-label="Buscar" value="{{ buscar }}">
+            <input class="form-control" id="navbarSearchInput" type="search" name="buscar" placeholder="Buscar productos, marcas, categorías..." aria-label="Buscar" value="{{ buscar }}">
           </div>
-          <div class="dropdown navbar-category-icon ml-2">
-            <button class="btn btn-category-icon dropdown-toggle" type="button" id="dropdownCategorias" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Filtrar por categoría">
-              <i class="fas fa-th-large"></i>
+          
+          <div class="dropdown navbar-category-dropdown ml-2">
+            <button class="btn btn-category-dropdown dropdown-toggle" type="button" id="dropdownCategorias" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Filtrar por categoría">
+              <i class="fas fa-th-large mr-1"></i>
+              <span class="d-none d-xl-inline">Categorías</span>
             </button>
-            <div class="dropdown-menu dropdown-categorias" aria-labelledby="dropdownCategorias">
-              <a class="dropdown-item {% if not categoria %}active{% endif %}" href="?{% for key,value in request.GET.items %}{% if key != 'categoria' %}{{ key }}={{ value }}&{% endif %}{% endfor %}">
-                Todas las categorías
+            <div class="dropdown-menu dropdown-menu-right dropdown-categorias-menu shadow-lg" aria-labelledby="dropdownCategorias">
+              <a class="dropdown-item {% if not categoria %}active{% endif %}" href="{% url 'tienda' %}">
+                <i class="fas fa-layer-group mr-2 text-primary"></i> Todas las categorías
               </a>
               <div class="dropdown-divider"></div>
               {% for cat in categorias %}
               <a class="dropdown-item {% if categoria == cat.id|stringformat:'s' %}active{% endif %}" href="{% url 'tienda' %}?categoria={{ cat.id }}">
-                {{ cat.nombre }}
+                <i class="fas fa-chevron-right mr-2 text-muted small"></i> {{ cat.nombre }}
               </a>
               {% endfor %}
             </div>
           </div>
         </div>
       </form>
+
+      <!-- Desktop Nav Links -->
       <ul class="navbar-nav ml-auto align-items-center">
-        <li class="nav-item mr-2">
-          <a class="nav-link nav-link-btn" href="{% url 'tienda' %}">Tienda</a>
+        <li class="nav-item">
+          <a class="nav-link nav-link-btn" href="{% url 'tienda' %}">
+            <i class="fas fa-store mr-1 text-primary"></i> Tienda
+          </a>
         </li>
-        <li class="nav-item mr-2">
-          <a class="nav-link nav-link-btn" href="{% url 'tienda_mayorista' %}">Mayorista</a>
+        <li class="nav-item">
+          <a class="nav-link nav-link-btn nav-link-mayorista" href="{% url 'tienda_mayorista' %}">
+            <i class="fas fa-boxes mr-1 text-success"></i> Mayorista
+          </a>
         </li>
-        <li class="nav-item mr-2">
+        <li class="nav-item">
           <a class="nav-link nav-link-btn" href="{% url 'nosotros' %}">Nosotros</a>
         </li>
-        <li class="nav-item mr-3">
+        <li class="nav-item">
           <a class="nav-link nav-link-btn" href="{% url 'preguntas_frecuentes' %}">FAQ</a>
         </li>
-        <li class="nav-item mr-3">
-          <a class="nav-link nav-icon-btn js-cart-link" href="{% url 'carrito' %}" title="Carrito">
+        
+        <li class="nav-item ml-2">
+          <a class="nav-icon-btn js-cart-link" href="{% url 'carrito' %}" title="Ver Carrito">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-badge" id="cartCount">0</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link nav-icon-btn" href="{% url 'login' %}" title="Ingresar">
+        
+        <li class="nav-item ml-2">
+          <a class="nav-icon-btn nav-icon-user" href="{% url 'login' %}" title="Acceso al Sistema">
             <i class="fas fa-user-circle"></i>
           </a>
         </li>
@@ -74,58 +93,104 @@
   </div>
 </nav>
 
-<!-- Mobile Sidebar -->
+<!-- Mobile Sidebar / Offcanvas Menu -->
 <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
-<div class="mobile-sidebar" id="mobileSidebar">
+<aside class="mobile-sidebar" id="mobileSidebar">
   <div class="mobile-sidebar-header">
     <a class="navbar-brand d-flex align-items-center" href="{% url 'index' %}">
-      <img src="{% static 'img/logoAlmacen.png' %}" alt="Logo" class="mr-2" style="height:28px;">
+      <img src="{% static 'img/logoAlmacen.png' %}" alt="Logo" style="height:28px;">
     </a>
-    <button class="mobile-sidebar-close" id="mobileSidebarClose">
+    <button class="mobile-sidebar-close" id="mobileSidebarClose" aria-label="Cerrar menú">
       <i class="fas fa-times"></i>
     </button>
   </div>
+  
   <div class="mobile-sidebar-body">
-    <form class="mobile-search-form" action="{% url 'tienda' %}" method="get">
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text"><i class="fas fa-search"></i></span>
-        </div>
-        <input class="form-control" type="search" name="buscar" placeholder="Buscar productos..." value="{{ buscar }}">
-      </div>
-    </form>
-    <ul class="mobile-nav-links">
-      <li>
-        <a href="{% url 'tienda' %}" class="mobile-nav-link">
-          <i class="fas fa-store"></i> Tienda
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'tienda_mayorista' %}" class="mobile-nav-link">
-          <i class="fas fa-boxes"></i> Tienda mayorista
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'nosotros' %}" class="mobile-nav-link">
-          <i class="fas fa-info-circle"></i> Nosotros
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'preguntas_frecuentes' %}" class="mobile-nav-link">
-          <i class="fas fa-question-circle"></i> FAQ
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'carrito' %}" class="mobile-nav-link">
-          <i class="fas fa-shopping-cart"></i> Carrito
-          <span class="mobile-cart-badge" id="mobileCartCount">0</span>
-        </a>
-      </li>
-      <li>
-        <a href="{% url 'login' %}" class="mobile-nav-link">
-          <i class="fas fa-user-circle"></i> Ingresar
-        </a>
-      </li>
-    </ul>
+    <div class="mobile-sidebar-section mb-3">
+      <span class="mobile-section-title">Navegación</span>
+      <ul class="mobile-nav-links">
+        <li>
+          <a href="{% url 'index' %}" class="mobile-nav-link">
+            <i class="fas fa-home"></i> <span>Inicio</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'tienda' %}" class="mobile-nav-link">
+            <i class="fas fa-store"></i> <span>Tienda Minorista</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'tienda_mayorista' %}" class="mobile-nav-link highlight-mayorista">
+            <i class="fas fa-boxes"></i> <span>Tienda Mayorista (B2B)</span>
+            <span class="badge badge-success ml-auto">Mayor</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'carrito' %}" class="mobile-nav-link js-cart-link">
+            <i class="fas fa-shopping-cart"></i> <span>Mi Carrito</span>
+            <span class="mobile-cart-badge ml-auto" id="sidebarCartCount">0</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mobile-sidebar-section mb-3">
+      <span class="mobile-section-title">Información & Ayuda</span>
+      <ul class="mobile-nav-links">
+        <li>
+          <a href="{% url 'nosotros' %}" class="mobile-nav-link">
+            <i class="fas fa-info-circle"></i> <span>Nosotros</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'preguntas_frecuentes' %}" class="mobile-nav-link">
+            <i class="fas fa-question-circle"></i> <span>Preguntas Frecuentes (FAQ)</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20hacer%20una%20consulta" target="_blank" class="mobile-nav-link highlight-whatsapp">
+            <i class="fab fa-whatsapp"></i> <span>Soporte por WhatsApp</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mobile-sidebar-section mt-auto pt-3 border-top">
+      <a href="{% url 'login' %}" class="btn btn-outline-light btn-block btn-sm">
+        <i class="fas fa-user-lock mr-2"></i> Iniciar Sesión (Sistema)
+      </a>
+    </div>
   </div>
-</div>
+</aside>
+
+<!-- BARRA DE NAVEGACIÓN INFERIOR MÓVIL (4 BOTONES MÁS USADOS) -->
+<nav class="mobile-bottom-nav d-lg-none" aria-label="Navegación principal móvil">
+  <a href="{% url 'index' %}" class="bottom-nav-item" id="bottomNavInicio" title="Inicio">
+    <div class="bottom-nav-icon-wrap">
+      <i class="fas fa-home"></i>
+    </div>
+    <span class="bottom-nav-label">Inicio</span>
+  </a>
+
+  <a href="{% url 'tienda' %}" class="bottom-nav-item" id="bottomNavTienda" title="Tienda">
+    <div class="bottom-nav-icon-wrap">
+      <i class="fas fa-store"></i>
+    </div>
+    <span class="bottom-nav-label">Tienda</span>
+  </a>
+
+  <a href="{% url 'tienda_mayorista' %}" class="bottom-nav-item bottom-nav-mayorista" id="bottomNavMayorista" title="Mayorista">
+    <div class="bottom-nav-icon-wrap">
+      <i class="fas fa-boxes"></i>
+    </div>
+    <span class="bottom-nav-label">Mayorista</span>
+  </a>
+
+  <a href="{% url 'carrito' %}" class="bottom-nav-item js-cart-link" id="bottomNavCarrito" title="Carrito">
+    <div class="bottom-nav-icon-wrap">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="bottom-cart-badge" id="bottomCartCount">0</span>
+    </div>
+    <span class="bottom-nav-label">Carrito</span>
+  </a>
+</nav>

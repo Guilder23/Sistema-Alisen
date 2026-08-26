@@ -4,60 +4,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda Mayorista | {{ tienda_nombre }}</title>
-    <meta name="description" content="{{ tienda_descripcion }}">
+    <title>Tienda Mayorista (B2B) | {{ tienda_nombre }}</title>
+    <meta name="description" content="{{ tienda_descripcion|default:'Precios por mayor exclusivos para negocios y distribuidores en toda Bolivia.' }}">
+
+    <!-- Bootstrap CSS & Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/inicio/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/inicio/tienda.css' %}">
     <link rel="stylesheet" href="{% static 'css/inicio/tienda_mayorista.css' %}">
+    <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
 <body class="tienda-mayorista-page">
     {% include 'componentes/navbarprincipal.html' %}
-    <div class="tienda-overlay"></div>
+
+    <div class="tienda-overlay" id="tiendaMayoristaOverlay"></div>
+
     <main class="tienda-main">
-        <section class="container py-4">
-            <div class="tienda-filtros-superiores mb-4" aria-label="Filtros rápidos del catálogo mayorista">
-                <div class="tienda-filtros-superiores-label"><i class="fas fa-layer-group mr-2"></i>Subcategorías</div>
-                <div class="tienda-filtros-superiores-scroll">
-                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="tienda-filtro-chip {% if not subcategoria %}active{% endif %}">Todas</a>
-                    {% for sub in subcategorias %}<a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}subcategoria={{ sub.id }}" class="tienda-filtro-chip {% if subcategoria == sub.id|stringformat:'s' %}active{% endif %}">{{ sub.nombre }}</a>{% endfor %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 mb-4 mb-lg-0">
-                    <div class="card tienda-filtros sticky-top" id="tiendaMayoristaFilters" style="top:1rem;">
-                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-sliders-h mr-2"></i>Filtros mayoristas</h5>
-                        </div>
-                        <div class="card-body">
-                            <form method="get" id="formFiltrosMayorista">
-                                <div class="filtro-seccion mb-4"><h6 class="font-weight-bold mb-2"><i class="fas fa-search mr-1 text-muted"></i>Buscar</h6><input type="search" class="form-control form-control-sm" name="buscar" value="{{ buscar }}" placeholder="Producto o categoría"></div>
-                                <div class="filtro-seccion mb-4"><h6 class="font-weight-bold mb-2"><i class="fas fa-list mr-1 text-muted"></i>Categorías</h6><select class="form-control form-control-sm" name="categoria" id="filtroCategoriaMayorista"><option value="">Todas las categorías</option>{% for cat in categorias %}<option value="{{ cat.id }}" {% if categoria == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.nombre }}</option>{% endfor %}</select></div>
-                                <div class="filtro-seccion mb-4"><h6 class="font-weight-bold mb-2"><i class="fas fa-layer-group mr-1 text-muted"></i>Subcategorías</h6><select class="form-control form-control-sm" name="subcategoria" id="filtroSubcategoriaMayorista"><option value="">Todas las subcategorías</option>{% for sub in subcategorias %}<option value="{{ sub.id }}" data-categoria="{{ sub.categoria_id }}" {% if subcategoria == sub.id|stringformat:'s' %}selected{% endif %}>{{ sub.nombre }}</option>{% endfor %}</select></div>
-                                <div class="filtro-seccion mb-4"><h6 class="font-weight-bold mb-2"><i class="fas fa-venus-mars mr-1 text-muted"></i>Género</h6><select class="form-control form-control-sm" name="genero" onchange="this.form.submit()">{% for key,label in genero_choices %}<option value="{{ key }}" {% if genero == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
-                                <div class="filtro-seccion mb-4"><h6 class="font-weight-bold mb-2"><i class="fas fa-dollar-sign mr-1 text-muted"></i>Rango de precio mayorista</h6><div class="row no-gutters align-items-center"><div class="col-5"><input type="number" class="form-control form-control-sm" name="precio_min" value="{{ precio_min }}" min="0" step="0.01" placeholder="Mín"></div><div class="col-2 text-center text-muted">—</div><div class="col-5"><input type="number" class="form-control form-control-sm" name="precio_max" value="{{ precio_max }}" min="0" step="0.01" placeholder="Máx"></div></div></div>
-                                <div class="filtro-seccion mb-4"><h6 class="font-weight-bold mb-2"><i class="fas fa-sort mr-1 text-muted"></i>Ordenar</h6><select class="form-control form-control-sm" name="orden" onchange="this.form.submit()"><option value="">Más recientes</option><option value="nombre" {% if orden == 'nombre' %}selected{% endif %}>Nombre A-Z</option><option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio menor a mayor</option><option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio mayor a menor</option></select></div>
-                                <button type="submit" class="btn btn-primary btn-block btn-sm"><i class="fas fa-filter mr-1"></i>Aplicar filtros</button>
-                                <a href="{% url 'tienda_mayorista' %}" class="btn btn-outline-secondary btn-block btn-sm mt-2">Limpiar filtros</a>
-                            </form>
-                        </div>
+        <section class="container py-3 py-md-4">
+            <!-- Banner / Header B2B Mayorista -->
+            <div class="mayorista-hero-header mb-3 p-3 p-md-4 rounded-lg">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                    <div>
+                        <span class="badge badge-success mb-1"><i class="fas fa-boxes mr-1"></i> Canal Mayorista B2B</span>
+                        <h1 class="h4 font-weight-bold text-white mb-1">Catálogo Mayorista</h1>
+                        <p class="text-white-50 small mb-0">Precios especiales por volumen para tiendas, distribuidores y negocios en Bolivia.</p>
+                    </div>
+                    <div>
+                        <a href="{% url 'tienda' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-store mr-1"></i> Ir a Tienda Minorista
+                        </a>
                     </div>
                 </div>
-                <div class="col-lg-9">
-                    <div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 mb-1">Catalogo mayorista</h2><p class="text-muted mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} disponible{{ productos|length|pluralize }}</p></div></div>
-                    <div class="row no-gutters tienda-product-grid">
+            </div>
+
+            <!-- Topbar móvil de filtros (SOLO EN MÓVIL/TABLET, OCULTA EN PC) -->
+            <div class="tienda-mobile-topbar d-lg-none d-flex justify-content-between align-items-center mb-3">
+                <button type="button" class="btn btn-outline-success btn-sm tienda-filtro-toggle" id="btnOpenMayoristaFilters">
+                    <i class="fas fa-sliders-h mr-1"></i> Filtros Mayoristas
+                </button>
+                <div class="tienda-count-badge">
+                    <span class="text-muted small"><strong>{{ productos|length }}</strong> producto{{ productos|length|pluralize }}</span>
+                </div>
+            </div>
+
+            <!-- Chips de Subcategorías -->
+            {% if subcategorias %}
+            <div class="tienda-filtros-superiores mb-3" aria-label="Filtros rápidos del catálogo mayorista">
+                <div class="tienda-filtros-superiores-label text-success">
+                    <i class="fas fa-layer-group mr-1"></i> Subcategorías:
+                </div>
+                <div class="tienda-filtros-superiores-scroll">
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="tienda-filtro-chip {% if not subcategoria %}active{% endif %}">
+                        Todas
+                    </a>
+                    {% for sub in subcategorias %}
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}subcategoria={{ sub.id }}" class="tienda-filtro-chip {% if subcategoria == sub.id|stringformat:'s' %}active{% endif %}">
+                        {{ sub.nombre }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="row">
+                <!-- Sidebar de Filtros Mayoristas -->
+                <div class="col-lg-3 col-xl-2 mb-4 mb-lg-0">
+                    <aside class="card tienda-filtros sticky-top" id="tiendaMayoristaFilters">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 font-weight-bold" style="font-size: 0.95rem;">
+                                <i class="fas fa-sliders-h mr-2 text-success"></i>Filtros Mayoristas
+                            </h5>
+                            <button type="button" class="btn btn-sm btn-outline-secondary tienda-filtros-close d-lg-none" id="btnCloseMayoristaFilters" aria-label="Cerrar filtros">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="card-body p-3">
+                            <form method="GET" id="formFiltrosMayorista">
+                                <!-- Búsqueda -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
+                                        <i class="fas fa-search mr-1 text-muted"></i>Buscar
+                                    </h6>
+                                    <input type="search" class="form-control form-control-sm modern-input" name="buscar" value="{{ buscar }}" placeholder="Producto o modelo...">
+                                </div>
+
+                                <!-- Categorías -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
+                                        <i class="fas fa-th-large mr-1 text-muted"></i>Categoría
+                                    </h6>
+                                    <select class="form-control form-control-sm modern-select" name="categoria" id="filtroCategoriaMayorista" onchange="this.form.submit()">
+                                        <option value="">Todas las categorías</option>
+                                        {% for cat in categorias %}
+                                        <option value="{{ cat.id }}" {% if categoria == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Subcategorías -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
+                                        <i class="fas fa-layer-group mr-1 text-muted"></i>Subcategoría
+                                    </h6>
+                                    <select class="form-control form-control-sm modern-select" name="subcategoria" id="filtroSubcategoriaMayorista" onchange="this.form.submit()">
+                                        <option value="">Todas las subcategorías</option>
+                                        {% for sub in subcategorias %}
+                                        <option value="{{ sub.id }}" data-categoria="{{ sub.categoria_id }}" {% if subcategoria == sub.id|stringformat:'s' %}selected{% endif %}>{{ sub.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Género -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
+                                        <i class="fas fa-venus-mars mr-1 text-muted"></i>Género
+                                    </h6>
+                                    <select class="form-control form-control-sm modern-select" name="genero" onchange="this.form.submit()">
+                                        {% for key, label in genero_choices %}
+                                        <option value="{{ key }}" {% if genero == key %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Precio Mayorista -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
+                                        <i class="fas fa-dollar-sign mr-1 text-muted"></i>Precio Mayorista
+                                    </h6>
+                                    <div class="row gx-1 align-items-center">
+                                        <div class="col-5">
+                                            <input type="number" class="form-control form-control-sm modern-input" name="precio_min" value="{{ precio_min }}" min="0" step="0.01" placeholder="Mín">
+                                        </div>
+                                        <div class="col-2 text-center text-muted small">—</div>
+                                        <div class="col-5">
+                                            <input type="number" class="form-control form-control-sm modern-input" name="precio_max" value="{{ precio_max }}" min="0" step="0.01" placeholder="Máx">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Orden -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
+                                        <i class="fas fa-sort mr-1 text-muted"></i>Ordenar
+                                    </h6>
+                                    <select class="form-control form-control-sm modern-select" name="orden" onchange="this.form.submit()">
+                                        <option value="">Más recientes</option>
+                                        <option value="nombre" {% if orden == 'nombre' %}selected{% endif %}>Nombre (A-Z)</option>
+                                        <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                                        <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn btn-success btn-block btn-sm">
+                                    <i class="fas fa-filter mr-1"></i>Aplicar filtros
+                                </button>
+                                <a href="{% url 'tienda_mayorista' %}" class="btn btn-outline-secondary btn-block btn-sm mt-2">
+                                    <i class="fas fa-eraser mr-1"></i>Limpiar filtros
+                                </a>
+                            </form>
+                        </div>
+                    </aside>
+                </div>
+
+                <!-- Grid de Productos Mayoristas (4 a 5 columnas en PC) -->
+                <div class="col-lg-9 col-xl-10">
+                    <div class="d-none d-lg-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="h5 mb-0 font-weight-bold">Artículos Mayoristas</h2>
+                            <p class="text-muted small mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} disponible{{ productos|length|pluralize }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 products-grid">
                         {% for producto in productos %}
-                        <div class="col-6 col-md-4 col-lg-3 mb-3"><article class="product-card mayorista-product-card h-100"><a href="{% url 'product_detail_mayorista' producto.id %}" class="product-card-image d-block overflow-hidden"><div class="product-card-visual"><span class="mayorista-badge"><i class="fas fa-boxes mr-1"></i>Mayorista</span>{% if producto.imagen_principal_url %}<img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="img-fluid">{% else %}<img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" class="img-fluid">{% endif %}</div></a><div class="product-card-body p-3 d-flex flex-column justify-content-between"><div><div class="mb-2">{% if producto.categoria %}<span class="badge badge-light mr-1">{{ producto.categoria.nombre }}</span>{% endif %}{% if producto.subcategoria %}<span class="badge badge-outline-primary">{{ producto.subcategoria.nombre }}</span>{% endif %}</div><h3 class="product-title mb-2">{{ producto.nombre }}</h3><div class="mayorista-price mb-1">Bs {{ producto.precio_mayor|floatformat:2 }}</div><small class="text-muted">Precio mayorista por unidad</small><div class="mayorista-minimum"><i class="fas fa-layer-group mr-1"></i>Minimo: {{ producto.unidades_por_mayor }} unidades</div></div><div class="product-actions mt-3"><a class="btn btn-sm btn-primary btn-add-mayorista" href="{% url 'product_detail_mayorista' producto.id %}"><i class="fas fa-eye mr-1"></i>Ver detalle</a></div></div></article></div>
-                        {% empty %}<div class="col-12 text-center py-5"><i class="fas fa-box-open fa-3x text-muted mb-3"></i><p class="text-muted">No hay productos mayoristas con estos filtros.</p><a href="{% url 'tienda_mayorista' %}" class="btn btn-outline-primary btn-sm">Limpiar filtros</a></div>{% endfor %}
+                        <div class="col mb-3">
+                            <article class="product-card mayorista-product-card h-100">
+                                <a href="{% url 'product_detail_mayorista' producto.id %}" class="product-card-visual d-block" title="{{ producto.nombre }}">
+                                    <span class="badge-mayorista-pill">
+                                        <i class="fas fa-boxes"></i> Mayorista
+                                    </span>
+                                    
+                                    <div class="product-image-container">
+                                        {% if producto.imagen_principal_url %}
+                                            <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" loading="lazy">
+                                        {% else %}
+                                            <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" loading="lazy">
+                                        {% endif %}
+                                    </div>
+                                </a>
+
+                                <div class="product-card-body">
+                                    <div class="product-card-top-meta mb-1">
+                                        {% if producto.categoria %}
+                                        <span class="badge-tag badge-category">{{ producto.categoria.nombre }}</span>
+                                        {% endif %}
+                                        {% if producto.subcategoria %}
+                                        <span class="badge-tag badge-outline-success">{{ producto.subcategoria.nombre }}</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <h3 class="product-title">
+                                        <a href="{% url 'product_detail_mayorista' producto.id %}">{{ producto.nombre }}</a>
+                                    </h3>
+
+                                    <div class="product-pricing">
+                                        <div class="price-current text-success">
+                                            Bs {{ producto.precio_mayor|floatformat:2 }}
+                                            <small class="text-muted font-weight-normal" style="font-size: 0.72rem;">/unidad</small>
+                                        </div>
+                                        <div class="mayorista-minimum-chip mt-1">
+                                            <i class="fas fa-layer-group mr-1"></i> Mínimo: <strong>{{ producto.unidades_por_mayor }}</strong> unid.
+                                        </div>
+                                    </div>
+
+                                    <div class="product-actions mt-auto pt-2">
+                                        <a class="btn btn-success btn-block btn-sm btn-view-mayorista" href="{% url 'product_detail_mayorista' producto.id %}">
+                                            <i class="fas fa-eye mr-1"></i> Ver detalle
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center py-5">
+                            <div class="py-4">
+                                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                <h4 class="h6 font-weight-bold">No hay productos mayoristas disponibles</h4>
+                                <p class="text-muted small mb-3">Intenta cambiar los filtros seleccionados.</p>
+                                <a href="{% url 'tienda_mayorista' %}" class="btn btn-success btn-sm">Limpiar filtros</a>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </section>
     </main>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20hacer%20un%20pedido%20mayorista" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="Escríbenos por WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
     {% include 'componentes/footerprincipal.html' %}
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script><script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script><script src="{% static 'js/componentes/navbarprincipal.js' %}"></script><script src="{% static 'js/inicio/tienda_mayorista.js' %}"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/componentes/navbarprincipal.js' %}"></script>
+    <script src="{% static 'js/inicio/tienda_mayorista.js' %}"></script>
 </body>
 </html>

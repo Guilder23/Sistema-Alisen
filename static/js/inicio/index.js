@@ -1,10 +1,10 @@
 /* ============================================================================
-   INDEX.JS - Inicio con máximo 4 productos y carrito
+   INDEX.JS - Control de carrito y acciones de inicio
    ============================================================================ */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const cartCount = document.getElementById('cartCount');
     const addButtons = Array.from(document.querySelectorAll('.btn-add'));
+    const whatsappButtons = Array.from(document.querySelectorAll('.btn-whatsapp-buy'));
 
     const getCart = () => {
         try {
@@ -16,21 +16,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const saveCart = (cart) => {
         localStorage.setItem('alicen_cart', JSON.stringify(cart));
-        updateCartCount(cart);
-    };
-
-    const updateCartCount = (cart) => {
-        const count = Object.values(cart).reduce((sum, item) => sum + (item.cantidad || 0), 0);
-        if (cartCount) {
-            cartCount.textContent = count;
-        }
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
     const mostrarToast = (mensaje, tipo = 'success', titulo = '') => {
         const toast = document.createElement('div');
         toast.className = `toast-notification toast-${tipo}`;
         const iconClass = tipo === 'success' ? 'fa-check' : 'fa-exclamation-triangle';
-        const titleText = titulo || (tipo === 'success' ? 'Correcto' : 'Atención');
+        const titleText = titulo || (tipo === 'success' ? '¡Agregado!' : 'Atención');
         toast.innerHTML = `
             <div class="toast-icon"><i class="fas ${iconClass}"></i></div>
             <div class="toast-text">
@@ -51,17 +44,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const precio = parseFloat(button.dataset.productPrice || '0');
         const enOferta = (button.dataset.productOferta === 'true');
         const foto = button.dataset.productImage;
-        const stock = parseInt(button.dataset.productStock || '0', 10);
+        const stock = parseInt(button.dataset.productStock || '999', 10);
 
-        if (!productId || !nombre || !precio || stock <= 0) {
-            mostrarToast('No se puede agregar este producto al carrito.', 'error', 'Sin stock disponible');
+        if (!productId || !nombre || isNaN(precio) || precio <= 0) {
+            mostrarToast('No se puede agregar este producto al carrito.', 'error', 'Error');
             return;
         }
 
         const cart = getCart();
         const key = String(productId);
         const current = cart[key] || {};
-        const cantidad = Math.min(stock, (current.cantidad || 0) + 1);
+        const currentQty = current.cantidad || 0;
+
+        if (currentQty >= stock && stock > 0) {
+            mostrarToast(`Stock máximo alcanzado (${stock} unidades).`, 'error', nombre);
+            return;
+        }
+
+        const cantidad = currentQty + 1;
 
         cart[key] = {
             id: productId,
@@ -69,27 +69,35 @@ document.addEventListener('DOMContentLoaded', function() {
             precio,
             cantidad,
             foto,
-            en_oferta: enOferta
+            en_oferta: enOferta,
+            stock: stock
         };
 
         saveCart(cart);
-        mostrarToast('Producto agregado al carrito.', 'success', nombre);
+
+        // Feedback de botón
+        const originalHtml = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check text-success"></i>';
+        button.classList.add('btn-added');
+        setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.classList.remove('btn-added');
+        }, 800);
+
+        mostrarToast(`Se agregó "${nombre}" al carrito.`, 'success', '¡Producto añadido!');
     };
 
     addButtons.forEach(button => button.addEventListener('click', () => addItem(button)));
-    updateCartCount(getCart());
 
-    const whatsappButtons = Array.from(document.querySelectorAll('.btn-whatsapp-buy'));
     const comprarPorWhatsApp = (button) => {
-        const phone = button.dataset.whatsappNumber;
+        const phone = button.dataset.whatsappNumber || '59168504229';
         const name = button.dataset.productName || 'Producto';
         const price = button.dataset.productPrice || '0';
 
-        if (!phone) return;
-
-        const message = `Hola 👋, estoy interesado/a en:\n\n📦 *Producto:* ${name}\n💰 *Precio:* Bs ${price}\n\n¿Podría darme más información?`;
-        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        const message = `Hola 👋, estoy interesado/a en comprar:\n\n📦 *Producto:* ${name}\n💰 *Precio:* Bs ${price}\n\n¿Tienen disponibilidad y cómo coordinamos el envío?`;
+        const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank', 'noopener,noreferrer');
     };
+
     whatsappButtons.forEach(button => button.addEventListener('click', () => comprarPorWhatsApp(button)));
 });

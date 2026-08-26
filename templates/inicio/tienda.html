@@ -5,181 +5,214 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tienda | {{ tienda_nombre }}</title>
-    <meta name="description" content="{{ tienda_descripcion }}">
+    <meta name="description" content="{{ tienda_descripcion|default:'Explora todo nuestro catálogo de productos con envíos a toda Bolivia.' }}">
 
+    <!-- Bootstrap CSS & Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/inicio/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/inicio/tienda.css' %}">
+    <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
-<body>
+<body class="tienda-page">
     {% include 'componentes/navbarprincipal.html' %}
 
-    <div class="tienda-overlay"></div>
+    <div class="tienda-overlay" id="tiendaOverlay"></div>
+
     <main class="tienda-main">
-        <section class="container py-4">
-            <div class="d-flex justify-content-between align-items-center mb-4 tienda-mobile-topbar">
-                <button type="button" class="btn btn-outline-primary btn-sm tienda-filtro-toggle d-flex align-items-center">
-                    <i class="fas fa-sliders-h mr-2"></i>Filtros
+        <section class="container py-3 py-md-4">
+            <!-- Barra superior móvil (SOLO EN MÓVIL/TABLET, OCULTA EN PC) -->
+            <div class="tienda-mobile-topbar d-lg-none d-flex justify-content-between align-items-center mb-3">
+                <button type="button" class="btn btn-outline-primary btn-sm tienda-filtro-toggle" id="btnOpenFilters">
+                    <i class="fas fa-sliders-h mr-1"></i> Filtros
+                    {% if categoria or subcategoria or precio_min or precio_max or genero %}
+                    <span class="badge badge-primary ml-1">Activo</span>
+                    {% endif %}
                 </button>
-                <div>
-                    <p class="text-muted mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} encontrado{{ productos|length|pluralize }}</p>
+                <div class="tienda-count-badge">
+                    <span class="text-muted small"><strong>{{ productos|length }}</strong> producto{{ productos|length|pluralize }}</span>
                 </div>
             </div>
 
-            <div class="tienda-filtros-superiores mb-4" aria-label="Filtros rápidos del catálogo">
-                <div class="tienda-filtros-superiores-label"><i class="fas fa-layer-group mr-2"></i>Subcategorías</div>
+            <!-- Chips de Subcategorías Superiores -->
+            {% if subcategorias %}
+            <div class="tienda-filtros-superiores mb-3" aria-label="Filtros rápidos de subcategorías">
+                <div class="tienda-filtros-superiores-label">
+                    <i class="fas fa-layer-group mr-1 text-primary"></i> Subcategorías:
+                </div>
                 <div class="tienda-filtros-superiores-scroll">
-                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="tienda-filtro-chip {% if not subcategoria %}active{% endif %}">Todas</a>
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="tienda-filtro-chip {% if not subcategoria %}active{% endif %}">
+                        Todas
+                    </a>
                     {% for sub in subcategorias %}
-                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}subcategoria={{ sub.id }}" class="tienda-filtro-chip {% if subcategoria == sub.id|stringformat:'s' %}active{% endif %}">{{ sub.nombre }}</a>
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}subcategoria={{ sub.id }}" class="tienda-filtro-chip {% if subcategoria == sub.id|stringformat:'s' %}active{% endif %}">
+                        {{ sub.nombre }}
+                    </a>
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
+
             <div class="row">
-                <div class="col-lg-3 mb-4 mb-lg-0">
-                    <div class="card tienda-filtros sticky-top" id="tiendaFilters" style="top: 1rem;">
+                <!-- Sidebar de Filtros (Desktop & Drawer Móvil) -->
+                <div class="col-lg-3 col-xl-2 mb-4 mb-lg-0">
+                    <aside class="card tienda-filtros sticky-top" id="tiendaFilters">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-sliders-h mr-2"></i>Filtros</h5>
-                            <button type="button" class="btn btn-sm btn-outline-secondary tienda-filtros-close d-lg-none">
+                            <h5 class="mb-0 font-weight-bold" style="font-size: 0.95rem;">
+                                <i class="fas fa-sliders-h mr-2 text-primary"></i>Filtros
+                            </h5>
+                            <button type="button" class="btn btn-sm btn-outline-secondary tienda-filtros-close d-lg-none" id="btnCloseFilters" aria-label="Cerrar filtros">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body p-3">
                             <form method="GET" id="formFiltrosTienda">
                                 <input type="hidden" name="buscar" value="{{ buscar }}">
 
-                                <div class="filtro-seccion mb-4">
-                                    <h6 class="font-weight-bold mb-2">
-                                        <i class="fas fa-list mr-1 text-muted"></i>Categorías
+                                <!-- Categorías -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
+                                        <i class="fas fa-th-large mr-1 text-muted"></i>Categorías
                                     </h6>
                                     <div class="categorias-filtro-list">
                                         <a href="?{% for key,value in request.GET.items %}{% if key != 'categoria' %}{{ key }}={{ value }}&{% endif %}{% endfor %}"
-                                           class="categoria-filtro-item {% if not categoria %}active{% endif %} d-block mb-2">
-                                            <i class="fas fa-th-large mr-1"></i> Todas
+                                           class="categoria-filtro-item {% if not categoria %}active{% endif %}">
+                                            <span>Todas las categorías</span>
                                         </a>
                                         {% for cat in categorias %}
                                         <a href="?{% for key,value in request.GET.items %}{% if key != 'categoria' %}{{ key }}={{ value }}&{% endif %}{% endfor %}categoria={{ cat.id }}"
-                                           class="categoria-filtro-item {% if categoria == cat.id|stringformat:'s' %}active{% endif %} d-block mb-2">
-                                            {{ cat.nombre }}
+                                           class="categoria-filtro-item {% if categoria == cat.id|stringformat:'s' %}active{% endif %}">
+                                            <span>{{ cat.nombre }}</span>
                                         </a>
                                         {% endfor %}
                                     </div>
                                 </div>
 
-                                <div class="filtro-seccion mb-4">
-                                    <h6 class="font-weight-bold mb-2">
+                                <!-- Género -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
                                         <i class="fas fa-venus-mars mr-1 text-muted"></i>Género
                                     </h6>
-                                    <select class="form-control form-control-sm" id="filtroGenero" name="genero" onchange="this.form.submit()">
+                                    <select class="form-control form-control-sm modern-select" id="filtroGenero" name="genero" onchange="this.form.submit()">
                                         {% for key, label in genero_choices %}
                                         <option value="{{ key }}" {% if genero == key %}selected{% endif %}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
 
-                                <div class="filtro-seccion mb-4">
-                                    <h6 class="font-weight-bold mb-2">
-                                        <i class="fas fa-dollar-sign mr-1 text-muted"></i>Rango de Precio
+                                <!-- Rango de Precio -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
+                                        <i class="fas fa-tag mr-1 text-muted"></i>Precio
                                     </h6>
-                                    <div class="row no-gutters align-items-center">
+                                    <div class="row gx-1 align-items-center">
                                         <div class="col-5">
-                                            <input type="number" class="form-control form-control-sm" id="precioMin"
+                                            <input type="number" class="form-control form-control-sm modern-input" id="precioMin"
                                                    name="precio_min" placeholder="Mín" min="0" step="0.01"
                                                    value="{{ precio_min }}">
                                         </div>
-                                        <div class="col-2 text-center text-muted">—</div>
+                                        <div class="col-2 text-center text-muted small">—</div>
                                         <div class="col-5">
-                                            <input type="number" class="form-control form-control-sm" id="precioMax"
+                                            <input type="number" class="form-control form-control-sm modern-input" id="precioMax"
                                                    name="precio_max" placeholder="Máx" min="0" step="0.01"
                                                    value="{{ precio_max }}">
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary btn-sm btn-block mt-2">
-                                        <i class="fas fa-filter mr-1"></i>Aplicar precio
+                                        <i class="fas fa-filter mr-1"></i>Aplicar
                                     </button>
                                 </div>
 
-                                <div class="filtro-seccion mb-4">
-                                    <h6 class="font-weight-bold mb-2">
+                                <!-- Ordenar -->
+                                <div class="filtro-seccion mb-3">
+                                    <h6 class="filtro-title mb-2">
                                         <i class="fas fa-sort mr-1 text-muted"></i>Ordenar
                                     </h6>
-                                    <select class="form-control form-control-sm" id="filtroOrden" name="orden" onchange="this.form.submit()">
+                                    <select class="form-control form-control-sm modern-select" id="filtroOrden" name="orden" onchange="this.form.submit()">
                                         <option value="">Más recientes</option>
                                         <option value="nombre" {% if orden == 'nombre' %}selected{% endif %}>Nombre (A-Z)</option>
-                                        <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio: menor a mayor</option>
-                                        <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio: mayor a menor</option>
+                                        <option value="precio_asc" {% if orden == 'precio_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                                        <option value="precio_desc" {% if orden == 'precio_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
                                     </select>
                                 </div>
 
-                                <a href="{% url 'tienda' %}" class="btn btn-outline-secondary btn-sm btn-block mt-2">
-                                    <i class="fas fa-eraser mr-1"></i>Limpiar filtros
+                                <a href="{% url 'tienda' %}" class="btn btn-outline-secondary btn-sm btn-block">
+                                    <i class="fas fa-eraser mr-1"></i>Limpiar
                                 </a>
                             </form>
                         </div>
-                    </div>
+                    </aside>
                 </div>
 
-                <div class="col-lg-9">
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+                <!-- Grid de Productos (4 a 5 columnas en PC estilo Alibaba) -->
+                <div class="col-lg-9 col-xl-10">
+                    <div class="d-none d-lg-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h2 class="h5 mb-1">Todos los productos</h2>
-                            <p class="text-muted mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} encontrado{{ productos|length|pluralize }}</p>
+                            <h2 class="h5 mb-0 font-weight-bold">Catálogo de Productos</h2>
+                            <p class="text-muted small mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} disponible{{ productos|length|pluralize }}</p>
                         </div>
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'carrito' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-shopping-cart"></i></a>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="{% url 'tienda_mayorista' %}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-boxes mr-1"></i> Catálogo Mayorista
+                            </a>
                         </div>
                     </div>
 
-                    <div class="row no-gutters tienda-product-grid">
+                    <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 products-grid">
                         {% for producto in productos %}
-                        <div class="col-6 col-md-4 col-lg-3 mb-3">
+                        <div class="col mb-3">
                             <article class="product-card h-100">
-                                <a href="{% url 'product_detail' producto.id %}" class="product-card-image d-block overflow-hidden">
-                                    <div class="product-card-visual">
-                                        {% if producto.en_oferta and producto.precio_unidad_oferta %}
-                                        <span class="offer-badge"><i class="fas fa-tags"></i> Oferta</span>
-                                        {% endif %}
+                                <a href="{% url 'product_detail' producto.id %}" class="product-card-visual d-block" title="{{ producto.nombre }}">
+                                    {% if producto.en_oferta and producto.precio_unidad_oferta %}
+                                    <span class="badge-offer-pill">
+                                        <i class="fas fa-tag"></i> Oferta
+                                    </span>
+                                    {% endif %}
+                                    
+                                    <div class="product-image-container">
                                         {% if producto.imagen_principal_url %}
-                                            <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" class="img-fluid">
+                                            <img src="{{ producto.imagen_principal_url }}" alt="{{ producto.nombre }}" loading="lazy">
                                         {% else %}
-                                            <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" class="img-fluid">
+                                            <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ producto.nombre }}" loading="lazy">
                                         {% endif %}
                                     </div>
                                 </a>
-                                <div class="product-card-body p-3 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <div class="mb-2">
-                                            {% if producto.categoria %}
-                                            <span class="badge badge-light mr-1">
-                                                {{ producto.categoria.nombre }}
-                                            </span>
-                                            {% endif %}
-                                            {% if producto.genero %}
-                                            <span class="badge badge-outline-primary">
-                                                {{ producto.get_genero_display }}
-                                            </span>
-                                            {% endif %}
-                                        </div>
-                                        <h3 class="product-title mb-2">{{ producto.nombre }}</h3>
-                                        <div class="product-price mb-2">
-                                            {% if producto.en_oferta and producto.precio_unidad_oferta %}
-                                                <small class="text-muted"><del>Bs {{ producto.precio_unidad|floatformat:2 }}</del></small>
-                                                <span class="text-danger font-weight-bold ml-2">Bs {{ producto.precio_unidad_oferta|floatformat:2 }}</span>
-                                                <div class="savings-text mt-1">
-                                                    <i class="fas fa-tag"></i>
-                                                    Ahorras Bs {{ producto.ahorro|floatformat:2 }}
-                                                </div>
-                                            {% else %}
-                                                Bs {{ producto.precio_unidad|floatformat:2 }}
-                                            {% endif %}
-                                        </div>
+
+                                <div class="product-card-body">
+                                    <div class="product-card-top-meta mb-1">
+                                        {% if producto.categoria %}
+                                        <span class="badge-tag badge-category">{{ producto.categoria.nombre }}</span>
+                                        {% endif %}
+                                        {% if producto.genero %}
+                                        <span class="badge-tag badge-gender">{{ producto.get_genero_display }}</span>
+                                        {% endif %}
                                     </div>
-                                    <div class="product-actions">
-                                        <button class="btn btn-sm btn-primary btn-add" type="button"
+
+                                    <h3 class="product-title">
+                                        <a href="{% url 'product_detail' producto.id %}">{{ producto.nombre }}</a>
+                                    </h3>
+
+                                    <div class="product-pricing">
+                                        {% if producto.en_oferta and producto.precio_unidad_oferta %}
+                                            <div class="price-old-wrap">
+                                                <span class="price-old">Bs {{ producto.precio_unidad|floatformat:2 }}</span>
+                                                {% if producto.ahorro %}
+                                                <span class="savings-tag">Ahorra Bs {{ producto.ahorro|floatformat:2 }}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="price-current text-danger">Bs {{ producto.precio_unidad_oferta|floatformat:2 }}</div>
+                                        {% else %}
+                                            <div class="price-current">Bs {{ producto.precio_unidad|floatformat:2 }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="product-actions mt-auto pt-2">
+                                        <button class="btn btn-add-cart btn-add" type="button"
                                             data-product-id="{{ producto.id }}"
                                             data-product-name="{{ producto.nombre|escapejs }}"
                                             data-product-price="{% if producto.en_oferta and producto.precio_unidad_oferta %}{{ producto.precio_unidad_oferta|floatformat:2 }}{% else %}{{ producto.precio_unidad|floatformat:2 }}{% endif %}"
@@ -187,22 +220,33 @@
                                             data-product-image="{% if producto.imagen_principal_url %}{{ producto.imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}"
                                             data-product-stock="{{ producto.stock }}"
                                             title="Agregar al carrito"
-                                        ><i class="fas fa-shopping-cart"></i></button>
-                                        <button class="btn-whatsapp-buy" type="button"
+                                            aria-label="Agregar al carrito"
+                                        >
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+
+                                        <button class="btn btn-whatsapp-direct btn-whatsapp-buy" type="button"
                                             data-whatsapp-number="{{ tienda_whatsapp|slice:'1:' }}"
                                             data-product-name="{{ producto.nombre|escapejs }}"
                                             data-product-price="{% if producto.en_oferta and producto.precio_unidad_oferta %}{{ producto.precio_unidad_oferta|floatformat:2 }}{% else %}{{ producto.precio_unidad|floatformat:2 }}{% endif %}"
-                                            title="Comprar por WhatsApp"
-                                        ><i class="fab fa-whatsapp"></i><span>Comprar</span></button>
+                                            title="Pedir por WhatsApp"
+                                            aria-label="Pedir por WhatsApp"
+                                        >
+                                            <i class="fab fa-whatsapp"></i>
+                                            <span>Pedir</span>
+                                        </button>
                                     </div>
                                 </div>
                             </article>
                         </div>
                         {% empty %}
                         <div class="col-12 text-center py-5">
-                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-2">No se encontraron productos con los filtros seleccionados.</p>
-                            <a href="{% url 'tienda' %}" class="btn btn-outline-primary btn-sm">Limpiar filtros</a>
+                            <div class="py-4">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h4 class="h6 font-weight-bold">No se encontraron productos</h4>
+                                <p class="text-muted small mb-3">Intenta cambiar los filtros seleccionados o buscar con otra palabra clave.</p>
+                                <a href="{% url 'tienda' %}" class="btn btn-primary btn-sm">Ver todos los productos</a>
+                            </div>
                         </div>
                         {% endfor %}
                     </div>
@@ -211,9 +255,9 @@
         </section>
     </main>
 
-    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20realizar%20un%20pedido" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20realizar%20un%20pedido" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="Escríbenos por WhatsApp">
         <i class="fab fa-whatsapp"></i>
-        <span></span>
     </a>
 
     {% include 'componentes/footerprincipal.html' %}

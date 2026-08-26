@@ -1,3 +1,7 @@
+/* ============================================================================
+   CARRITO.JS - Lógica de carrito minorista y checkout por WhatsApp
+   ============================================================================ */
+
 document.addEventListener('DOMContentLoaded', () => {
     const cartContent = document.getElementById('cartContent');
     const cartTotal = document.getElementById('cartTotal');
@@ -6,18 +10,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutForm = document.getElementById('checkoutForm');
     const submitOrderButton = document.getElementById('submitOrderButton');
     const deliveryModal = document.getElementById('deliveryModal');
-    const deliveryOptions = document.querySelectorAll('.delivery-option');
+    const deliveryOptions = document.querySelectorAll('.delivery-option-card');
     const continueDeliveryButton = document.getElementById('continueDeliveryButton');
-    let selectedDelivery = '';
-    const deliveryNote = document.getElementById('deliveryNote');
     const clearCartBtn = document.getElementById('clearCartBtn');
     const customerModal = document.getElementById('customerModal');
 
-    const getCart = () => { try { return JSON.parse(localStorage.getItem('alicen_cart') || '{}'); } catch { return {}; } };
-    const saveCart = (cart) => { localStorage.setItem('alicen_cart', JSON.stringify(cart)); renderCart(); };
-    const getCartItems = () => Object.values(getCart());
-    const formatCurrency = (value) => Number(value).toFixed(2);
-    const calculateTotal = (items) => items.reduce((sum, item) => sum + item.cantidad * item.precio, 0);
+    let selectedDelivery = '';
+
+    const getCart = () => {
+        try { 
+            return JSON.parse(localStorage.getItem('alicen_cart') || '{}'); 
+        } catch { 
+            return {}; 
+        }
+    };
+
+    const saveCart = (cart) => {
+        localStorage.setItem('alicen_cart', JSON.stringify(cart));
+        window.dispatchEvent(new Event('cartUpdated'));
+        renderCart();
+    };
+
+    const formatCurrency = (value) => Number(value || 0).toFixed(2);
+    const calculateTotal = (items) => items.reduce((sum, item) => sum + (Number(item.cantidad || 0) * Number(item.precio || 0)), 0);
 
     const mostrarToast = (mensaje, tipo = 'success', titulo = '') => {
         const toast = document.createElement('div');
@@ -39,252 +54,232 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderEmpty = () => {
+        if (!cartContent) return;
         cartContent.innerHTML = `
-            <div class="cart-empty text-center py-4">
-                <i class="fas fa-shopping-bag fa-2x text-muted"></i>
-                <p>Tu carrito está vacío.</p>
-                <small>Agrega productos desde el catálogo y vuelve para enviar tu pedido por WhatsApp.</small>
+            <div class="cart-empty text-center py-5">
+                <i class="fas fa-shopping-cart fa-3x mb-3 text-muted"></i>
+                <p>Tu carrito está vacío</p>
+                <small class="text-muted d-block mb-3">Agrega tus productos favoritos desde la tienda y vuelve para completar tu pedido.</small>
+                <a href="/tienda/" class="btn btn-primary btn-sm">
+                    <i class="fas fa-store mr-1"></i> Explorar Catálogo
+                </a>
             </div>
         `;
-        cartTotal.textContent = '0.00';
+        if (cartTotal) cartTotal.textContent = '0.00';
         if (cartItemCount) cartItemCount.textContent = '0';
         if (showFormButton) showFormButton.disabled = true;
     };
 
     const renderCart = () => {
         const cart = getCart();
-        let needsSave = false;
-        const items = Object.values(cart).map((item) => {
-            const maxStock = Number.isFinite(Number(item.stock)) ? Number(item.stock) : Infinity;
-            if (item.cantidad > maxStock) {
-                item.cantidad = maxStock;
-                cart[`${item.id}_${item.ubicacion_id || ''}`] = item;
-                needsSave = true;
-            }
-            return item;
-        });
-        if (needsSave) {
-            saveCart(cart);
+        const entries = Object.entries(cart);
+
+        if (!entries.length) {
+            renderEmpty();
             return;
         }
 
-        const totalItems = items.reduce((sum, i) => sum + i.cantidad, 0);
-        if (!items.length) { renderEmpty(); return; }
+        const items = entries.map(([key, item]) => ({ ...item, _key: key }));
+        const totalItems = items.reduce((sum, i) => sum + (Number(i.cantidad) || 0), 0);
 
         const htmlItems = items.map(item => `
             <article class="cart-item">
-                <div class="cart-item-image"><img src="${item.foto || '/static/img/logoAlmacen.png'}" alt="${item.nombre}"></div>
+                <div class="cart-item-image">
+                    <img src="${item.foto || '/static/img/logoAlmacen.png'}" alt="${item.nombre || 'Producto'}">
+                </div>
                 <div class="cart-item-main">
                     <div class="cart-item-header">
-                        <strong>${item.nombre}</strong>
-                        <div class="cart-item-price">Bs ${formatCurrency(item.precio)} por unidad</div>
-                    </div>
-                    <div class="cart-item-store text-muted small mb-2">
-                        Tienda: ${item.ubicacion_nombre || 'No definida'}
+                        <strong>${item.nombre || 'Producto'}</strong>
+                        <div class="cart-item-price">Bs ${formatCurrency(item.precio)} c/u</div>
                     </div>
                     <div class="cart-item-controls">
-                        <button class="btn btn-sm btn-light quantity-control" data-action="decrease" data-id="${item.id}_${item.ubicacion_id || ''}" aria-label="Disminuir cantidad">-</button>
-                        <input type="number" class="form-control quantity-input" min="1" value="${item.cantidad}" data-id="${item.id}_${item.ubicacion_id || ''}">
-                        <button class="btn btn-sm btn-light quantity-control" data-action="increase" data-id="${item.id}_${item.ubicacion_id || ''}" aria-label="Aumentar cantidad">+</button>
+                        <button class="quantity-control" data-action="decrease" data-cart-key="${item._key}" aria-label="Disminuir">-</button>
+                        <input type="number" class="quantity-input" min="1" max="${item.stock || 999}" value="${item.cantidad}" data-cart-key="${item._key}">
+                        <button class="quantity-control" data-action="increase" data-cart-key="${item._key}" aria-label="Aumentar">+</button>
                     </div>
                     <div class="cart-item-footer">
-                        <div class="cart-item-total">Total: Bs ${formatCurrency(item.cantidad * item.precio)}</div>
-                        <button class="btn btn-sm btn-outline-danger remove-item" data-id="${item.id}_${item.ubicacion_id || ''}"><i class="fas fa-trash-alt"></i></button>
+                        <div class="cart-item-total">Bs ${formatCurrency(item.cantidad * item.precio)}</div>
+                        <button class="btn btn-outline-danger btn-sm remove-item" data-cart-key="${item._key}" title="Eliminar del carrito" aria-label="Eliminar del carrito">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
                 </div>
             </article>
         `).join('');
 
         cartContent.innerHTML = htmlItems;
-        cartTotal.textContent = formatCurrency(calculateTotal(items));
+        if (cartTotal) cartTotal.textContent = formatCurrency(calculateTotal(items));
         if (cartItemCount) cartItemCount.textContent = String(totalItems);
         if (showFormButton) showFormButton.disabled = false;
 
-        const storeNames = [...new Set(items.map(item => item.ubicacion_nombre).filter(Boolean))];
-        const cartStoreNameElem = document.getElementById('cartStoreName');
-        const cartStorePhoneElem = document.getElementById('cartStorePhone');
-        const displayStoreName = storeNames.length === 1 ? storeNames[0] : (storeNames.length > 1 ? 'Varias tiendas' : 'Tienda no definida');
-        if (cartStoreNameElem) cartStoreNameElem.textContent = displayStoreName;
-        if (cartStorePhoneElem) cartStorePhoneElem.textContent = '68504229';
-        if (submitOrderButton) submitOrderButton.dataset.phone = '68504229';
-
+        // Eventos Steppers
         cartContent.querySelectorAll('.quantity-control').forEach(button => {
             button.addEventListener('click', () => {
-                const cart = getCart();
-                const id = button.dataset.id;
+                const key = String(button.dataset.cartKey);
                 const action = button.dataset.action;
-                if (!cart[id]) return;
-                const current = cart[id].cantidad;
-                const maxStock = Number.isFinite(Number(cart[id].stock)) ? cart[id].stock : Infinity;
-                const next = action === 'increase' ? current + 1 : current - 1;
-                if (next < 1) return;
-                if (next > maxStock) {
-                    mostrarToast(`No puedes pedir más de ${maxStock} unidades de esta tienda.`, 'error', 'Stock insuficiente');
+                const currentCart = getCart();
+                if (!currentCart[key]) return;
+
+                const currentQty = Number(currentCart[key].cantidad) || 1;
+                const maxStock = Number(currentCart[key].stock) || 999;
+                const nextQty = action === 'increase' ? currentQty + 1 : currentQty - 1;
+
+                if (nextQty < 1) return;
+                if (nextQty > maxStock && maxStock > 0) {
+                    mostrarToast(`Stock máximo disponible: ${maxStock} unidades.`, 'error', 'Stock límite');
                     return;
                 }
-                cart[id].cantidad = next;
-                saveCart(cart);
+
+                currentCart[key].cantidad = nextQty;
+                saveCart(currentCart);
             });
         });
 
         cartContent.querySelectorAll('.quantity-input').forEach(input => {
             input.addEventListener('change', () => {
-                const cart = getCart();
-                const id = input.dataset.id;
-                if (!cart[id]) return;
-                const maxStock = Number.isFinite(Number(cart[id].stock)) ? cart[id].stock : Infinity;
-                let nextValue = parseInt(input.value, 10);
-                if (Number.isNaN(nextValue) || nextValue < 1) {
-                    nextValue = 1;
+                const key = String(input.dataset.cartKey);
+                const currentCart = getCart();
+                if (!currentCart[key]) return;
+
+                const maxStock = Number(currentCart[key].stock) || 999;
+                let nextVal = parseInt(input.value, 10);
+                if (isNaN(nextVal) || nextVal < 1) nextVal = 1;
+                if (nextVal > maxStock && maxStock > 0) {
+                    nextVal = maxStock;
+                    mostrarToast(`Stock máximo: ${maxStock} unidades.`, 'error', 'Stock límite');
                 }
-                if (nextValue > maxStock) {
-                    nextValue = maxStock;
-                    mostrarToast(`No puedes pedir más de ${maxStock} unidades de esta tienda.`, 'error', 'Stock insuficiente');
-                }
-                input.value = nextValue;
-                cart[id].cantidad = nextValue;
-                saveCart(cart);
+
+                input.value = nextVal;
+                currentCart[key].cantidad = nextVal;
+                saveCart(currentCart);
             });
         });
 
+        // Eventos Eliminar
         cartContent.querySelectorAll('.remove-item').forEach(button => {
             button.addEventListener('click', () => {
-                const cart = getCart();
-                const id = button.dataset.id;
-                const item = cart[id];
-                if (!item) return;
-                delete cart[id];
-                saveCart(cart);
-                mostrarToast('Producto eliminado del carrito.', 'success', item.nombre);
+                const key = String(button.dataset.cartKey);
+                const currentCart = getCart();
+                const item = currentCart[key];
+                const itemName = item ? item.nombre : 'Producto';
+
+                delete currentCart[key];
+                saveCart(currentCart);
+                mostrarToast(`Se eliminó "${itemName}" del carrito.`, 'success', 'Producto eliminado');
             });
         });
     };
 
-    deliveryOptions.forEach(option => option.addEventListener('click', () => {
-        deliveryOptions.forEach(item => item.classList.remove('active'));
-        option.classList.add('active');
-        selectedDelivery = option.dataset.delivery || '';
-        if (continueDeliveryButton) continueDeliveryButton.disabled = !selectedDelivery;
-    }));
+    // Selección de Entrega
+    deliveryOptions.forEach(card => {
+        card.addEventListener('click', () => {
+            deliveryOptions.forEach(item => item.classList.remove('active'));
+            card.classList.add('active');
+            selectedDelivery = card.dataset.delivery || '';
+            if (continueDeliveryButton) {
+                continueDeliveryButton.disabled = !selectedDelivery;
+            }
+        });
+    });
 
     continueDeliveryButton?.addEventListener('click', () => {
         if (!selectedDelivery) return;
         $(deliveryModal).modal('hide');
         configureCustomerFields();
-        $('#customerModal').modal('show');
+        $(customerModal).modal('show');
     });
 
     const configureCustomerFields = () => {
         const isDepartment = selectedDelivery === 'department';
         const isDelivery = selectedDelivery === 'delivery';
+
         const phoneGroup = document.getElementById('customerPhoneGroup');
         const addressGroup = document.getElementById('customerAddressGroup');
-        const departmentGroup = document.getElementById('departmentGroup');
-        const provinceGroup = document.getElementById('provinceGroup');
+        const departmentRow = document.getElementById('departmentRow');
         const phoneInput = document.getElementById('customerPhone');
         const addressInput = document.getElementById('customerAddress');
         const departmentInput = document.getElementById('customerDepartment');
         const provinceInput = document.getElementById('customerProvince');
-        phoneGroup.style.display = isDepartment ? 'block' : 'none';
-        addressGroup.style.display = isDelivery || isDepartment ? 'block' : 'none';
-        departmentGroup.style.display = isDepartment ? 'block' : 'none';
-        provinceGroup.style.display = isDepartment ? 'block' : 'none';
-        phoneInput.required = isDepartment;
-        addressInput.required = isDelivery || isDepartment;
-        departmentInput.required = isDepartment;
-        provinceInput.required = isDepartment;
-        document.getElementById('deliveryNote').style.display = isDelivery || isDepartment ? 'block' : 'none';
+
+        if (phoneGroup) phoneGroup.style.display = (isDepartment || isDelivery) ? 'block' : 'none';
+        if (addressGroup) addressGroup.style.display = (isDelivery || isDepartment) ? 'block' : 'none';
+        if (departmentRow) departmentRow.style.display = isDepartment ? 'flex' : 'none';
+
+        if (phoneInput) phoneInput.required = (isDepartment || isDelivery);
+        if (addressInput) addressInput.required = (isDelivery || isDepartment);
+        if (departmentInput) departmentInput.required = isDepartment;
+        if (provinceInput) provinceInput.required = isDepartment;
     };
 
-    showFormButton?.addEventListener('click', (e) => {
-        const items = getCartItems();
-        if (!items.length) {
-            e.preventDefault();
-            mostrarToast('Agrega productos al carrito antes de enviar el pedido.', 'error', 'Carrito vacío');
-            return false;
-        }
-    });
-
-    // Resetear formulario cuando se cierra el modal
-    if (customerModal) {
-        customerModal.addEventListener('hidden.bs.modal', () => {
-            checkoutForm.reset();
-            selectedDelivery = '';
-            deliveryOptions.forEach(item => item.classList.remove('active'));
-            if (continueDeliveryButton) continueDeliveryButton.disabled = true;
-        });
-    }
-
+    // Envío de Formulario por WhatsApp
     checkoutForm?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const items = getCartItems();
+        const items = Object.values(getCart());
         if (!items.length) {
-            mostrarToast('Agrega productos al carrito antes de enviar el pedido.', 'error', 'Carrito vacío');
+            mostrarToast('Tu carrito está vacío.', 'error', 'Error');
             return;
         }
 
-        const customerName = document.getElementById('customerName').value.trim();
-        const customerPhone = document.getElementById('customerPhone').value.trim();
-        const customerAddress = document.getElementById('customerAddress').value.trim();
-        const customerDepartment = document.getElementById('customerDepartment').value.trim();
-        const customerProvince = document.getElementById('customerProvince').value.trim();
-        const deliveryOptionValue = selectedDelivery;
+        const customerName = document.getElementById('customerName')?.value.trim();
+        const customerPhone = document.getElementById('customerPhone')?.value.trim() || '';
+        const customerAddress = document.getElementById('customerAddress')?.value.trim() || '';
+        const customerDepartment = document.getElementById('customerDepartment')?.value.trim() || '';
+        const customerProvince = document.getElementById('customerProvince')?.value.trim() || '';
 
-        if (!customerName || !deliveryOptionValue) {
-            mostrarToast('Por favor, completa todos los campos requeridos.', 'error', 'Datos incompletos');
-            return;
-        }
-        if (deliveryOptionValue === 'delivery' && !customerAddress) {
-            mostrarToast('Por favor, ingresa la dirección para delivery.', 'error', 'Dirección requerida');
-            return;
-        }
-        if (deliveryOptionValue === 'department' && (!customerPhone || !customerDepartment || !customerProvince || !customerAddress)) {
-            mostrarToast('Completa teléfono de referencia, departamento, provincia y dirección.', 'error', 'Datos incompletos');
+        if (!customerName) {
+            mostrarToast('Por favor, ingresa tu nombre completo.', 'error', 'Datos requeridos');
             return;
         }
 
-        const lines = items.map(item => {
-            const label = item.en_oferta ? `${item.nombre} (OFERTA)` : item.nombre;
-            return `${label} x ${item.cantidad} = Bs ${formatCurrency(item.cantidad * item.precio)}`;
+        const deliveryName = selectedDelivery === 'delivery' 
+            ? '🛵 Delivery Local a Domicilio' 
+            : (selectedDelivery === 'department' ? '📦 Envío Interdepartamental' : '🏬 Recoger en Tienda / Sucursal');
+
+        const productLines = items.map((item, idx) => {
+            const offerTag = item.en_oferta ? ' (OFERTA)' : '';
+            return `${idx + 1}. *${item.nombre}${offerTag}*\n   Cant: ${item.cantidad} x Bs ${formatCurrency(item.precio)} = Bs ${formatCurrency(item.cantidad * item.precio)}`;
         });
-        const total = formatCurrency(calculateTotal(items));
-        const deliveryText = deliveryOptionValue === 'delivery' ? 'Delivery' : (deliveryOptionValue === 'department' ? 'Envío a departamento' : 'Recoger en tienda');
-        const addressLine = customerAddress ? `Dirección: ${customerAddress}\n` : '';
-        const departmentLine = deliveryOptionValue === 'department' ? `Departamento: ${customerDepartment}\nProvincia: ${customerProvince}\nTeléfono de referencia: ${customerPhone}\n` : '';
-        
-        const message = encodeURIComponent(
-            `Hola, quiero hacer un pedido:\n\n` +
-            `📋 DATOS DEL CLIENTE:\n` +
-            `Nombre: ${customerName}\n` +
-            addressLine +
-            departmentLine +
-            `Opción de entrega: ${deliveryText}\n\n` +
-            `📦 PEDIDO:\n${lines.join('\n')}\n\n` +
-            `💰 Total productos: Bs ${total}\n\n` +
-            `Por favor, confirmen disponibilidad y el costo de envío.`
-        );
-        
-        const phone = submitOrderButton?.dataset.phone || '';
-        const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
-        window.open(whatsappUrl, '_blank');
-        
-        // Cerrar el modal después de enviar
-        if (customerModal) {
-            $(customerModal).modal('hide');
+
+        const totalAmount = formatCurrency(calculateTotal(items));
+
+        let extraDetails = `📍 *Opción de Entrega:* ${deliveryName}\n`;
+        if (customerPhone) extraDetails += `📞 *Teléfono Ref:* ${customerPhone}\n`;
+        if (customerAddress) extraDetails += `🏠 *Dirección:* ${customerAddress}\n`;
+        if (selectedDelivery === 'department') {
+            extraDetails += `🗺️ *Destino:* ${customerDepartment}, ${customerProvince}\n`;
         }
+
+        const message = encodeURIComponent(
+            `🛒 *NUEVO PEDIDO - TIENDA VIRTUAL*\n\n` +
+            `👤 *CLIENTE:* ${customerName}\n` +
+            extraDetails +
+            `\n📋 *DETALLE DEL PEDIDO:*\n` +
+            `${productLines.join('\n')}\n\n` +
+            `💰 *TOTAL PRODUCTOS:* Bs ${totalAmount}\n\n` +
+            `Por favor, confirmen disponibilidad de stock y datos para realizar el pago y despacho. ¡Muchas gracias!`
+        );
+
+        const targetPhone = submitOrderButton?.dataset.phone || '59168504229';
+        const url = `https://wa.me/${targetPhone.replace(/\D/g, '')}?text=${message}`;
+        window.open(url, '_blank');
+
+        $(customerModal).modal('hide');
     });
 
+    // Vaciar Carrito
     clearCartBtn?.addEventListener('click', () => {
-        const items = getCartItems();
+        const items = Object.values(getCart());
         if (!items.length) {
-            mostrarToast('Tu carrito ya está vacío.', 'error', 'Sin productos');
+            mostrarToast('Tu carrito ya está vacío.', 'error', 'Atención');
             return;
         }
-        if (!confirm('¿Deseas vaciar el carrito?')) return;
+        if (!confirm('¿Deseas vaciar todos los productos del carrito?')) return;
         localStorage.removeItem('alicen_cart');
+        window.dispatchEvent(new Event('cartUpdated'));
         renderCart();
-        mostrarToast('El carrito se ha vaciado correctamente.', 'success', 'Carrito vacío');
+        mostrarToast('Se ha vaciado el carrito.', 'success', 'Carrito vacío');
     });
 
+    // Inicializar render
     renderCart();
 });
