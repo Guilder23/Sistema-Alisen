@@ -2,7 +2,27 @@
    NAVBAR PRINCIPAL & BOTTOM NAVIGATION JS
    ============================================================================ */
 
+// Ajusta dinámicamente --navbar-height según la altura real del navbar fijo,
+// para que el contenido nunca quede oculto detrás de él en ningún tamaño de pantalla.
+function ajustarAlturaNavbarPrincipal() {
+    const navbar = document.querySelector('.navbar-principal');
+    if (!navbar) return;
+    const alturaReal = Math.ceil(navbar.getBoundingClientRect().height);
+    if (alturaReal > 0) {
+        document.documentElement.style.setProperty('--navbar-height', `${alturaReal}px`);
+    }
+}
+
+window.addEventListener('load', ajustarAlturaNavbarPrincipal);
+window.addEventListener('resize', ajustarAlturaNavbarPrincipal);
+document.addEventListener('DOMContentLoaded', ajustarAlturaNavbarPrincipal);
+
 document.addEventListener('DOMContentLoaded', () => {
+    ajustarAlturaNavbarPrincipal();
+    // Reajustar tras un breve delay por si las fuentes/íconos cambian el alto inicial
+    setTimeout(ajustarAlturaNavbarPrincipal, 150);
+    setTimeout(ajustarAlturaNavbarPrincipal, 500);
+
     // Badges de Carrito en Header, Mobile Header, Sidebar y Bottom Nav
     const cartCountEl = document.getElementById('cartCount');
     const mobileCartCountEl = document.getElementById('mobileCartCount');

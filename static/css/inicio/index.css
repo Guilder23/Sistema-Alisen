@@ -40,6 +40,43 @@
     transform: translateX(3px);
 }
 
+/* Reducir separación entre tarjetas (Bootstrap 4 no soporta g-2/g-md-3 de BS5) */
+.products-grid {
+    margin-left: -0.35rem;
+    margin-right: -0.35rem;
+}
+
+.products-grid > .col {
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+    margin-bottom: 0.7rem !important;
+}
+
+@media (min-width: 768px) {
+    .products-grid {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+    }
+    .products-grid > .col {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        margin-bottom: 1rem !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .products-grid {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+    }
+    .products-grid > .col {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+
 /* Tarjetas de Categoría Modernas */
 .category-card-modern {
     background: #ffffff;
@@ -94,6 +131,110 @@
 
 .category-card-modern:hover .category-card-overlay {
     opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   1.1 CARRUSEL DE CATEGORÍAS (tarjetas compactas + botones adelante/atrás)
+   -------------------------------------------------------------------------- */
+.categories-carousel {
+    position: relative;
+    padding: 0 2.1rem;
+}
+
+.categories-track {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 0.15rem 0.15rem 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.categories-track::-webkit-scrollbar {
+    display: none;
+}
+
+.category-card-slide {
+    flex: 0 0 auto;
+    width: 96px;
+    scroll-snap-align: start;
+}
+
+.category-card-slide .category-name {
+    font-size: 0.72rem;
+}
+
+.category-card-slide .category-info {
+    padding: 0.35rem 0.3rem 0.4rem;
+}
+
+@media (min-width: 576px) {
+    .category-card-slide {
+        width: 108px;
+    }
+}
+
+@media (min-width: 768px) {
+    .category-card-slide {
+        width: 118px;
+    }
+}
+
+@media (min-width: 992px) {
+    .category-card-slide {
+        width: 128px;
+    }
+}
+
+.cat-nav-btn {
+    position: absolute;
+    top: 42%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radio-full);
+    background: #ffffff;
+    border: 1px solid var(--color-borde);
+    color: var(--color-texto);
+    box-shadow: var(--sombra-card-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    z-index: 3;
+    transition: var(--transicion);
+    cursor: pointer;
+}
+
+.cat-nav-btn:hover {
+    background: var(--color-primario);
+    color: #ffffff;
+    border-color: var(--color-primario);
+}
+
+.cat-nav-prev {
+    left: 0;
+}
+
+.cat-nav-next {
+    right: 0;
+}
+
+.cat-nav-btn.is-hidden {
+    display: none;
+}
+
+@media (max-width: 575.98px) {
+    .categories-carousel {
+        padding: 0 1.9rem;
+    }
+    .cat-nav-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.72rem;
+    }
 }
 
 .category-explore-badge {

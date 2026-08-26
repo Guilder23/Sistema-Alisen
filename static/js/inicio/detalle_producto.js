@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const productPrice = parseFloat(document.getElementById('detailProductPrice')?.value || '0');
     const productOferta = (document.getElementById('detailProductOferta')?.value === 'true');
     const productImage = document.getElementById('detailProductImage')?.value;
-    const defaultStock = parseInt(document.getElementById('detailProductStock')?.value || '999', 10);
+    const parsedStock = parseInt(document.getElementById('detailProductStock')?.value, 10);
+    const defaultStock = (Number.isFinite(parsedStock) && parsedStock > 0) ? parsedStock : 999;
     const whatsappButton = document.getElementById('detailWhatsappButton');
 
     // Stepper de Cantidad

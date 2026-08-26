@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const productPrice = parseFloat(document.getElementById('detailMayoristaProductPrice')?.value || '0');
     const productImage = document.getElementById('detailMayoristaProductImage')?.value;
     const minimum = parseInt(document.getElementById('detailMayoristaMinimum')?.value || '1', 10);
-    const defaultStock = parseInt(document.getElementById('detailMayoristaStock')?.value || '9999', 10);
+    const parsedStock = parseInt(document.getElementById('detailMayoristaStock')?.value, 10);
+    const defaultStock = (Number.isFinite(parsedStock) && parsedStock > 0) ? parsedStock : 9999;
     const whatsappButton = document.getElementById('detailMayoristaWhatsappButton');
 
     // Stepper de Cantidad Mayorista por lote

@@ -6,6 +6,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const addButtons = Array.from(document.querySelectorAll('.btn-add'));
     const whatsappButtons = Array.from(document.querySelectorAll('.btn-whatsapp-buy'));
 
+    // Carrusel de Categorías (botones atrás/adelante)
+    const categoriesTrack = document.getElementById('categoriesTrack');
+    const catPrevBtn = document.getElementById('catPrevBtn');
+    const catNextBtn = document.getElementById('catNextBtn');
+
+    if (categoriesTrack && catPrevBtn && catNextBtn) {
+        const getScrollStep = () => Math.max(categoriesTrack.clientWidth * 0.7, 150);
+
+        const updateNavButtons = () => {
+            const maxScroll = categoriesTrack.scrollWidth - categoriesTrack.clientWidth - 1;
+            const noOverflow = maxScroll <= 0;
+            catPrevBtn.classList.toggle('is-hidden', noOverflow || categoriesTrack.scrollLeft <= 1);
+            catNextBtn.classList.toggle('is-hidden', noOverflow || categoriesTrack.scrollLeft >= maxScroll);
+        };
+
+        catPrevBtn.addEventListener('click', () => {
+            categoriesTrack.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
+        });
+
+        catNextBtn.addEventListener('click', () => {
+            categoriesTrack.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
+        });
+
+        categoriesTrack.addEventListener('scroll', updateNavButtons);
+        window.addEventListener('resize', updateNavButtons);
+        updateNavButtons();
+    }
+
     const getCart = () => {
         try {
             return JSON.parse(localStorage.getItem('alicen_cart') || '{}');
