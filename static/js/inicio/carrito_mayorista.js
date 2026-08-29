@@ -189,16 +189,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const configureFields = () => {
         const isDep = selectedDelivery === 'department';
         const isDel = selectedDelivery === 'delivery';
+        const isPickup = selectedDelivery === 'pickup';
 
         const phoneGroup = document.getElementById('customerPhoneGroup');
         const depGroup = document.getElementById('departmentGroup');
         const provGroup = document.getElementById('provinceGroup');
         const locGroup = document.getElementById('customerLocationGroup');
+        const phoneInput = document.getElementById('customerPhone');
+        const locationInput = document.getElementById('customerLocation');
+        const depInput = document.getElementById('customerDepartment');
+        const provInput = document.getElementById('customerProvince');
 
-        if (phoneGroup) phoneGroup.style.display = (isDep || isDel) ? 'block' : 'none';
+        if (phoneGroup) phoneGroup.style.display = isDep ? 'block' : 'none';
         if (depGroup) depGroup.style.display = isDep ? 'block' : 'none';
         if (provGroup) provGroup.style.display = isDep ? 'block' : 'none';
         if (locGroup) locGroup.style.display = isDel ? 'block' : 'none';
+
+        if (phoneInput) phoneInput.required = isDep;
+        if (locationInput) locationInput.required = isDel;
+        if (depInput) depInput.required = isDep;
+        if (provInput) provInput.required = isDep;
+
+        if (isPickup) {
+            if (phoneInput) phoneInput.value = '';
+            if (locationInput) locationInput.value = '';
+            if (depInput) depInput.value = '';
+            if (provInput) provInput.value = '';
+        }
     };
 
     // Enviar WhatsApp Mayorista
@@ -222,8 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const deliveryName = selectedDelivery === 'delivery' 
-            ? '🚛 Entrega en Negocio / Almacén' 
-            : (selectedDelivery === 'department' ? '📦 Envío Interdepartamental (Flota/Transporte)' : '🏬 Retiro en Depósito Central');
+            ? '🚛 Entrega local / delivery' 
+            : (selectedDelivery === 'department' ? '📦 Entrega departamental' : '🏬 Recoger en tienda');
 
         const productLines = list.map((item, idx) => {
             return `${idx + 1}. *${item.nombre}*\n   Cant: ${item.cantidad} unid. x Bs ${money(item.precio)} = Bs ${money(item.cantidad * item.precio)}`;
@@ -232,9 +249,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalAmount = money(list.reduce((sum, item) => sum + Number(item.cantidad || 0) * Number(item.precio || 0), 0));
 
         let extraDetails = `📍 *Modalidad de Entrega:* ${deliveryName}\n`;
-        if (phone) extraDetails += `📞 *Teléfono / WhatsApp:* ${phone}\n`;
-        if (location && selectedDelivery === 'delivery') extraDetails += `📌 *Ubicación / Maps:* ${location}\n`;
+        if (selectedDelivery === 'delivery' && location) {
+            extraDetails += `📌 *Ubicación / Maps:* ${location}\n`;
+        }
         if (selectedDelivery === 'department') {
+            if (phone) extraDetails += `📞 *Teléfono / Celular de referencia:* ${phone}\n`;
             extraDetails += `🗺️ *Destino:* ${department}, ${province}\n`;
         }
 

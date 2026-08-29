@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const configureCustomerFields = () => {
         const isDepartment = selectedDelivery === 'department';
         const isDelivery = selectedDelivery === 'delivery';
+        const isPickup = selectedDelivery === 'pickup';
 
         const phoneGroup = document.getElementById('customerPhoneGroup');
         const addressGroup = document.getElementById('customerAddressGroup');
@@ -201,14 +202,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const departmentInput = document.getElementById('customerDepartment');
         const provinceInput = document.getElementById('customerProvince');
 
-        if (phoneGroup) phoneGroup.style.display = (isDepartment || isDelivery) ? 'block' : 'none';
-        if (addressGroup) addressGroup.style.display = (isDelivery || isDepartment) ? 'block' : 'none';
+        if (phoneGroup) phoneGroup.style.display = isDepartment ? 'block' : 'none';
+        if (addressGroup) addressGroup.style.display = isDelivery ? 'block' : 'none';
         if (departmentRow) departmentRow.style.display = isDepartment ? 'flex' : 'none';
 
-        if (phoneInput) phoneInput.required = (isDepartment || isDelivery);
-        if (addressInput) addressInput.required = (isDelivery || isDepartment);
+        if (phoneInput) phoneInput.required = isDepartment;
+        if (addressInput) addressInput.required = isDelivery;
         if (departmentInput) departmentInput.required = isDepartment;
         if (provinceInput) provinceInput.required = isDepartment;
+
+        if (isPickup) {
+            if (phoneInput) phoneInput.value = '';
+            if (addressInput) addressInput.value = '';
+            if (departmentInput) departmentInput.value = '';
+            if (provinceInput) provinceInput.value = '';
+        }
     };
 
     // Envío de Formulario por WhatsApp
@@ -243,9 +251,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalAmount = formatCurrency(calculateTotal(items));
 
         let extraDetails = `📍 *Opción de Entrega:* ${deliveryName}\n`;
-        if (customerPhone) extraDetails += `📞 *Teléfono Ref:* ${customerPhone}\n`;
-        if (customerAddress) extraDetails += `🏠 *Dirección:* ${customerAddress}\n`;
+        if (selectedDelivery === 'delivery' && customerAddress) {
+            extraDetails += `🏠 *Ubicación / Maps:* ${customerAddress}\n`;
+        }
         if (selectedDelivery === 'department') {
+            if (customerPhone) extraDetails += `📞 *Teléfono / Celular de referencia:* ${customerPhone}\n`;
             extraDetails += `🗺️ *Destino:* ${customerDepartment}, ${customerProvince}\n`;
         }
 

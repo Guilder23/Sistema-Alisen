@@ -146,7 +146,7 @@
                         <div class="delivery-option-card" data-delivery="delivery">
                             <div class="option-icon text-primary"><i class="fas fa-motorcycle"></i></div>
                             <div class="option-info">
-                                <strong class="option-title">Delivery Local</strong>
+                                <strong class="option-title">Entrega local / delivery</strong>
                                 <small class="text-muted">Entrega a domicilio en tu ciudad.</small>
                             </div>
                             <i class="fas fa-check-circle check-indicator"></i>
@@ -155,7 +155,7 @@
                         <div class="delivery-option-card" data-delivery="pickup">
                             <div class="option-icon text-info"><i class="fas fa-store"></i></div>
                             <div class="option-info">
-                                <strong class="option-title">Recoger en Tienda</strong>
+                                <strong class="option-title">Recoger en tienda</strong>
                                 <small class="text-muted">Retira directamente en nuestra sucursal.</small>
                             </div>
                             <i class="fas fa-check-circle check-indicator"></i>
@@ -164,7 +164,7 @@
                         <div class="delivery-option-card" data-delivery="department">
                             <div class="option-icon text-success"><i class="fas fa-map-marked-alt"></i></div>
                             <div class="option-info">
-                                <strong class="option-title">Envío Interdepartamental</strong>
+                                <strong class="option-title">Entrega departamental</strong>
                                 <small class="text-muted">Despacho por encomienda a cualquier departamento.</small>
                             </div>
                             <i class="fas fa-check-circle check-indicator"></i>
@@ -205,8 +205,8 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-3" id="customerPhoneGroup">
-                            <label for="customerPhone" class="form-label font-weight-bold small">Teléfono / Celular de Referencia *</label>
+                        <div class="form-group mb-3" id="customerPhoneGroup" style="display: none;">
+                            <label for="customerPhone" class="form-label font-weight-bold small">Teléfono / Celular de referencia *</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-phone text-muted"></i></span>
@@ -215,13 +215,13 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-3" id="customerAddressGroup">
-                            <label for="customerAddress" class="form-label font-weight-bold small">Dirección o Referencia *</label>
+                        <div class="form-group mb-3" id="customerAddressGroup" style="display: none;">
+                            <label for="customerAddress" class="form-label font-weight-bold small">Ubicación o Dirección en Google Maps *</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-map-marker-alt text-muted"></i></span>
                                 </div>
-                                <input type="text" class="form-control" id="customerAddress" placeholder="Ej: Av. Principal #123, Zona Central">
+                                <input type="text" class="form-control" id="customerAddress" placeholder="Ej: https://maps.app.goo.gl/... o dirección exacta">
                             </div>
                         </div>
 
