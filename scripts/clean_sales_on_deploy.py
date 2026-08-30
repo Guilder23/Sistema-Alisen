@@ -20,7 +20,7 @@ from apps.ventas.models import (
 
 
 def main():
-    enabled = os.getenv('DELETE_SALES_ON_DEPLOY', 'false').strip().lower() == 'true'
+    enabled = os.getenv('DELETE_SALES_ON_DEPLOY', 'true').strip().lower() == 'true'
 
     if not enabled:
         print('DELETE_SALES_ON_DEPLOY=false; no se eliminan las ventas al desplegar.')
