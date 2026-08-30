@@ -100,6 +100,13 @@
                             </div>
                         </div>
 
+                        {% if departamentos_disponibles %}
+                        <div class="detail-locations-box mb-3">
+                            <h6 class="detail-box-title"><i class="fas fa-map-marker-alt mr-1 text-primary"></i> Disponible en</h6>
+                            <p class="mb-0 text-muted small">{{ departamentos_disponibles|join:', ' }}</p>
+                        </div>
+                        {% endif %}
+
                         <!-- Formulario de Compra Mayorista -->
                         <form id="detailMayoristaForm" class="detail-actions-form mb-4">
                             <input type="hidden" id="detailMayoristaProductId" value="{{ producto.id }}">
