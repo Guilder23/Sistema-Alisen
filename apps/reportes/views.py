@@ -809,8 +809,12 @@ def reporte_ventas_productos(request):
 
     total_cantidad = sum(i['cantidad_total'] for i in items_reporte)
     total_cajas = sum(i['cajas_total'] for i in items_reporte)
-    total_precio_compra = sum((Decimal(i['producto'].precio_compra or 0) for i in items_reporte), Decimal('0'))
+    total_precio_compra = sum(
+        (Decimal(i['producto'].precio_compra or 0) * Decimal(i['cantidad_total']) for i in items_reporte),
+        Decimal('0')
+    )
     total_costo = sum(i['costo_total'] for i in items_reporte)
+    total_descuento = sum(i['descuento_total'] for i in items_reporte)
     total_ventas_monto = sum(i['ventas_total'] for i in items_reporte)
     total_utilidad = sum(i['utilidad'] for i in items_reporte)
     total_productos = len(items_reporte)
@@ -859,6 +863,7 @@ def reporte_ventas_productos(request):
         'total_precio_compra': total_precio_compra,
         'precio_promedio_global': precio_promedio_global,
         'total_costo': total_costo,
+        'total_descuento': total_descuento,
         'total_ventas_monto': total_ventas_monto,
         'total_utilidad': total_utilidad,
         'total_num_ventas': total_num_ventas,
