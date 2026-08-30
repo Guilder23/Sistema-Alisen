@@ -92,6 +92,17 @@ def tienda(request):
     if genero:
         productos = productos.filter(genero=genero)
 
+    subcategorias = Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre')
+    if categoria_id:
+        subcategorias = subcategorias.filter(categoria_id=categoria_id)
+        if subcategoria_id and not subcategorias.filter(id=subcategoria_id).exists():
+            subcategoria_id = ''
+            productos = productos.filter(subcategoria__isnull=True)
+
+    # mantener la vista consistente si se selecciona una categoría y no una subcategoría válida
+    if subcategoria_id:
+        productos = productos.filter(subcategoria_id=subcategoria_id)
+
     from decimal import Decimal
     if precio_min:
         try:
@@ -114,7 +125,6 @@ def tienda(request):
         productos = productos.order_by('-fecha_creacion')
 
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
-    subcategorias = Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre')
     genero_choices = Producto.GENERO_CHOICES
 
     for p in productos:
@@ -174,6 +184,15 @@ def tienda_mayorista(request):
         productos = productos.filter(subcategoria_id=subcategoria_id)
     if genero:
         productos = productos.filter(genero=genero)
+
+    subcategorias = Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre')
+    if categoria_id:
+        subcategorias = subcategorias.filter(categoria_id=categoria_id)
+        if subcategoria_id and not subcategorias.filter(id=subcategoria_id).exists():
+            subcategoria_id = ''
+
+    if subcategoria_id:
+        productos = productos.filter(subcategoria_id=subcategoria_id)
     if precio_min:
         try:
             productos = productos.filter(precio_mayor__gte=Decimal(precio_min))
@@ -197,7 +216,7 @@ def tienda_mayorista(request):
     context = {
         'productos': productos,
         'categorias': Categoria.objects.filter(activo=True).order_by('nombre'),
-        'subcategorias': Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre'),
+        'subcategorias': subcategorias,
         'genero_choices': Producto.GENERO_CHOICES,
         'buscar': buscar,
         'categoria': categoria_id,

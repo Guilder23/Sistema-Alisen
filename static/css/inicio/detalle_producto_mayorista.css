@@ -1,9 +1,59 @@
-.detalle-mayorista-page { background: #f5f7fb; }
-.detalle-mayorista-page .detail-page { background: transparent; }
-.mayorista-detail-badge { background: #0f766e !important; color: #fff !important; }
-.mayorista-detail-price { color: #0f766e !important; font-size: 1.15rem; }
-.detalle-mayorista-page .detail-note { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
-.detalle-mayorista-page .detail-note strong { color: #047857; }
-.detalle-mayorista-page .detail-actions .btn-primary { background: #0f766e; border-color: #0f766e; }
-.detalle-mayorista-page .detail-actions .btn-primary:hover { background: #0b5f59; border-color: #0b5f59; }
-.detalle-mayorista-page .similar-card-body .precio { color: #0f766e; }
+/* ==========================================================================
+   DETALLE PRODUCTO MAYORISTA CSS - ALICEN B2B
+   ========================================================================== */
+
+.detalle-mayorista-page {
+    --color-primario: #059669;
+    --color-primario-hover: #047857;
+    --color-primario-light: #ecfdf5;
+    --color-primario-border: #a7f3d0;
+}
+
+.badge-mayorista-pill-detail {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 5;
+    background: var(--color-mayorista);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radio-full);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.mayorista-price-box {
+    border-left: 4px solid var(--color-mayorista);
+}
+
+.mayorista-rule-tag {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #065f46;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    padding: 0.3rem 0.65rem;
+    border-radius: var(--radio-sm);
+    display: inline-block;
+}
+
+.btn-stepper-mayorista:hover {
+    background: var(--color-mayorista-light);
+    color: var(--color-mayorista);
+}
+
+.btn-add-mayorista-main {
+    background: var(--color-mayorista);
+    border-color: var(--color-mayorista);
+}
+
+.btn-add-mayorista-main:hover {
+    background: var(--color-mayorista-hover);
+    border-color: var(--color-mayorista-hover);
+}
+
+.mayorista-support-card {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}

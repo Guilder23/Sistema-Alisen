@@ -4,49 +4,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preguntas frecuentes | {{ tienda_nombre }}</title>
-    <meta name="description" content="Resuelve tus dudas con nuestras preguntas frecuentes.">
+    <title>Preguntas Frecuentes | {{ tienda_nombre }}</title>
+    <meta name="description" content="Encuentra respuestas rápidas sobre métodos de pago, envíos a Bolivia y compras por mayor.">
+
+    <!-- Bootstrap CSS & Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/inicio/preguntas_frecuentes.css' %}">
+    <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
-<body>
+<body class="faq-page">
     {% include 'componentes/navbarprincipal.html' %}
 
-    <main class="faq-hero py-5">
-        <div class="container text-white text-center">
-            <span class="eyebrow">Preguntas frecuentes</span>
-            <h1 class="mt-3">Encuentra respuestas rápidas</h1>
-            <p class="lead text-white-75 mt-3">Resolvemos dudas comunes sobre compra, envío, pagos y soporte.</p>
-        </div>
+    <main class="faq-main-wrapper">
+        <!-- Hero FAQ -->
+        <section class="faq-hero py-4 py-md-5 text-center">
+            <div class="container">
+                <span class="badge badge-primary px-3 py-2 mb-2 font-weight-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">Centro de Ayuda</span>
+                <h1 class="h3 font-weight-bold text-white mb-2">Preguntas Frecuentes</h1>
+                <p class="text-white-50 mx-auto small mb-0" style="max-width: 600px;">
+                    Resolvemos tus dudas más habituales sobre compras, pagos, envíos y ventas por mayor en Bolivia.
+                </p>
+            </div>
+        </section>
+
+        <!-- Acordeón FAQ -->
+        <section class="faq-content-section container py-4 py-md-5">
+            <div class="faq-accordion-box bg-white p-3 p-md-4 rounded-lg shadow-sm border mx-auto" style="max-width: 800px;">
+                <div class="faq-item open">
+                    <button class="faq-question-btn" type="button">
+                        <span><i class="fab fa-whatsapp mr-2 text-success"></i> ¿Cómo realizo mi pedido por WhatsApp?</span>
+                        <i class="fas fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer-body open">
+                        <p class="mb-0">
+                            Solo debes agregar los productos que te gusten a tu carrito, hacer clic en <strong>"Completar datos"</strong>, ingresar tus datos de entrega y se generará un mensaje automático a nuestro WhatsApp con tu pedido desglosado para confirmar disponibilidad y método de pago.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question-btn" type="button">
+                        <span><i class="fas fa-truck mr-2 text-primary"></i> ¿Hacen envíos a todos los departamentos de Bolivia?</span>
+                        <i class="fas fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer-body">
+                        <p class="mb-0">
+                            ¡Sí! Realizamos despachos a los 9 departamentos de Bolivia a través de flotas, encomiendas y empresas de transporte seguro. El costo de envío varía según la ciudad y peso del paquete.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question-btn" type="button">
+                        <span><i class="fas fa-boxes mr-2 text-warning"></i> ¿Puedo comprar productos por mayor?</span>
+                        <i class="fas fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer-body">
+                        <p class="mb-0">
+                            Sí, contamos con una sección exclusiva de <strong>Tienda Mayorista (B2B)</strong> con precios especiales por lote. Cada producto indica su compra mínima en unidades para acceder a la tarifa mayorista.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question-btn" type="button">
+                        <span><i class="fas fa-money-bill-wave mr-2 text-success"></i> ¿Cuáles son los métodos de pago disponibles?</span>
+                        <i class="fas fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer-body">
+                        <p class="mb-0">
+                            Aceptamos pagos por transferencia bancaria (Bancos de Bolivia), código QR Simple (Banco Unión, BCP, BNB, etc.) y pago contra entrega en ciudades habilitadas para delivery local.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question-btn" type="button">
+                        <span><i class="fas fa-clock mr-2 text-info"></i> ¿Cuánto tiempo demora en llegar mi pedido?</span>
+                        <i class="fas fa-chevron-down faq-chevron"></i>
+                    </button>
+                    <div class="faq-answer-body">
+                        <p class="mb-0">
+                            Los pedidos locales se entregan en el mismo día o en 24 horas hábiles. Los envíos interdepartamentales demoran entre 24 a 48 horas según el destino.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Caja de Ayuda WhatsApp -->
+            <div class="faq-contact-box bg-white p-4 rounded-lg shadow-sm border text-center mx-auto mt-4" style="max-width: 800px;">
+                <h5 class="font-weight-bold mb-1">¿Tienes otra consulta o pedido especial?</h5>
+                <p class="text-muted small mb-3">Escríbenos directamente y te atenderemos al instante.</p>
+                <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20tengo%20una%20consulta" target="_blank" class="btn btn-success font-weight-bold">
+                    <i class="fab fa-whatsapp mr-2"></i> Contactar por WhatsApp
+                </a>
+            </div>
+        </section>
     </main>
 
-    <section class="faq-section container py-5">
-        <div class="faq-panel">
-            <div class="faq-item open">
-                <button class="faq-question" type="button">¿Cómo hago un pedido por WhatsApp?<i class="fas fa-chevron-down"></i></button>
-                <div class="faq-answer" style="max-height: 120px;"><p>Agrega productos al carrito y luego utiliza el botón de WhatsApp para enviar un resumen automático de tu pedido al número de atención.</p></div>
-            </div>
-            <div class="faq-item">
-                <button class="faq-question" type="button">¿Los precios incluyen envío?<i class="fas fa-chevron-down"></i></button>
-                <div class="faq-answer"><p>Los precios son solo del producto. El costo de envío se cotiza por separado según la cantidad y destino dentro de Bolivia.</p></div>
-            </div>
-            <div class="faq-item">
-                <button class="faq-question" type="button">¿Puedo comprar al por mayor?<i class="fas fa-chevron-down"></i></button>
-                <div class="faq-answer"><p>Sí. Nuestro catálogo está pensado para ventas mayoristas y ofrecemos atención especializada para pedidos grandes.</p></div>
-            </div>
-            <div class="faq-item">
-                <button class="faq-question" type="button">¿Cuánto tardan los envíos?<i class="fas fa-chevron-down"></i></button>
-                <div class="faq-answer"><p>El tiempo de entrega depende de la ciudad de destino, pero trabajamos para despachar con rapidez y coordinar la mejor opción de transporte.</p></div>
-            </div>
-        </div>
-    </section>
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20tengo%20una%20consulta" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="Escríbenos por WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
     {% include 'componentes/footerprincipal.html' %}
 
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

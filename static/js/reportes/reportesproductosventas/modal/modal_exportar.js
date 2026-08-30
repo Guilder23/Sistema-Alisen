@@ -41,10 +41,11 @@ function confirmarExportacion() {
         6: tabla.dataset.totalCajas || '0',
         7: `Bs. ${tabla.dataset.precioPromedioGlobal || '0.00'}`,
         8: `Bs. ${tabla.dataset.totalCosto || '0.00'}`,
-        9: `Bs. ${tabla.dataset.totalVentas || '0.00'}`,
-        10: `Bs. ${tabla.dataset.totalUtilidad || '0.00'}`,
-        11: `${tabla.dataset.margenGlobal || '0.0'}%`,
-        12: tabla.dataset.totalNumVentas || '0',
+        9: `Bs. ${tabla.dataset.totalDescuento || '0.00'}`,
+        10: `Bs. ${tabla.dataset.totalVentas || '0.00'}`,
+        11: `Bs. ${tabla.dataset.totalUtilidad || '0.00'}`,
+        12: `${tabla.dataset.margenGlobal || '0.0'}%`,
+        13: tabla.dataset.totalNumVentas || '0',
     };
     csv += columnas.map((i, posicion) => escaparCsv(
         posicion === 0 ? 'TOTALES' : (totalValues[i] || '-')

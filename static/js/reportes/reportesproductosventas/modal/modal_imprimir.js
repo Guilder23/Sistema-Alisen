@@ -80,10 +80,11 @@ function generarVistaPreviaTablaProductos() {
         6: tablaOriginal.dataset.totalCajas || '0',
         7: `Bs. ${tablaOriginal.dataset.precioPromedioGlobal || '0.00'}`,
         8: `Bs. ${tablaOriginal.dataset.totalCosto || '0.00'}`,
-        9: `Bs. ${tablaOriginal.dataset.totalVentas || '0.00'}`,
-        10: `Bs. ${tablaOriginal.dataset.totalUtilidad || '0.00'}`,
-        11: `${tablaOriginal.dataset.margenGlobal || '0.0'}%`,
-        12: tablaOriginal.dataset.totalNumVentas || '0',
+        9: `Bs. ${tablaOriginal.dataset.totalDescuento || '0.00'}`,
+        10: `Bs. ${tablaOriginal.dataset.totalVentas || '0.00'}`,
+        11: `Bs. ${tablaOriginal.dataset.totalUtilidad || '0.00'}`,
+        12: `${tablaOriginal.dataset.margenGlobal || '0.0'}%`,
+        13: tablaOriginal.dataset.totalNumVentas || '0',
     };
     const filaResumen = document.createElement('tr');
     filaResumen.style.fontWeight = '700';

@@ -1,30 +1,80 @@
 {% load static %}
-<footer class="footer-principal py-5">
+<footer class="footer-principal py-4 py-md-5">
   <div class="container">
-    <div class="row align-items-start">
-      <div class="col-md-5 mb-4 mb-md-0">
-        <img src="{% static 'img/logoAlmacen.png' %}" alt="Alicen" class="footer-logo-principal">
+    <div class="row g-4 align-items-start">
+      <!-- Columna 1: Marca & Descripción -->
+      <div class="col-lg-4 col-md-6 mb-3 mb-lg-0">
+        <a href="{% url 'index' %}" class="d-inline-flex align-items-center mb-3">
+          <img src="{% static 'img/logoAlmacen.png' %}" alt="Alicen Logo" class="footer-logo-principal mr-2">
+          <span class="footer-brand-title font-weight-bold">{{ tienda_nombre|default:'ALICEN' }}</span>
+        </a>
+        <p class="footer-description text-muted small">
+          Tu tienda virtual de confianza en Bolivia. Ofrecemos catálogo minorista y mayorista con los mejores precios, disponibilidad inmediata y envíos seguros a nivel nacional.
+        </p>
+        <div class="footer-social-links mt-3">
+          <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}" target="_blank" class="footer-social-btn" title="WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+          <a href="#" class="footer-social-btn" title="Facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="footer-social-btn" title="Instagram">
+            <i class="fab fa-instagram"></i>
+          </a>
+        </div>
       </div>
-      <div class="col-md-4 mb-4 mb-md-0">
-        <h6 class="footer-heading">Enlaces rápidos</h6>
-        <ul class="footer-links list-unstyled">
-          <li><a href="{% url 'index' %}">Inicio</a></li>
-          <li><a href="#productos">Productos</a></li>
-          <li><a href="{% url 'nosotros' %}">Nosotros</a></li>
-          <li><a href="{% url 'preguntas_frecuentes' %}">Preguntas frecuentes</a></li>
-          <li><a href="{% url 'carrito' %}">Carrito</a></li>
-          <li><a href="{% url 'login' %}">Iniciar sesión</a></li>
+
+      <!-- Columna 2: Enlaces Rápidos -->
+      <div class="col-6 col-lg-2 col-md-3 mb-3 mb-lg-0">
+        <h6 class="footer-heading">Navegación</h6>
+        <ul class="footer-links list-unstyled small">
+          <li><a href="{% url 'index' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Inicio</a></li>
+          <li><a href="{% url 'tienda' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Tienda</a></li>
+          <li><a href="{% url 'tienda_mayorista' %}"><i class="fas fa-angle-right mr-1 text-success"></i> Mayorista</a></li>
+          <li><a href="{% url 'carrito' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Mi Carrito</a></li>
+          <li><a href="{% url 'login' %}"><i class="fas fa-angle-right mr-1 text-muted"></i> Acceso Sistema</a></li>
         </ul>
       </div>
-      <div class="col-md-3">
-        <h6 class="footer-heading">Contacto</h6>
-        <p class="footer-text mb-1">WhatsApp: +591 68504229</p>
-        <p class="footer-text mb-1">Email: {{ tienda_email }}</p>
-        <p class="footer-text">Dirección: {{ tienda_direccion }}</p>
+
+      <!-- Columna 3: Información & Ayuda -->
+      <div class="col-6 col-lg-3 col-md-3 mb-3 mb-lg-0">
+        <h6 class="footer-heading">Atención al Cliente</h6>
+        <ul class="footer-links list-unstyled small">
+          <li><a href="{% url 'nosotros' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Quiénes Somos</a></li>
+          <li><a href="{% url 'preguntas_frecuentes' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Preguntas Frecuentes</a></li>
+          <li><a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20hacer%20una%20consulta" target="_blank"><i class="fas fa-angle-right mr-1 text-success"></i> Contacto Directo</a></li>
+          <li><a href="{% url 'tienda_mayorista' %}"><i class="fas fa-angle-right mr-1 text-success"></i> Ventas por Lote</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 4: Contacto -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="footer-heading">Contacto & Envíos</h6>
+        <div class="footer-contact-info small text-muted">
+          <p class="mb-2 d-flex align-items-center">
+            <i class="fab fa-whatsapp mr-2 text-success" style="font-size: 1rem;"></i>
+            <span><strong>+591 68504229</strong></span>
+          </p>
+          <p class="mb-2 d-flex align-items-center">
+            <i class="fas fa-envelope mr-2 text-primary"></i>
+            <span>{{ tienda_email|default:'contacto@alicen.bo' }}</span>
+          </p>
+          <p class="mb-2 d-flex align-items-start">
+            <i class="fas fa-map-marker-alt mr-2 text-danger mt-1"></i>
+            <span>{{ tienda_direccion|default:'Envíos coordinados a toda Bolivia' }}</span>
+          </p>
+          <p class="mb-0 d-flex align-items-center">
+            <i class="fas fa-clock mr-2 text-warning"></i>
+            <span>Lun a Sáb: 08:30 - 19:00</span>
+          </p>
+        </div>
       </div>
     </div>
-    <div class="footer-bottom text-center mt-4">
-      <span>© 2026 {{ tienda_nombre }}. Todos los derechos reservados.</span>
+
+    <!-- Copyright y Créditos -->
+    <div class="footer-bottom mt-4 pt-3 d-flex flex-column flex-md-row justify-content-between align-items-center text-center text-md-left small text-muted">
+      <span>© 2026 {{ tienda_nombre|default:'ALICEN' }}. Todos los derechos reservados.</span>
+      <span class="mt-2 mt-md-0">Comercio Seguro & Envíos a Nivel Nacional</span>
     </div>
   </div>
 </footer>

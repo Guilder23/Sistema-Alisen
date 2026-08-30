@@ -1,1 +1,27 @@
-.carrito-mayorista-page{background:#f5f7fb}.mayorista-eyebrow{color:#0f766e!important}.carrito-mayorista-page .cart-header-panel{border-left:4px solid #0f766e;padding-left:1rem}.carrito-mayorista-page .cart-summary-box{border-top:4px solid #0f766e}.carrito-mayorista-page .cart-total-final{color:#0f766e}.mayorista-cart-item{border-left:3px solid #0f766e}
+/* ==========================================================================
+   CARRITO MAYORISTA CSS - CANAL B2B ALICEN
+   ========================================================================== */
+
+.carrito-mayorista-page {
+    --color-primario: #059669;
+    --color-primario-hover: #047857;
+    --color-primario-light: #ecfdf5;
+    --color-primario-border: #a7f3d0;
+}
+
+.mayorista-items-container {
+    border-top: 4px solid var(--color-mayorista) !important;
+}
+
+.mayorista-summary-card {
+    border-top: 4px solid var(--color-mayorista) !important;
+}
+
+.mayorista-cart-item {
+    border-left: 3px solid var(--color-mayorista);
+}
+
+.mayorista-cart-item:hover {
+    border-left-color: var(--color-mayorista-hover);
+    border-color: var(--color-mayorista-border);
+}

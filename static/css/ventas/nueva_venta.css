@@ -786,7 +786,7 @@
 /* Layout principal */
 .venta-main-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.8fr) minmax(320px, 0.9fr);
+    grid-template-columns: 1fr;
     gap: 1.5rem;
     align-items: start;
 }
@@ -794,6 +794,7 @@
 .venta-main-left,
 .venta-main-right {
     min-width: 0;
+    width: 100%;
 }
 
 .venta-main-right {
@@ -942,23 +943,24 @@
 
 /* Responsive */
 @media (max-width: 1199.98px) {
-.venta-main-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.75fr) minmax(320px, 0.95fr);
-    gap: 1.5rem;
-    align-items: start;
-}
+    .venta-main-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
 
-.venta-main-left,
-.venta-main-right {
-    min-width: 0;
-}
+    .venta-main-left,
+    .venta-main-right {
+        min-width: 0;
+        width: 100%;
+    }
 
-.venta-main-right {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
+    .venta-main-right {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
 }
 
 @media (max-width: 768px) {

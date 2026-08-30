@@ -5,238 +5,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nosotros | {{ tienda_nombre }}</title>
-    <meta name="description" content="Conoce al equipo de {{ tienda_nombre }} y nuestra misión en Bolivia.">
+    <meta name="description" content="Conoce la historia, misión y valores de {{ tienda_nombre }}. Tu socio confiable en Bolivia.">
+
+    <!-- Bootstrap CSS & Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
-    <link rel="stylesheet" href="{% static 'css/inicio/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/inicio/nosotros.css' %}">
+    <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
-<body>
+<body class="about-page">
     {% include 'componentes/navbarprincipal.html' %}
 
-    <main class="about-page">
-        <section class="index-hero py-5 bg-white border-bottom index-hero-with-bg">
-            <div class="hero-bg-overlay"></div>
-            <div class="container d-flex flex-column flex-lg-row align-items-center justify-content-between gap-4 hero-content px-3 px-sm-4 px-md-5">
-                <div class="hero-copy">
-                    <span class="eyebrow text-uppercase font-weight-bold text-primary">Tienda virtual</span>
-                    <h1 class="display-5 fw-bold mt-3 text-white">{{ tienda_nombre }}</h1>
-                    <p class="lead mt-3 hero-description">{{ tienda_descripcion }}</p>
-                    <div class="d-flex flex-wrap gap-3 mt-4 hero-buttons">
-                        <a href="{% url 'tienda' %}" class="btn btn-primary btn-lg btn-catalogo">
-                            <i class="fas fa-store mr-2"></i>Ver catálogo
-                        </a>
-                        <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20más%20información%20sobre%20los%20productos" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-lg btn-whatsapp">
-                            <i class="fab fa-whatsapp mr-2"></i>Pedido por WhatsApp
-                        </a>
-                    </div>
-                </div>
-                <div class="hero-preview text-center">
-                    <img src="{% static 'img/logoAlmacen.png' %}" alt="{{ tienda_nombre }}" class="img-fluid preview-image">
-                </div>
-            </div>
-        </section>
-
-        <section class="about-hero py-5">
-            <div class="about-hero-overlay"></div>
-            <div class="container text-center text-white">
-                <span class="eyebrow">Acerca de nosotros</span>
-                <h1 class="mt-3">Construyendo comercio confiable para Bolivia</h1>
-                <p class="lead text-white-50 mt-3 mx-auto">En {{ tienda_nombre }} unimos productos seleccionados, atención personalizada y logística ágil para hacer de tu compra una experiencia tranquila.</p>
-                <div class="d-flex justify-content-center flex-wrap gap-3 mt-4">
-                    <a href="{% url 'tienda' %}" class="btn btn-primary btn-lg px-4">Ver catálogo</a>
-                    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}" class="btn btn-outline-light btn-lg px-4" target="_blank"><i class="fab fa-whatsapp mr-2"></i>Contacto directo</a>
-                </div>
-            </div>
-        </section>
-
-        <section class="about-stats py-5">
+    <main class="about-main-wrapper">
+        <!-- Hero Nosotros -->
+        <section class="about-hero py-5 text-center text-white">
             <div class="container">
-                <div class="row gx-3 gy-4 text-center">
-                    <div class="col-md-3 col-6">
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-bolt"></i></div>
-                            <div class="stat-value">+98%</div>
-                            <div class="stat-label">Pedidos despachados a tiempo</div>
+                <span class="badge badge-primary px-3 py-2 mb-2 font-weight-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">Conócenos</span>
+                <h1 class="h2 font-weight-bold text-white mb-2">Comercio Confiable & Cercano para Bolivia</h1>
+                <p class="text-white-50 mx-auto small mb-4" style="max-width: 650px;">
+                    En {{ tienda_nombre|default:'ALICEN' }} conectamos productos de calidad con familias, distribuidores y tiendas de todo el país a través de una atención directa, transparente y rápida.
+                </p>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <a href="{% url 'tienda' %}" class="btn btn-primary btn-sm font-weight-bold">
+                        <i class="fas fa-store mr-1"></i> Ver Catálogo
+                    </a>
+                    <a href="{% url 'tienda_mayorista' %}" class="btn btn-success btn-sm font-weight-bold">
+                        <i class="fas fa-boxes mr-1"></i> Canal Mayorista
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estadísticas y Logros -->
+        <section class="about-stats-section container py-4">
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card bg-white p-3 rounded-lg shadow-sm border">
+                        <div class="stat-icon text-primary mb-2"><i class="fas fa-shipping-fast"></i></div>
+                        <h3 class="stat-num font-weight-bold mb-1">+98%</h3>
+                        <p class="stat-text text-muted small mb-0">Envíos a tiempo</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card bg-white p-3 rounded-lg shadow-sm border">
+                        <div class="stat-icon text-success mb-2"><i class="fas fa-map-marked-alt"></i></div>
+                        <h3 class="stat-num font-weight-bold mb-1">9</h3>
+                        <p class="stat-text text-muted small mb-0">Departamentos cubiertos</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card bg-white p-3 rounded-lg shadow-sm border">
+                        <div class="stat-icon text-warning mb-2"><i class="fas fa-users"></i></div>
+                        <h3 class="stat-num font-weight-bold mb-1">+500</h3>
+                        <p class="stat-text text-muted small mb-0">Clientes satisfechos</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card bg-white p-3 rounded-lg shadow-sm border">
+                        <div class="stat-icon text-info mb-2"><i class="fas fa-boxes"></i></div>
+                        <h3 class="stat-num font-weight-bold mb-1">+200</h3>
+                        <p class="stat-text text-muted small mb-0">Productos activos</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Misión y Valores -->
+        <section class="about-purpose-section container py-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="purpose-card bg-white p-4 rounded-lg shadow-sm border h-100">
+                        <span class="section-eyebrow text-primary">Nuestro Propósito</span>
+                        <h4 class="font-weight-bold mb-3">Misión</h4>
+                        <p class="text-muted small mb-3">
+                            Ser el aliado estratégico de emprendedores, mayoristas y compradores minoristas en Bolivia, facilitando el acceso a productos de alta rotación con precios justos, control de stock real y soporte humano permanente.
+                        </p>
+                        <div class="d-flex align-items-center gap-2 text-success small font-weight-bold">
+                            <i class="fas fa-check-circle"></i> Calidad garantizada en cada despacho.
                         </div>
                     </div>
-                    <div class="col-md-3 col-6">
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-city"></i></div>
-                            <div class="stat-value">+9</div>
-                            <div class="stat-label">Departamentos con cobertura</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-users"></i></div>
-                            <div class="stat-value">+350</div>
-                            <div class="stat-label">Clientes satisfechos</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-tag"></i></div>
-                            <div class="stat-value">+120</div>
-                            <div class="stat-label">Productos disponibles</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="purpose-card bg-white p-4 rounded-lg shadow-sm border h-100">
+                        <span class="section-eyebrow text-success">Nuestra Visión</span>
+                        <h4 class="font-weight-bold mb-3">Compromiso con el Cliente</h4>
+                        <p class="text-muted small mb-3">
+                            Construir la red de distribución virtual más eficiente y transparente del país, asegurando que cada pedido llegue en el menor tiempo posible y con la mejor atención posventa.
+                        </p>
+                        <div class="d-flex align-items-center gap-2 text-primary small font-weight-bold">
+                            <i class="fas fa-check-circle"></i> Respuesta ágil en WhatsApp en minutos.
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="about-section container py-5">
-            <div class="row gx-4 gy-4 align-items-stretch">
-                <div class="col-lg-6">
-                    <div class="vision-panel">
-                        <span class="eyebrow-section">Nuestro propósito</span>
-                        <h2>Nuestra misión</h2>
-                        <p>Ser el socio de confianza para mayoristas, tiendas y familias en Bolivia, ofreciendo productos de calidad, disponibilidad real y envíos rápidos a todo el país. Trabajamos cada día para reducir la fricción entre importación y consumo local.</p>
-                        <div class="row mt-4">
-                            <div class="col-6">
-                                <div class="mini-stat">
-                                    <span>Inventario real</span>
-                                    <small>Controlado por tienda y sucursal</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="mini-stat">
-                                    <span>Transparencia</span>
-                                    <small>Precios claros y condiciones claras</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="about-feature feature-highlight">
-                        <span class="eyebrow-section">Atención directa</span>
-                        <h3>Experiencia profesional</h3>
-                        <p>Operamos con procesos claros, inventario controlado y atención directa por WhatsApp para cada pedido. Desde que solicitas una cotización hasta que recibes tu compra, hay un equipo humano contigo.</p>
-                        <ul class="feature-list mt-3">
-                            <li><i class="fas fa-check-circle text-success mr-2"></i>Confirmación inmediata de stock</li>
-                            <li><i class="fas fa-check-circle text-success mr-2"></i>Cotizaciones personalizadas</li>
-                            <li><i class="fas fa-check-circle text-success mr-2"></i>Envíos coordinados a todo Bolivia</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="why-section py-5">
-            <div class="container">
-                <div class="section-heading text-center mb-5">
-                    <span class="eyebrow-section text-primary">Por qué elegirnos</span>
-                    <h2>Razones para confiar en {{ tienda_nombre }}</h2>
-                </div>
-                <div class="row gx-4 gy-4">
-                    <div class="col-md-4">
-                        <article class="about-feature feature-card">
-                            <div class="feature-icon"><i class="fas fa-star"></i></div>
-                            <h3>Calidad de importación</h3>
-                            <p>Productos seleccionados para mayoristas y familias con buen costo-beneficio y respaldo comercial.</p>
-                        </article>
-                    </div>
-                    <div class="col-md-4">
-                        <article class="about-feature feature-card">
-                            <div class="feature-icon"><i class="fas fa-headset"></i></div>
-                            <h3>Atención local</h3>
-                            <p>Servicio en español, soporte continuo y despacho profesional a todo el país por tiendas y correo.</p>
-                        </article>
-                    </div>
-                    <div class="col-md-4">
-                        <article class="about-feature feature-card">
-                            <div class="feature-icon"><i class="fas fa-handshake"></i></div>
-                            <h3>Compromiso serio</h3>
-                            <p>Inventario real, precios claros y respuesta rápida para compras tanto grandes como pequeñas.</p>
-                        </article>
-                    </div>
-                    <div class="col-md-4">
-                        <article class="about-feature feature-card">
-                            <div class="feature-icon"><i class="fas fa-box-open"></i></div>
-                            <h3>Logística confiable</h3>
-                            <p>Gestión de envíos con seguimiento para que siempre sepas dónde está tu pedido.</p>
-                        </article>
-                    </div>
-                    <div class="col-md-4">
-                        <article class="about-feature feature-card">
-                            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                            <h3>Ofertas semanales</h3>
-                            <p>Catálogo actualizado con promociones y oportunidades para hacer crecer tu negocio.</p>
-                        </article>
-                    </div>
-                    <div class="col-md-4">
-                        <article class="about-feature feature-card">
-                            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-                            <h3>Pago flexible</h3>
-                            <p>Opciones de pago adaptadas a tu flujo: transferencia, QR y pago contra entrega en ciudades habilitadas.</p>
-                        </article>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="values-section py-5">
-            <div class="container">
-                <div class="section-heading text-center mb-5">
-                    <span class="eyebrow-section text-primary">Nuestros pilares</span>
-                    <h2>Visión, valores y soporte</h2>
-                </div>
-                <div class="row gx-4 gy-4">
-                    <div class="col-md-4">
-                        <div class="team-card">
-                            <div class="team-card-icon"><i class="fas fa-road"></i></div>
-                            <h4>Visión</h4>
-                            <p>Ser la primera opción de compra online para mayoristas dentro de Bolivia, con catálogo confiable y crecimiento constante.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="team-card">
-                            <div class="team-card-icon"><i class="fas fa-heart"></i></div>
-                            <h4>Valores</h4>
-                            <p>Integridad, eficiencia y respaldo local para cada cliente que confía en nosotros. La confianza se construye en cada entrega.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="team-card">
-                            <div class="team-card-icon"><i class="fas fa-headset"></i></div>
-                            <h4>Soporte</h4>
-                            <p>Asesoría personalizada y seguimiento de pedido desde la cotización hasta la entrega en cualquier ciudad de Bolivia.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="contact-cta-section py-5">
-            <div class="container">
-                <div class="contact-cta-card">
-                    <div class="row align-items-center gx-4 gy-4">
-                        <div class="col-lg-8">
-                            <span class="eyebrow-section text-white-50">Hablemos</span>
-                            <h3>¿Tienes dudas o quieres cotizar tu próximo pedido?</h3>
-                            <p class="mb-0">Escríbenos por WhatsApp y te respondemos de inmediato con disponibilidad, costos de envío y tiempos de entrega.</p>
-                        </div>
-                        <div class="col-lg-4 text-lg-right">
-                            <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}" target="_blank" class="btn btn-success btn-lg px-5 py-3 btn-whatsapp-outline">
-                                <i class="fab fa-whatsapp mr-2"></i>Contactar
-                            </a>
-                        </div>
-                    </div>
-                </div>
+        <!-- CTA Contacto -->
+        <section class="container py-4 mb-4">
+            <div class="about-cta-card bg-white p-4 p-md-5 rounded-lg shadow-sm border text-center">
+                <h4 class="font-weight-bold mb-2">¿Quieres cotizar tu pedido o necesitas más información?</h4>
+                <p class="text-muted small mx-auto mb-4" style="max-width: 550px;">
+                    Nuestro equipo está disponible para asesorarte sobre disponibilidad, precios por lote y logística.
+                </p>
+                <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20más%20información" target="_blank" class="btn btn-success font-weight-bold">
+                    <i class="fab fa-whatsapp mr-2"></i> Escribir al WhatsApp (+591 68504229)
+                </a>
             </div>
         </section>
     </main>
 
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20más%20información" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="Escríbenos por WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
     {% include 'componentes/footerprincipal.html' %}
 
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/componentes/navbarprincipal.js' %}"></script>
-    <script src="{% static 'js/inicio/nosotros.js' %}"></script>
 </body>
 </html>

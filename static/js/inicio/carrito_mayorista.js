@@ -1,3 +1,7 @@
+/* ============================================================================
+   CARRITO_MAYORISTA.JS - Lógica de carrito mayorista B2B y pedido WhatsApp
+   ============================================================================ */
+
 document.addEventListener('DOMContentLoaded', () => {
     const key = 'alicen_cart_mayorista';
     const content = document.getElementById('cartContent');
@@ -8,9 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearButton = document.getElementById('clearCartBtn');
     const deliveryModal = document.getElementById('deliveryModal');
     const customerModal = document.getElementById('customerModal');
-    const deliveryOptions = document.querySelectorAll('.delivery-option');
+    const deliveryOptions = document.querySelectorAll('.delivery-option-card');
     const continueDeliveryButton = document.getElementById('continueDeliveryButton');
     const productPrices = JSON.parse(document.getElementById('preciosMayoristas')?.textContent || '{}');
+
     let selectedDelivery = '';
 
     const getCart = () => {
@@ -22,58 +27,262 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             localStorage.setItem(key, JSON.stringify(cart));
             return cart;
-        } catch { return {}; }
-    };
-    const items = () => Object.values(getCart());
-    const money = (value) => Number(value || 0).toFixed(2);
-    const saveCart = (cart) => { localStorage.setItem(key, JSON.stringify(cart)); render(); };
-    const toast = (message, title = 'Atención', type = 'error') => {
-        const node = document.createElement('div');
-        node.className = `toast-notification toast-${type}`;
-        node.innerHTML = `<div class="toast-icon"><i class="fas fa-${type === 'success' ? 'check' : 'exclamation-triangle'}"></i></div><div class="toast-text"><strong>${title}</strong><small>${message}</small></div>`;
-        document.body.appendChild(node);
-        setTimeout(() => { node.classList.add('toast-hide'); setTimeout(() => node.remove(), 350); }, 2800);
-    };
-    const render = () => {
-        const list = items();
-        if (!list.length) {
-            content.innerHTML = '<div class="cart-empty text-center py-4"><i class="fas fa-box-open fa-2x text-muted"></i><p>Tu carrito mayorista está vacío.</p><small>Agrega productos desde el catálogo mayorista.</small></div>';
-            totalNode.textContent = '0.00'; countNode.textContent = '0'; showFormButton.disabled = true; return;
+        } catch { 
+            return {}; 
         }
-        content.innerHTML = list.map((item) => `<article class="cart-item mayorista-cart-item"><div class="cart-item-image"><img src="${item.foto || '/static/img/logoAlmacen.png'}" alt="${item.nombre}"></div><div class="cart-item-main"><div class="cart-item-header"><strong>${item.nombre}</strong><div class="cart-item-price">Precio unitario mayorista: Bs ${money(item.precio)}</div></div><div class="small text-success mb-2"><i class="fas fa-boxes mr-1"></i>Mínimo: ${item.unidades_por_mayor || 1} unidades</div><div class="cart-item-controls"><button class="btn btn-sm btn-light quantity-control" data-action="decrease" data-id="${item.id}">-</button><input type="number" class="form-control quantity-input" min="${item.unidades_por_mayor || 1}" step="${item.unidades_por_mayor || 1}" value="${item.cantidad}" data-id="${item.id}"><button class="btn btn-sm btn-light quantity-control" data-action="increase" data-id="${item.id}">+</button></div><div class="cart-item-footer"><div class="cart-item-total">Total del producto: Bs ${money(item.cantidad * item.precio)}</div><button class="btn btn-sm btn-outline-danger remove-item" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button></div></div></article>`).join('');
-        countNode.textContent = String(list.reduce((sum, item) => sum + Number(item.cantidad || 0), 0));
-        totalNode.textContent = money(list.reduce((sum, item) => sum + Number(item.cantidad || 0) * Number(item.precio || 0), 0));
-        showFormButton.disabled = false;
-        content.querySelectorAll('.quantity-control').forEach((button) => button.addEventListener('click', () => changeQuantity(button.dataset.id, button.dataset.action === 'increase' ? 1 : -1)));
-        content.querySelectorAll('.quantity-input').forEach((input) => input.addEventListener('change', () => setQuantity(input.dataset.id, input.value)));
-        content.querySelectorAll('.remove-item').forEach((button) => button.addEventListener('click', () => { const cart = getCart(); delete cart[button.dataset.id]; saveCart(cart); }));
     };
-    const setQuantity = (id, value) => { const cart = getCart(); if (!cart[id]) return; const minimum = Number(cart[id].unidades_por_mayor || 1); const stock = Number(cart[id].stock || Infinity); cart[id].cantidad = Math.min(stock, Math.max(minimum, parseInt(value, 10) || minimum)); saveCart(cart); };
-    const changeQuantity = (id, delta) => { const cart = getCart(); if (!cart[id]) return; setQuantity(id, Number(cart[id].cantidad) + delta * Number(cart[id].unidades_por_mayor || 1)); };
 
-    deliveryOptions.forEach((option) => option.addEventListener('click', () => { deliveryOptions.forEach((item) => item.classList.remove('active')); option.classList.add('active'); selectedDelivery = option.dataset.delivery || ''; continueDeliveryButton.disabled = !selectedDelivery; }));
-    continueDeliveryButton?.addEventListener('click', () => { if (!selectedDelivery) return; $(deliveryModal).modal('hide'); configureFields(); $(customerModal).modal('show'); });
-    const configureFields = () => {
-        const department = selectedDelivery === 'department';
-        const locationRequired = selectedDelivery === 'delivery';
-        document.getElementById('customerLocationGroup').style.display = locationRequired ? 'block' : 'none';
-        document.getElementById('customerPhoneGroup').style.display = department ? 'block' : 'none';
-        document.getElementById('departmentGroup').style.display = department ? 'block' : 'none';
-        document.getElementById('provinceGroup').style.display = department ? 'block' : 'none';
-        document.getElementById('customerLocation').required = locationRequired;
-        document.getElementById('customerPhone').required = department; document.getElementById('customerDepartment').required = department; document.getElementById('customerProvince').required = department;
-        document.getElementById('deliveryNote').style.display = locationRequired ? 'block' : 'none';
+    const saveCart = (cart) => {
+        localStorage.setItem(key, JSON.stringify(cart));
+        window.dispatchEvent(new Event('cartUpdated'));
+        render();
     };
-    showFormButton?.addEventListener('click', (event) => { if (!items().length) { event.preventDefault(); toast('Agrega productos antes de enviar el pedido.'); } });
-    checkoutForm?.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const list = items(); const name = document.getElementById('customerName').value.trim(); const location = document.getElementById('customerLocation').value.trim(); const phone = document.getElementById('customerPhone').value.trim(); const department = document.getElementById('customerDepartment').value.trim(); const province = document.getElementById('customerProvince').value.trim();
-        if (!name || !selectedDelivery || (selectedDelivery === 'delivery' && !location) || (selectedDelivery === 'department' && (!phone || !department || !province))) { toast('Completa todos los datos requeridos.'); return; }
-        const lines = list.map((item) => `${item.nombre} x ${item.cantidad} = Bs ${money(item.cantidad * item.precio)}`); const delivery = selectedDelivery === 'delivery' ? 'Delivery' : selectedDelivery === 'department' ? 'Envío a departamento' : 'Recoger en tienda'; const locationLine = selectedDelivery === 'delivery' ? `Ubicación (Google Maps): ${location}\n` : ''; const departmentLine = selectedDelivery === 'department' ? `Departamento: ${department}\nProvincia: ${province}\nTeléfono de referencia: ${phone}\n` : ''; const total = money(list.reduce((sum, item) => sum + Number(item.cantidad) * Number(item.precio), 0));
-        const message = encodeURIComponent(`Hola, quiero hacer un pedido MAYORISTA.\n\nDATOS DEL CLIENTE:\nNombre: ${name}\n${locationLine}${departmentLine}Opción de entrega: ${delivery}\n\nPEDIDO MAYORISTA:\n${lines.join('\n')}\n\nTotal mayorista: Bs ${total}`);
-        window.open(`https://wa.me/68504229?text=${message}`, '_blank'); $(customerModal).modal('hide');
+
+    const money = (value) => Number(value || 0).toFixed(2);
+
+    const toast = (mensaje, tipo = 'success', titulo = '¡Mayorista!') => {
+        const node = document.createElement('div');
+        node.className = `toast-notification toast-${tipo}`;
+        node.innerHTML = `
+            <div class="toast-icon"><i class="fas fa-${tipo === 'success' ? 'check' : 'exclamation-triangle'}"></i></div>
+            <div class="toast-text">
+                <strong>${titulo}</strong>
+                <small>${mensaje}</small>
+            </div>
+        `;
+        document.body.appendChild(node);
+        setTimeout(() => {
+            node.classList.add('toast-hide');
+            setTimeout(() => node.remove(), 350);
+        }, 2800);
+    };
+
+    const render = () => {
+        const cart = getCart();
+        const list = Object.values(cart);
+
+        if (!list.length) {
+            if (content) {
+                content.innerHTML = `
+                    <div class="cart-empty text-center">
+                        <i class="fas fa-boxes fa-3x mb-3 text-muted"></i>
+                        <p>Tu carrito mayorista está vacío</p>
+                        <small class="text-muted d-block mb-3">Agrega productos por mayor desde nuestro catálogo B2B.</small>
+                        <a href="/tienda-mayorista/" class="btn btn-success btn-sm">
+                            <i class="fas fa-boxes mr-1"></i> Explorar Catálogo Mayorista
+                        </a>
+                    </div>
+                `;
+            }
+            if (totalNode) totalNode.textContent = '0.00';
+            if (countNode) countNode.textContent = '0';
+            if (showFormButton) showFormButton.disabled = true;
+            return;
+        }
+
+        const htmlItems = list.map((item) => `
+            <article class="cart-item mayorista-cart-item">
+                <div class="cart-item-image">
+                    <img src="${item.foto || '/static/img/logoAlmacen.png'}" alt="${item.nombre}">
+                </div>
+                <div class="cart-item-main">
+                    <div class="cart-item-header">
+                        <strong>${item.nombre}</strong>
+                        <div class="cart-item-price text-success font-weight-bold">
+                            Bs ${money(item.precio)} <small class="text-muted">/unidad</small>
+                        </div>
+                        <small class="text-muted d-block"><i class="fas fa-layer-group mr-1"></i>Mínimo: ${item.unidades_por_mayor || 1} unid.</small>
+                    </div>
+                    <div class="cart-item-controls">
+                        <button class="quantity-control" data-action="decrease" data-id="${item.id}">-</button>
+                        <input type="number" class="quantity-input" min="${item.unidades_por_mayor || 1}" step="${item.unidades_por_mayor || 1}" value="${item.cantidad}" data-id="${item.id}">
+                        <button class="quantity-control" data-action="increase" data-id="${item.id}">+</button>
+                    </div>
+                    <div class="cart-item-footer">
+                        <div class="cart-item-total text-success">Bs ${money(item.cantidad * item.precio)}</div>
+                        <button class="btn btn-outline-danger btn-sm remove-item" data-id="${item.id}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </article>
+        `).join('');
+
+        if (content) content.innerHTML = htmlItems;
+        if (countNode) countNode.textContent = String(list.reduce((sum, it) => sum + Number(it.cantidad || 0), 0));
+        if (totalNode) totalNode.textContent = money(list.reduce((sum, it) => sum + Number(it.cantidad || 0) * Number(it.precio || 0), 0));
+        if (showFormButton) showFormButton.disabled = false;
+
+        // Steppers
+        content.querySelectorAll('.quantity-control').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const id = String(btn.dataset.id);
+                const isInc = btn.dataset.action === 'increase';
+                const c = getCart();
+                if (!c[id]) return;
+
+                const step = Number(c[id].unidades_por_mayor || 1);
+                const current = Number(c[id].cantidad || step);
+                const max = Number(c[id].stock || 9999);
+                const next = isInc ? current + step : current - step;
+
+                if (next < step) return;
+                if (next > max && max > 0) {
+                    toast(`Stock máximo: ${max} unidades.`, 'error', 'Límite');
+                    return;
+                }
+
+                c[id].cantidad = next;
+                saveCart(c);
+            });
+        });
+
+        content.querySelectorAll('.quantity-input').forEach((input) => {
+            input.addEventListener('change', () => {
+                const id = String(input.dataset.id);
+                const c = getCart();
+                if (!c[id]) return;
+
+                const step = Number(c[id].unidades_por_mayor || 1);
+                const max = Number(c[id].stock || 9999);
+                let val = parseInt(input.value, 10);
+                if (isNaN(val) || val < step) val = step;
+                if (val > max && max > 0) val = max;
+
+                input.value = val;
+                c[id].cantidad = val;
+                saveCart(c);
+            });
+        });
+
+        // Eliminar
+        content.querySelectorAll('.remove-item').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const id = String(btn.dataset.id);
+                const c = getCart();
+                delete c[id];
+                saveCart(c);
+                toast('Producto eliminado del pedido mayorista.', 'success', 'Eliminado');
+            });
+        });
+    };
+
+    // Selección de Entrega Mayorista
+    deliveryOptions.forEach((card) => {
+        card.addEventListener('click', () => {
+            deliveryOptions.forEach((c) => c.classList.remove('active'));
+            card.classList.add('active');
+            selectedDelivery = card.dataset.delivery || '';
+            if (continueDeliveryButton) {
+                continueDeliveryButton.disabled = !selectedDelivery;
+            }
+        });
     });
-    clearButton?.addEventListener('click', () => { if (items().length && confirm('¿Deseas vaciar el carrito mayorista?')) { localStorage.removeItem(key); render(); } });
-    customerModal?.addEventListener('hidden.bs.modal', () => { checkoutForm.reset(); selectedDelivery = ''; deliveryOptions.forEach((item) => item.classList.remove('active')); continueDeliveryButton.disabled = true; });
+
+    continueDeliveryButton?.addEventListener('click', () => {
+        if (!selectedDelivery) return;
+        $(deliveryModal).modal('hide');
+        configureFields();
+        $(customerModal).modal('show');
+    });
+
+    const configureFields = () => {
+        const isDep = selectedDelivery === 'department';
+        const isDel = selectedDelivery === 'delivery';
+        const isPickup = selectedDelivery === 'pickup';
+
+        const phoneGroup = document.getElementById('customerPhoneGroup');
+        const depGroup = document.getElementById('departmentGroup');
+        const provGroup = document.getElementById('provinceGroup');
+        const locGroup = document.getElementById('customerLocationGroup');
+        const phoneInput = document.getElementById('customerPhone');
+        const locationInput = document.getElementById('customerLocation');
+        const depInput = document.getElementById('customerDepartment');
+        const provInput = document.getElementById('customerProvince');
+
+        if (phoneGroup) phoneGroup.style.display = isDep ? 'block' : 'none';
+        if (depGroup) depGroup.style.display = isDep ? 'block' : 'none';
+        if (provGroup) provGroup.style.display = isDep ? 'block' : 'none';
+        if (locGroup) locGroup.style.display = isDel ? 'block' : 'none';
+
+        if (phoneInput) phoneInput.required = isDep;
+        if (locationInput) locationInput.required = isDel;
+        if (depInput) depInput.required = isDep;
+        if (provInput) provInput.required = isDep;
+
+        if (isPickup) {
+            if (phoneInput) phoneInput.value = '';
+            if (locationInput) locationInput.value = '';
+            if (depInput) depInput.value = '';
+            if (provInput) provInput.value = '';
+        }
+    };
+
+    // Enviar WhatsApp Mayorista
+    checkoutForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const list = Object.values(getCart());
+        if (!list.length) {
+            toast('Tu carrito mayorista está vacío.', 'error', 'Error');
+            return;
+        }
+
+        const name = document.getElementById('customerName')?.value.trim();
+        const location = document.getElementById('customerLocation')?.value.trim() || '';
+        const phone = document.getElementById('customerPhone')?.value.trim() || '';
+        const department = document.getElementById('customerDepartment')?.value.trim() || '';
+        const province = document.getElementById('customerProvince')?.value.trim() || '';
+
+        if (!name) {
+            toast('Por favor, ingresa tu nombre o razón social.', 'error', 'Datos requeridos');
+            return;
+        }
+
+        const deliveryName = selectedDelivery === 'delivery' 
+            ? '🚛 Entrega local / delivery' 
+            : (selectedDelivery === 'department' ? '📦 Entrega departamental' : '🏬 Recoger en tienda');
+
+        const productLines = list.map((item, idx) => {
+            return `${idx + 1}. *${item.nombre}*\n   Cant: ${item.cantidad} unid. x Bs ${money(item.precio)} = Bs ${money(item.cantidad * item.precio)}`;
+        });
+
+        const totalAmount = money(list.reduce((sum, item) => sum + Number(item.cantidad || 0) * Number(item.precio || 0), 0));
+
+        let extraDetails = `📍 *Modalidad de Entrega:* ${deliveryName}\n`;
+        if (selectedDelivery === 'delivery' && location) {
+            extraDetails += `📌 *Ubicación / Maps:* ${location}\n`;
+        }
+        if (selectedDelivery === 'department') {
+            if (phone) extraDetails += `📞 *Teléfono / Celular de referencia:* ${phone}\n`;
+            extraDetails += `🗺️ *Destino:* ${department}, ${province}\n`;
+        }
+
+        const message = encodeURIComponent(
+            `📦 *NUEVO PEDIDO MAYORISTA (B2B)*\n\n` +
+            `🏢 *CLIENTE / NEGOCIO:* ${name}\n` +
+            extraDetails +
+            `\n📋 *PRODUCTOS POR MAYOR:*\n` +
+            `${productLines.join('\n')}\n\n` +
+            `💰 *TOTAL MAYORISTA:* Bs ${totalAmount}\n\n` +
+            `Por favor, solicito confirmación de stock por lote y cotización para el despacho. ¡Gracias!`
+        );
+
+        window.open(`https://wa.me/59168504229?text=${message}`, '_blank');
+        $(customerModal).modal('hide');
+    });
+
+    clearButton?.addEventListener('click', () => {
+        const list = Object.values(getCart());
+        if (!list.length) {
+            toast('Tu carrito mayorista ya está vacío.', 'error', 'Atención');
+            return;
+        }
+        if (!confirm('¿Deseas vaciar el pedido mayorista?')) return;
+        localStorage.removeItem(key);
+        window.dispatchEvent(new Event('cartUpdated'));
+        render();
+        toast('Se ha vaciado el carrito mayorista.', 'success', 'Vacío');
+    });
+
     render();
 });

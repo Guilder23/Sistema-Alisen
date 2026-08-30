@@ -4,55 +4,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito | {{ tienda_nombre }}</title>
-    <meta name="description" content="Revisa tu carrito y envía tu pedido por WhatsApp.">
+    <title>Carrito de Compras | {{ tienda_nombre }}</title>
+    <meta name="description" content="Revisa tu carrito de compras y envía tu pedido directo por WhatsApp con confirmación inmediata.">
+
+    <!-- Bootstrap CSS & Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
-    <link rel="stylesheet" href="{% static 'css/inicio/carrito.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/inicio/carrito.css' %}">
+    <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
-<body>
+<body class="carrito-page">
     {% include 'componentes/navbarprincipal.html' %}
-    <main class="cart-page container py-4" style="padding-top: 130px;">
-        <section class="cart-hero">
-            <div class="cart-header-panel d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4">
-                <div><span class="eyebrow">Tu carrito</span><h1 class="h4 mb-1">Revisa tu pedido</h1><p class="small text-muted mb-0">Ajusta cantidades, elimina productos y envía tu pedido por WhatsApp.</p></div>
-                <div class="cart-actions-top mt-3 mt-md-0"><a href="{% url 'tienda' %}" class="btn btn-link">Seguir comprando</a><button id="clearCartBtn" class="btn btn-outline-danger">Vaciar carrito</button></div>
+
+    <main class="cart-main-wrapper container py-3 py-md-4">
+        <!-- Encabezado del Carrito -->
+        <div class="cart-header-panel d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row mb-4">
+            <div>
+                <span class="section-eyebrow text-primary"><i class="fas fa-shopping-bag mr-1"></i> Resumen de Compra</span>
+                <h1 class="h4 font-weight-bold mb-1">Tu Carrito de Compras</h1>
+                <p class="text-muted small mb-0">Revisa tus productos, ajusta cantidades y envía tu pedido por WhatsApp.</p>
             </div>
-            <div class="row cart-layout-row">
-                <div class="col-lg-8 mb-4 mb-lg-0"><div id="cartContent" class="cart-content cart-items-col bg-white p-3 rounded shadow-sm"></div></div>
-                <div class="col-lg-4"><aside class="cart-summary-col sticky-top" style="top: 1rem;"><div class="cart-summary-box bg-white rounded shadow-sm p-4">
-                    <h5 class="font-weight-bold mb-3"><i class="fas fa-receipt text-primary mr-2"></i>Resumen del pedido</h5>
-                    <div class="resumen-filas mb-3"><div class="d-flex justify-content-between align-items-center mb-2"><span class="text-muted">Productos</span><strong id="cartItemCount">0</strong></div><div class="d-flex justify-content-between align-items-center mb-2"><span class="text-muted">Envío</span><span class="text-success font-weight-bold">A confirmar</span></div><hr class="my-2"><div class="d-flex justify-content-between align-items-center cart-total-final"><span>Total</span><span>Bs <span id="cartTotal">0.00</span></span></div></div>
-                    <button id="showFormButton" class="btn btn-success btn-block btn-checkout-whatsapp" data-toggle="modal" data-target="#deliveryModal"><i class="fas fa-user-plus mr-2"></i>Completar datos del pedido</button>
-                    <div class="mt-4 small text-muted border-top pt-3"><div><i class="fas fa-envelope mr-2 text-primary"></i> {{ tienda_email }}</div><div class="mt-1"><i class="fas fa-map-marker-alt mr-2 text-primary"></i> {{ tienda_direccion }}</div></div>
-                </div></aside></div>
+            <div class="cart-header-actions mt-3 mt-md-0 d-flex gap-2">
+                <a href="{% url 'tienda' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-plus mr-1"></i> Seguir comprando
+                </a>
+                <button id="clearCartBtn" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-trash-alt mr-1"></i> Vaciar carrito
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenido y Resumen del Carrito -->
+        <div class="row cart-layout-row">
+            <!-- Lista de Artículos -->
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <div id="cartContent" class="cart-items-container bg-white p-3 p-md-4 rounded-lg shadow-sm border">
+                    <!-- Dinámico por JS -->
+                </div>
+            </div>
+
+            <!-- Resumen Lateral Sticky -->
+            <div class="col-lg-4">
+                <aside class="cart-summary-sidebar sticky-top" style="top: calc(var(--navbar-height) + 16px);">
+                    <div class="cart-summary-card bg-white rounded-lg shadow-sm border p-4">
+                        <h5 class="font-weight-bold mb-3 d-flex align-items-center">
+                            <i class="fas fa-receipt text-primary mr-2"></i> Resumen del Pedido
+                        </h5>
+
+                        <div class="summary-rows mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Total artículos:</span>
+                                <strong id="cartItemCount">0</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Envío:</span>
+                                <span class="badge badge-outline-success">A coordinar</span>
+                            </div>
+                            <hr class="my-3">
+                            <div class="d-flex justify-content-between align-items-center cart-total-block">
+                                <span class="font-weight-bold">Total estimado:</span>
+                                <span class="cart-total-amount text-primary font-weight-bold">Bs <span id="cartTotal">0.00</span></span>
+                            </div>
+                        </div>
+
+                        <button id="showFormButton" class="btn btn-success btn-block btn-checkout-main" data-toggle="modal" data-target="#deliveryModal">
+                            <i class="fab fa-whatsapp mr-2"></i> Completar datos y enviar
+                        </button>
+
+                        <div class="mt-4 pt-3 border-top small text-muted">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fas fa-shield-alt text-primary"></i>
+                                <span>Stock verificado antes del pago</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-truck text-success"></i>
+                                <span>Envíos seguros a toda Bolivia</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Proceso del Pedido (Pasos) -->
+        <section class="order-process-section mt-5 pt-4 border-top">
+            <h6 class="font-weight-bold text-muted mb-3 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.05em;">
+                <i class="fas fa-info-circle mr-1"></i> ¿Cómo funciona tu compra?
+            </h6>
+            <div class="row g-3 order-steps-grid">
+                <div class="col-6 col-md-3">
+                    <div class="order-step-card">
+                        <div class="step-badge">1</div>
+                        <h6 class="step-title">1. Envías pedido</h6>
+                        <p class="step-desc">Se genera un mensaje automático con tu carrito a WhatsApp.</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="order-step-card">
+                        <div class="step-badge">2</div>
+                        <h6 class="step-title">2. Confirmamos</h6>
+                        <p class="step-desc">Un asesor te confirma disponibilidad de stock y costo de envío.</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="order-step-card">
+                        <div class="step-badge">3</div>
+                        <h6 class="step-title">3. Pago Seguro</h6>
+                        <p class="step-desc">Pagas mediante QR, transferencia o contra entrega según tu ciudad.</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="order-step-card">
+                        <div class="step-badge">4</div>
+                        <h6 class="step-title">4. Despacho</h6>
+                        <p class="step-desc">Recibes tu guía de envío o delivery hasta la puerta de tu casa.</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 
-    <div class="proceso-pedido container mt-4 pt-4 border-top"><h6 class="font-weight-bold text-muted mb-3"><i class="fas fa-info-circle mr-1"></i>¿Cómo funciona tu pedido?</h6><ol class="proceso-pasos mb-0">
-        <li><div class="paso-numero"><i class="fas fa-check"></i></div><div class="paso-texto"><strong>Confirmación</strong><span>Te escribimos por WhatsApp para confirmar disponibilidad y detalles.</span></div></li>
-        <li><div class="paso-numero"><i class="fas fa-shipping-fast"></i></div><div class="paso-texto"><strong>Envío coordinado</strong><span>Elegimos la opción más rápida y económica a tu ciudad.</span></div></li>
-        <li><div class="paso-numero"><i class="fas fa-hand-holding-usd"></i></div><div class="paso-texto"><strong>Pago seguro</strong><span>Pago contra entrega o transferencia con comprobante.</span></div></li>
-        <li><div class="paso-numero"><i class="fas fa-gift"></i></div><div class="paso-texto"><strong>Recibe tu pedido</strong><span>Seguimiento personalizado hasta la entrega final.</span></div></li>
-    </ol></div>
+    <!-- Modal Paso 1: Selección de Entrega -->
+    <div class="modal fade modal-modern" id="deliveryModal" tabindex="-1" role="dialog" aria-labelledby="deliveryModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold" id="deliveryModalTitle">
+                        <i class="fas fa-truck mr-2 text-primary"></i>¿Cómo deseas recibir tu pedido?
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body py-4">
+                    <div class="delivery-options-grid">
+                        <div class="delivery-option-card" data-delivery="delivery">
+                            <div class="option-icon text-primary"><i class="fas fa-motorcycle"></i></div>
+                            <div class="option-info">
+                                <strong class="option-title">Entrega local / delivery</strong>
+                                <small class="text-muted">Entrega a domicilio en tu ciudad.</small>
+                            </div>
+                            <i class="fas fa-check-circle check-indicator"></i>
+                        </div>
+
+                        <div class="delivery-option-card" data-delivery="pickup">
+                            <div class="option-icon text-info"><i class="fas fa-store"></i></div>
+                            <div class="option-info">
+                                <strong class="option-title">Recoger en tienda</strong>
+                                <small class="text-muted">Retira directamente en nuestra sucursal.</small>
+                            </div>
+                            <i class="fas fa-check-circle check-indicator"></i>
+                        </div>
+
+                        <div class="delivery-option-card" data-delivery="department">
+                            <div class="option-icon text-success"><i class="fas fa-map-marked-alt"></i></div>
+                            <div class="option-info">
+                                <strong class="option-title">Entrega departamental</strong>
+                                <small class="text-muted">Despacho por encomienda a cualquier departamento.</small>
+                            </div>
+                            <i class="fas fa-check-circle check-indicator"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success font-weight-bold" id="continueDeliveryButton" disabled>
+                        Continuar <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Paso 2: Datos del Cliente -->
+    <div class="modal fade modal-modern" id="customerModal" tabindex="-1" role="dialog" aria-labelledby="customerModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold" id="customerModalTitle">
+                        <i class="fas fa-user-edit mr-2 text-primary"></i>Datos para el Envío
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body py-3">
+                    <form id="checkoutForm">
+                        <div class="form-group mb-3">
+                            <label for="customerName" class="form-label font-weight-bold small">Nombre y Apellido *</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-user text-muted"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="customerName" placeholder="Ej: Carlos Mamani" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3" id="customerPhoneGroup" style="display: none;">
+                            <label for="customerPhone" class="form-label font-weight-bold small">Teléfono / Celular de referencia *</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-phone text-muted"></i></span>
+                                </div>
+                                <input type="tel" class="form-control" id="customerPhone" placeholder="Ej: 71234567">
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3" id="customerAddressGroup" style="display: none;">
+                            <label for="customerAddress" class="form-label font-weight-bold small">Ubicación o Dirección en Google Maps *</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-map-marker-alt text-muted"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="customerAddress" placeholder="Ej: https://maps.app.goo.gl/... o dirección exacta">
+                            </div>
+                        </div>
+
+                        <div class="row gx-2" id="departmentRow">
+                            <div class="col-6">
+                                <div class="form-group mb-3" id="departmentGroup">
+                                    <label for="customerDepartment" class="form-label font-weight-bold small">Departamento *</label>
+                                    <input type="text" class="form-control" id="customerDepartment" placeholder="Ej: La Paz, Santa Cruz...">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-3" id="provinceGroup">
+                                    <label for="customerProvince" class="form-label font-weight-bold small">Ciudad / Provincia *</label>
+                                    <input type="text" class="form-control" id="customerProvince" placeholder="Ej: El Alto, Montero...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info py-2 px-3 small mb-0" id="deliveryNote">
+                            <i class="fas fa-info-circle mr-1"></i> El costo exacto del envío se confirmará al momento de contactarte por WhatsApp.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="checkoutForm" id="submitOrderButton" data-phone="59168504229" class="btn btn-success font-weight-bold">
+                        <i class="fab fa-whatsapp mr-2"></i> Enviar Pedido por WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {% include 'componentes/footerprincipal.html' %}
 
-    <div class="modal fade" id="deliveryModal" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-truck mr-2"></i>Opción de entrega</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
-        <div class="modal-body"><p class="font-weight-bold">¿Cómo deseas recibir tu pedido?</p><div class="delivery-options"><button type="button" class="delivery-option" data-delivery="delivery"><i class="fas fa-truck"></i><span>Delivery</span></button><button type="button" class="delivery-option" data-delivery="pickup"><i class="fas fa-store"></i><span>Recoger en tienda</span></button><button type="button" class="delivery-option" data-delivery="department"><i class="fas fa-map-marked-alt"></i><span>Envío a departamento</span></button></div></div>
-        <div class="modal-footer"><button type="button" class="btn btn-success" id="continueDeliveryButton" disabled>Continuar</button></div>
-    </div></div></div>
-
-    <div class="modal fade" id="customerModal" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title" id="customerModalLabel"><i class="fas fa-user mr-2"></i>Datos del cliente</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
-        <div class="modal-body"><form id="checkoutForm"><div class="form-group"><label for="customerName">Nombre completo *</label><input type="text" class="form-control" id="customerName" required></div><div class="form-group" id="customerPhoneGroup" style="display:none;"><label for="customerPhone">Teléfono de referencia *</label><input type="tel" class="form-control" id="customerPhone"></div><div class="form-group" id="customerAddressGroup"><label for="customerAddress">Dirección *</label><input type="text" class="form-control" id="customerAddress"></div><div class="form-group" id="departmentGroup" style="display:none;"><label for="customerDepartment">Departamento *</label><input type="text" class="form-control" id="customerDepartment"></div><div class="form-group" id="provinceGroup" style="display:none;"><label for="customerProvince">Provincia *</label><input type="text" class="form-control" id="customerProvince"></div><div class="form-group" id="deliveryNote" style="display:none;"><small class="text-info"><i class="fas fa-info-circle mr-1"></i>El costo de envío se confirmará por WhatsApp.</small></div></form></div>
-        <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button><button type="submit" form="checkoutForm" id="submitOrderButton" data-phone="68504229" class="btn btn-success"><i class="fab fa-whatsapp mr-2"></i>Enviar pedido por WhatsApp</button></div>
-    </div></div></div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script><script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script><script src="{% static 'js/componentes/navbarprincipal.js' %}"></script><script src="{% static 'js/inicio/carrito.js' %}"></script>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/componentes/navbarprincipal.js' %}"></script>
+    <script src="{% static 'js/inicio/carrito.js' %}"></script>
 </body>
 </html>
