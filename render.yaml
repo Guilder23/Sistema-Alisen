@@ -17,6 +17,10 @@ services:
         value: "*"
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: DELETE_SALES_ON_DEPLOY
+        value: "false"
+      - key: DELETE_SALES_ON_DEPLOY
+        value: "false"
 
 databases:
   - name: sistema-alicen-db

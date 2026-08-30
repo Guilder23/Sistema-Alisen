@@ -14,6 +14,9 @@ python manage.py collectstatic --no-input
 echo "==== Ejecutando migraciones ===="
 python manage.py migrate
 
+echo "==== Limpieza opcional de ventas al deploy ===="
+python scripts/clean_sales_on_deploy.py
+
 echo "==== Creando usuarios iniciales ===="
 python manage.py crear_administrador
 
