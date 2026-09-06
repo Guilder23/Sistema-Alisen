@@ -331,6 +331,9 @@ def guardar_reserva(request):
                 if precio_unitario <= 0:
                     precio_unitario = parse_decimal(producto.precio_unidad or '0')
 
+                if (item.get('descuento_tipo') or 'ninguno').strip().lower() == 'porcentaje':
+                    raise ValueError('Las reservas solo permiten precio final por unidad.')
+
                 descontar_stock_reserva(producto, cantidad, perfil, tipo_ubicacion)
 
                 subtotal_item = precio_unitario * Decimal(str(cantidad))
