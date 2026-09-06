@@ -87,7 +87,6 @@
         const codigo = $('#codigo').val().trim();
         const nombre = $('#nombre').val().trim();
         const categoria = $('#categoria').val();
-        const subcategoria = $('#subcategoria').val();
         const unidades_por_caja = $('#unidades_por_caja').val();
         const unidades_por_mayor = $('#unidades_por_mayor').val();
         
@@ -109,12 +108,6 @@
             return false;
         }
 
-        if (!subcategoria) {
-            mostrarNotificacion('Debe seleccionar una subcategoría', 'warning');
-            $('#subcategoria').focus();
-            return false;
-        }
-        
         if (!unidades_por_caja || parseInt(unidades_por_caja) < 1) {
             mostrarNotificacion('Las unidades por caja deben ser al menos 1', 'warning');
             $('#unidades_por_caja').focus();

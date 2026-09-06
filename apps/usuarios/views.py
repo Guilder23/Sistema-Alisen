@@ -656,6 +656,7 @@ def crear_usuario(request):
             email = request.POST.get('email')
             first_name = request.POST.get('first_name', '')
             last_name = request.POST.get('last_name', '')
+            telefono = request.POST.get('telefono', '').strip()
             password = request.POST.get('password')
             password2 = request.POST.get('password2')
             is_active = request.POST.get('is_active') == 'on'
@@ -741,6 +742,7 @@ def crear_usuario(request):
                 nombre_ubicacion=nombre_ubicacion,
                 almacen=almacen,
                 tienda=tienda,
+                telefono=telefono,
                 comision=comision_valor,
                 activo=is_active,
                 creado_por=request.user
@@ -794,6 +796,7 @@ def obtener_usuario(request, id):
             'email': usuario.email,
             'first_name': usuario.first_name,
             'last_name': usuario.last_name,
+            'telefono': perfil.telefono if perfil else '',
             'nombre_completo': nombre_completo,
             'is_active': usuario.is_active,
             'is_staff': usuario.is_staff,
@@ -832,6 +835,7 @@ def editar_usuario(request, id):
             nuevo_rol = request.POST.get('rol')
             almacen_id = request.POST.get('almacen', '')
             tienda_id = request.POST.get('tienda', '')
+            telefono = request.POST.get('telefono', '').strip()
             try:
                 comision_valor = float(request.POST.get('comision', 0) or 0)
             except (TypeError, ValueError):
@@ -883,10 +887,15 @@ def editar_usuario(request, id):
                         nombre_ubicacion=almacen.nombre or tienda.nombre or '',
                         almacen=almacen,
                         tienda=tienda,
+                        telefono=telefono,
                         comision=comision_valor,
                         activo=usuario.is_active,
                         creado_por=request.user
                     )
+
+            if hasattr(usuario, 'perfil'):
+                usuario.perfil.telefono = telefono
+                usuario.perfil.save(update_fields=['telefono'])
             
             # Actualizar contraseña solo si se proporciona
             nueva_password = request.POST.get('password')
@@ -918,6 +927,7 @@ def editar_usuario(request, id):
             'email': usuario.email,
             'first_name': usuario.first_name,
             'last_name': usuario.last_name,
+            'telefono': perfil.telefono if perfil else '',
             'is_active': usuario.is_active,
             'is_staff': usuario.is_staff,
             'rol': perfil.rol if perfil else '',

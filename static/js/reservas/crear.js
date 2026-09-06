@@ -29,8 +29,8 @@ function formatCurrency(value) {
 const reservaItems = [];
 
 function calcularDescuentoItem(item) {
+    if (!item.descuentoActivo) return 0;
     const bruto = Number(item.precio_unitario) * Number(item.cantidad);
-    if (item.descuento_tipo === 'porcentaje') return bruto * Math.min(item.descuento_valor || 0, 100) / 100;
     if (item.descuento_tipo === 'fijo') return Math.max(Number(item.precio_unitario) - (item.descuento_valor || 0), 0) * Number(item.cantidad);
     return 0;
 }
@@ -51,7 +51,7 @@ function renderizarItemsReserva() {
 
     if (reservaItems.length === 0) {
         body.innerHTML = `
-            <tr>
+            <tr data-index="${index}">
                 <td colspan="8" class="text-center text-muted py-4">Busca y agrega productos para construir la reserva.</td>
             </tr>`;
         actualizarResumenReserva();
@@ -69,12 +69,17 @@ function renderizarItemsReserva() {
                 <td>${item.modalidad}</td>
                 <td>${formatCurrency(item.precio_unitario * item.cantidad)}</td>
                 <td>
-                    <select class="form-control form-control-sm descuento-tipo-item" data-index="${index}">
-                        <option value="ninguno" ${item.descuento_tipo === 'ninguno' ? 'selected' : ''}>Sin descuento</option>
-                        <option value="fijo" ${item.descuento_tipo === 'fijo' ? 'selected' : ''}>Precio final / unidad</option>
-                        <option value="porcentaje" ${item.descuento_tipo === 'porcentaje' ? 'selected' : ''}>Porcentaje</option>
-                    </select>
-                    <input type="number" min="0" step="0.01" class="form-control form-control-sm mt-1 descuento-valor-item" data-index="${index}" value="${item.descuento_valor || 0}" ${item.descuento_tipo === 'ninguno' ? 'disabled' : ''}>
+                    <div class="custom-control custom-checkbox mb-1">
+                        <input type="checkbox" class="custom-control-input descuento-activo-item"
+                               id="descuentoActivoReserva-${index}" data-index="${index}"
+                               ${item.descuentoActivo ? 'checked' : ''}>
+                        <label class="custom-control-label small" for="descuentoActivoReserva-${index}">Aplicar descuento</label>
+                    </div>
+                    <input type="number" min="0" max="${Number(item.precio_unitario).toFixed(2)}" step="0.01"
+                           class="form-control form-control-sm descuento-valor-item" data-index="${index}"
+                           placeholder="Precio final / unidad"
+                           value="${item.descuentoActivo && item.descuento_tipo === 'fijo' ? item.descuento_valor : ''}"
+                           ${item.descuentoActivo ? '' : 'disabled'}>
                 </td>
                 <td class="font-weight-bold text-success">${formatCurrency(item.precio_unitario * item.cantidad - calcularDescuentoItem(item))}</td>
                 <td class="text-center">
@@ -102,14 +107,24 @@ function renderizarItemsReserva() {
         });
     });
 
-    document.querySelectorAll('.descuento-tipo-item').forEach((input) => input.addEventListener('change', function () {
+    document.querySelectorAll('.descuento-activo-item').forEach((input) => input.addEventListener('change', function () {
         const item = reservaItems[parseInt(this.dataset.index, 10)];
-        item.descuento_tipo = this.value;
-        if (this.value === 'ninguno') item.descuento_valor = 0;
+        if (!item) return;
+        item.descuentoActivo = this.checked;
+        item.descuento_tipo = item.descuentoActivo && item.descuento_valor > 0 ? 'fijo' : 'ninguno';
+        const inputValor = document.querySelector(`.descuento-valor-item[data-index="${this.dataset.index}"]`);
+        if (inputValor) inputValor.disabled = !item.descuentoActivo;
         renderizarItemsReserva();
     }));
     document.querySelectorAll('.descuento-valor-item').forEach((input) => input.addEventListener('input', function () {
-        reservaItems[parseInt(this.dataset.index, 10)].descuento_valor = parseNumber(this.value);
+        const item = reservaItems[parseInt(this.dataset.index, 10)];
+        if (!item) return;
+        item.descuento_valor = parseNumber(this.value);
+        item.descuento_tipo = item.descuentoActivo && item.descuento_valor > 0 ? 'fijo' : 'ninguno';
+        const fila = document.querySelector(`tr[data-index="${this.dataset.index}"]`);
+        const subtotalReal = Number(item.precio_unitario) * Number(item.cantidad) - calcularDescuentoItem(item);
+        const celda = fila?.children[6];
+        if (celda) celda.textContent = formatCurrency(Math.max(subtotalReal, 0));
         actualizarResumenReserva();
     }));
 
@@ -155,6 +170,7 @@ function mostrarProductosResultado(productos) {
                     modalidad: 'unidad',
                     descuento_tipo: 'ninguno',
                     descuento_valor: 0,
+                    descuentoActivo: false,
                 });
             }
             renderizarItemsReserva();
@@ -224,8 +240,10 @@ function guardarReserva(event) {
             cantidad: item.cantidad,
             modalidad: item.modalidad,
             precio_unitario: item.precio_unitario,
-            descuento_tipo: item.descuento_tipo,
-            descuento_valor: item.descuento_valor,
+            descuento_tipo: item.descuentoActivo && item.descuento_tipo === 'fijo' && item.descuento_valor > 0 ? 'fijo' : 'ninguno',
+            descuento_valor: item.descuentoActivo && item.descuento_tipo === 'fijo' && item.descuento_valor > 0
+                ? item.descuento_valor
+                : 0,
         })),
     };
 

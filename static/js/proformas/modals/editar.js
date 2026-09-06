@@ -25,8 +25,8 @@ function formatCurrency(value) {
 let proformaItems = [];
 
 function calcularDescuentoItem(item) {
+    if (!item.descuentoActivo) return 0;
     const bruto = item.precio_unitario * item.cantidad;
-    if (item.descuento_tipo === 'porcentaje') return bruto * Math.min(item.descuento_valor || 0, 100) / 100;
     if (item.descuento_tipo === 'fijo') return Math.max(item.precio_unitario - (item.descuento_valor || 0), 0) * item.cantidad;
     return 0;
 }
@@ -47,7 +47,7 @@ function renderizarItemsProforma() {
 
     if (proformaItems.length === 0) {
         body.innerHTML = `
-            <tr>
+            <tr data-index="${index}">
                 <td colspan="8" class="text-center text-muted py-4">No hay productos agregados.</td>
             </tr>`;
         actualizarResumenProforma();
@@ -65,14 +65,13 @@ function renderizarItemsProforma() {
                 <td>${item.modalidad}</td>
                 <td>${formatCurrency(item.precio_unitario * item.cantidad)}</td>
                 <td>
-                    <select class="form-control form-control-sm descuento-tipo-item" data-index="${index}">
-                        <option value="ninguno" ${item.descuento_tipo === 'ninguno' ? 'selected' : ''}>Sin descuento</option>
-                        <option value="fijo" ${item.descuento_tipo === 'fijo' ? 'selected' : ''}>Precio final / unidad</option>
-                        <option value="porcentaje" ${item.descuento_tipo === 'porcentaje' ? 'selected' : ''}>Porcentaje</option>
-                    </select>
-                    <input type="number" min="0" step="0.01" class="form-control form-control-sm mt-1 descuento-valor-item" data-index="${index}" value="${item.descuento_valor || 0}" ${item.descuento_tipo === 'ninguno' ? 'disabled' : ''}>
+                    <div class="custom-control custom-checkbox mb-1">
+                        <input type="checkbox" class="custom-control-input descuento-activo-item" id="descuentoActivoProforma-${index}" data-index="${index}" ${item.descuentoActivo ? 'checked' : ''}>
+                        <label class="custom-control-label small" for="descuentoActivoProforma-${index}">Aplicar descuento</label>
+                    </div>
+                    <input type="number" min="0" max="${Number(item.precio_unitario).toFixed(2)}" step="0.01" class="form-control form-control-sm descuento-valor-item" data-index="${index}" placeholder="Precio final / unidad" value="${item.descuentoActivo && item.descuento_tipo === 'fijo' ? item.descuento_valor : ''}" ${item.descuentoActivo ? '' : 'disabled'}>
                 </td>
-                <td>${formatCurrency(calcularDescuentoItem(item))}</td>
+                <td class="text-danger">${formatCurrency(calcularDescuentoItem(item))}</td>
                 <td class="font-weight-bold text-success">${formatCurrency(item.precio_unitario * item.cantidad - calcularDescuentoItem(item))}</td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-item" data-index="${index}">
@@ -91,14 +90,25 @@ function renderizarItemsProforma() {
         });
     });
 
-    document.querySelectorAll('.descuento-tipo-item').forEach((input) => input.addEventListener('change', function () {
+    document.querySelectorAll('.descuento-activo-item').forEach((input) => input.addEventListener('change', function () {
         const item = proformaItems[parseInt(this.dataset.index, 10)];
-        item.descuento_tipo = this.value;
-        if (this.value === 'ninguno') item.descuento_valor = 0;
-        renderizarItemsProforma();
+        if (!item) return;
+        item.descuentoActivo = this.checked;
+        item.descuento_tipo = item.descuentoActivo && item.descuento_valor > 0 ? 'fijo' : 'ninguno';
+        const valor = document.querySelector(`.descuento-valor-item[data-index="${this.dataset.index}"]`);
+        if (valor) valor.disabled = !item.descuentoActivo;
+        actualizarResumenProforma();
     }));
     document.querySelectorAll('.descuento-valor-item').forEach((input) => input.addEventListener('input', function () {
-        proformaItems[parseInt(this.dataset.index, 10)].descuento_valor = parseNumber(this.value);
+        const index = parseInt(this.dataset.index, 10);
+        const item = proformaItems[index];
+        item.descuento_valor = parseNumber(this.value);
+        item.descuento_tipo = item.descuentoActivo && item.descuento_valor > 0 ? 'fijo' : 'ninguno';
+        const fila = document.querySelector(`tr[data-index="${index}"]`);
+        if (fila) {
+            fila.children[6].textContent = formatCurrency(calcularDescuentoItem(item));
+            fila.children[7].textContent = formatCurrency(Math.max(item.precio_unitario * item.cantidad - calcularDescuentoItem(item), 0));
+        }
         actualizarResumenProforma();
     }));
 
@@ -152,6 +162,7 @@ function mostrarProductosResultado(productos) {
                     modalidad: 'unidad',
                     descuento_tipo: 'ninguno',
                     descuento_valor: 0,
+                    descuentoActivo: false,
                 });
             }
             renderizarItemsProforma();
@@ -195,8 +206,9 @@ function cargarDatosProforma() {
                 precio_unitario: item.precio_unitario,
                 cantidad: item.cantidad,
                 modalidad: item.modalidad,
-                descuento_tipo: item.descuento_tipo || 'ninguno',
+                descuento_tipo: item.descuento_tipo === 'fijo' && item.descuento_valor > 0 ? 'fijo' : 'ninguno',
                 descuento_valor: item.descuento_valor || 0,
+                descuentoActivo: item.descuento_tipo === 'fijo' && item.descuento_valor > 0,
             }));
 
             document.getElementById('inputCliente').value = proforma.cliente;
@@ -251,8 +263,8 @@ function enviarActualizacionProforma(event) {
             cantidad: item.cantidad,
             modalidad: item.modalidad,
             precio_unitario: item.precio_unitario,
-            descuento_tipo: item.descuento_tipo,
-            descuento_valor: item.descuento_valor,
+            descuento_tipo: item.descuentoActivo && item.descuento_tipo === 'fijo' && item.descuento_valor > 0 ? 'fijo' : 'ninguno',
+            descuento_valor: item.descuentoActivo && item.descuento_tipo === 'fijo' && item.descuento_valor > 0 ? item.descuento_valor : 0,
         })),
     };
 

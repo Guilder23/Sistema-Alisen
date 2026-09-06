@@ -110,7 +110,9 @@
                             <th style="width: 10%;">Stock Unidad</th>
                             <th style="width: 9%;">Unid/Caja</th>
                             <th style="width: 10%;">Stock por Caja</th>
-                            <th style="width: 12%;">Precio USD</th>
+                            <th style="width: 10%;">Precio Unitario</th>
+                            <th style="width: 10%;">Precio por Mayor</th>
+                            <th style="width: 10%;">Precio Unitario Oferta</th>
                             <th style="width: 10%">Precio por Caja</th>
                             <th class="text-center" style="width: 6%;">Oferta</th>
                             <th style="width: 8%">Estado</th>
@@ -234,10 +236,14 @@
                                     <span class="badge-stock badge-stock-critico">{{ item.stock_cajas|floatformat:"-2" }} cajas</span>
                                 {% endif %}
                             </td>
-                            <td>
-                                <div class="text-truncate" style="max-width: 200px;" title="{{ item.producto.nombre }}">
-                                    USD {{ item.producto.precio_caja_usd|floatformat:2 }}
-                                </div>
+                            <td class="text-center">
+                                <span class="precio-badge">Bs. {{ item.producto.precio_unidad|floatformat:2 }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="precio-badge">Bs. {{ item.producto.precio_mayor|floatformat:2 }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="precio-badge">Bs. {{ item.producto.precio_unidad_oferta|default:0|floatformat:2 }}</span>
                             </td>
                             <td class="text-center">
                                 <span class="precio-badge">Bs. {{ item.producto.precio_caja|floatformat:2 }}</span>
@@ -275,7 +281,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="{% if es_almacen %}13{% else %}12{% endif %}" class="text-center py-4">
+                        <td colspan="{% if es_almacen %}13{% else %}14{% endif %}" class="text-center py-4">
                             <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
                             <p class="text-muted mb-0">No hay stock disponible para esta ubicación</p>
                         </td>

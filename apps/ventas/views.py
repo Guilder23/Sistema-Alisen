@@ -58,8 +58,8 @@ def obtener_precio_base_producto(producto, modalidad, aplicar_oferta=True):
     
     # Si el producto está en oferta y tiene precio de oferta, usar ese para unidad
     precio_unidad_oferta = Decimal(str(producto.precio_unidad_oferta or 0)) if hasattr(producto, 'precio_unidad_oferta') else Decimal('0')
-    if aplicar_oferta and producto.en_oferta and precio_unidad_oferta > 0:
-        precio_unidad = precio_unidad_oferta
+    if modalidad == 'oferta':
+        return precio_unidad_oferta if producto.en_oferta and precio_unidad_oferta > 0 else Decimal('0')
 
     if modalidad == 'caja':
         if precio_caja > 0:
@@ -93,7 +93,7 @@ def obtener_label_tipo_vendedor(tipo):
 
 def normalizar_modalidad(valor, fallback='unidad'):
     modalidad = (valor or fallback or 'unidad').strip().lower()
-    return modalidad if modalidad in {'unidad', 'caja', 'mayor'} else fallback
+    return modalidad if modalidad in {'unidad', 'caja', 'mayor', 'oferta'} else fallback
 
 
 def obtener_label_modalidad(modalidad):
@@ -101,6 +101,7 @@ def obtener_label_modalidad(modalidad):
         'unidad': 'Unidad',
         'caja': 'Caja',
         'mayor': 'Mayor',
+        'oferta': 'Oferta',
     }
     return etiquetas.get(normalizar_modalidad(modalidad), 'Unidad')
 
@@ -767,6 +768,8 @@ def guardar_venta(request):
                 unidades_por_mayor = max(int(getattr(producto, 'unidades_por_mayor', 3) or 3), 2)
                 cantidad_cajas = int(item.get('cantidad_cajas', 0) or 0)
                 modalidad = normalizar_modalidad(item.get('modalidad'), 'unidad')
+                if modalidad not in ['unidad', 'mayor', 'oferta']:
+                    raise ValueError(f'Modalidad inválida para el producto ID {producto_id}.')
                 tipo_vendedor = normalizar_tipo_vendedor(item.get('tipo_vendedor'), 'almacen') or 'almacen'
                 unidades_operativas = int(item.get('unidades_operativas', 0) or 0)
                 cantidad_ingresada = int(item.get('cantidad', 0) or 0)
@@ -813,12 +816,14 @@ def guardar_venta(request):
                 
                 # Ahora bloquear el producto para la actualización
                 producto = Producto.objects.select_for_update().get(id=producto_id)
+                if modalidad == 'oferta' and not producto.en_oferta:
+                    raise ValueError(f'El producto "{producto.nombre}" no está disponible en oferta.')
 
                 # Recalcular precio según modalidad si el frontend no lo envió bien
                 precio_base_bs = obtener_precio_base_producto(
                     producto,
                     modalidad,
-                    aplicar_oferta=getattr(perfil, 'rol', '') != 'almacen',
+                    aplicar_oferta=True,
                 )
                 if precio_base_bs > 0:
                     precio_unitario = convertir_bs_a_moneda_venta(precio_base_bs, moneda, tipo_cambio)
@@ -830,6 +835,8 @@ def guardar_venta(request):
                 item_descuento_valor = Decimal(str(item.get('descuento_valor', 0) or 0))
                 if item_descuento_tipo not in ['ninguno', 'fijo', 'porcentaje']:
                     raise ValueError(f'Tipo de descuento inválido para "{producto.nombre}".')
+                if perfil.rol == 'almacen' and item_descuento_tipo == 'porcentaje':
+                    raise ValueError('El rol almacén solo puede aplicar descuentos por unidad.')
                 if item_descuento_valor < 0:
                     raise ValueError(f'El descuento no puede ser negativo para "{producto.nombre}".')
                 if item_descuento_tipo == 'porcentaje':
@@ -986,6 +993,8 @@ def buscar_productos(request):
                 'precio_unidad': float(p.precio_unidad or 0),
                 'precio_mayor': float(p.precio_mayor or 0),
                 'precio_caja': float(p.precio_caja or 0),
+                'precio_unidad_oferta': float(p.precio_unidad_oferta or 0),
+                'en_oferta': bool(p.en_oferta),
                 'precio_compra': float(p.precio_compra or 0),
                 'poliza': float(p.poliza or 0),
                 'gastos': float(p.gastos or 0),
@@ -2011,12 +2020,14 @@ def guardar_venta_tienda(request):
 
                 if cantidad <= 0:
                     raise ValueError(f'Cantidad inválida para el producto ID {producto_id}.')
-                if modalidad not in ['unidad', 'caja', 'mayor']:
+                if modalidad not in ['unidad', 'mayor', 'oferta']:
                     raise ValueError(f'Modalidad inválida para el producto ID {producto_id}.')
                 if tipo_vendedor_item not in ['tienda', 'deposito', 'almacen']:
                     raise ValueError(f'Tipo de vendedor inválido para el producto ID {producto_id}.')
 
                 producto = Producto.objects.get(id=producto_id)
+                if modalidad == 'oferta' and not producto.en_oferta:
+                    raise ValueError(f'El producto "{producto.nombre}" no está disponible en oferta.')
                 unidades_por_caja = int(producto.unidades_por_caja or 1)
                 unidades_por_mayor = max(int(getattr(producto, 'unidades_por_mayor', 3) or 3), 2)
 

@@ -230,7 +230,6 @@
                 const codigo = document.getElementById('codigo_modal').value.trim();
                 const nombre = document.getElementById('nombre_modal').value.trim();
                 const categoria = document.getElementById('categoria_modal').value;
-                const subcategoria = document.getElementById('subcategoria_modal').value;
                 const unidadesPorCaja = document.getElementById('unidades_por_caja_modal').value;
                 const unidadesPorMayor = document.getElementById('unidades_por_mayor_modal').value;
                 const precioUnidad = document.getElementById('precio_unidad_modal').value;
@@ -242,10 +241,6 @@
                 }
                 if (!categoria) {
                     alert('Por favor selecciona una categoría');
-                    return;
-                }
-                if (!subcategoria) {
-                    alert('Por favor selecciona una subcategoría');
                     return;
                 }
                 if (!unidadesPorCaja || unidadesPorCaja < 1) {
