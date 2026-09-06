@@ -28,6 +28,7 @@
                 $('#verUsername').text(data.username);
                 $('#verEmail').text(data.email);
                 $('#verNombrecompleto').text(data.nombre_completo || 'No especificado');
+                $('#verTelefono').text(data.telefono || 'No especificado');
                 $('#verTipo').text(data.rol_display);
                 const comision = data.comision != null ? parseFloat(data.comision) : 0;
                 $('#verComision').text(comision.toFixed(2) + ' %');

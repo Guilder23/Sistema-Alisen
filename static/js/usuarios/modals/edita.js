@@ -60,6 +60,7 @@
                 $('#editEmail').val(data.email);
                 $('#editFirstName').val(data.first_name || '');
                 $('#editLastName').val(data.last_name || '');
+                $('#editTelefono').val(data.telefono || '');
                 $('#editRol').val(data.rol);
                 $('#editComision').val(data.comision != null ? data.comision : 0);
                 $('#editIsActive').prop('checked', data.is_active);
