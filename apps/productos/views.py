@@ -519,18 +519,16 @@ def crear_producto(request):
                 messages.error(request, 'Debe seleccionar una categoría')
                 return redirect('listar_productos')
 
-            if not subcategoria_id:
-                messages.error(request, 'Debe seleccionar una subcategoría')
-                return redirect('listar_productos')
-
             categoria = Categoria.objects.filter(id=categoria_id, activo=True).first()
             if not categoria:
                 messages.error(request, 'La categoría seleccionada no es válida')
                 return redirect('listar_productos')
-            subcategoria = Subcategoria.objects.filter(id=subcategoria_id, categoria=categoria, activo=True).first()
-            if not subcategoria:
-                messages.error(request, 'La subcategoría seleccionada no pertenece a la categoría')
-                return redirect('listar_productos')
+            subcategoria = None
+            if subcategoria_id:
+                subcategoria = Subcategoria.objects.filter(id=subcategoria_id, categoria=categoria, activo=True).first()
+                if not subcategoria:
+                    messages.error(request, 'La subcategoría seleccionada no pertenece a la categoría')
+                    return redirect('listar_productos')
             
             # Verificar código único
             if Producto.objects.filter(codigo=codigo).exists():
@@ -683,21 +681,19 @@ def editar_producto(request, id):
                     messages.error(request, 'Debe seleccionar una categoría')
                     return redirect('listar_productos')
 
-                if not subcategoria_id:
-                    messages.error(request, 'Debe seleccionar una subcategoría')
-                    return redirect('listar_productos')
-
                 categoria = Categoria.objects.filter(id=categoria_id, activo=True).first()
                 if not categoria:
                     messages.error(request, 'La categoría seleccionada no es válida')
                     return redirect('listar_productos')
 
                 producto.categoria = categoria
-                subcategoria = Subcategoria.objects.filter(id=subcategoria_id, categoria=categoria, activo=True).first()
-                if not subcategoria:
-                    messages.error(request, 'La subcategoría seleccionada no pertenece a la categoría')
-                    return redirect('listar_productos')
-                producto.subcategoria = subcategoria
+                producto.subcategoria = None
+                if subcategoria_id:
+                    subcategoria = Subcategoria.objects.filter(id=subcategoria_id, categoria=categoria, activo=True).first()
+                    if not subcategoria:
+                        messages.error(request, 'La subcategoría seleccionada no pertenece a la categoría')
+                        return redirect('listar_productos')
+                    producto.subcategoria = subcategoria
                 
                 guardar_media_producto(producto, request)
                 
@@ -1767,13 +1763,6 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                     messages.error(request, error_msg)
                     return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
 
-                if not subcategoria_id:
-                    error_msg = 'Debe seleccionar una subcategoría'
-                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        return JsonResponse({'error': error_msg}, status=400)
-                    messages.error(request, error_msg)
-                    return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
-                
                 if cantidad <= 0:
                     error_msg = 'La cantidad debe ser mayor a 0'
                     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1790,17 +1779,19 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                     return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
                 
                 categoria = get_object_or_404(Categoria, id=categoria_id, activo=True)
-                subcategoria = Subcategoria.objects.filter(
-                    id=subcategoria_id,
-                    categoria=categoria,
-                    activo=True,
-                ).first()
-                if not subcategoria:
-                    error_msg = 'La subcategoría seleccionada no pertenece a la categoría'
-                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        return JsonResponse({'error': error_msg}, status=400)
-                    messages.error(request, error_msg)
-                    return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
+                subcategoria = None
+                if subcategoria_id:
+                    subcategoria = Subcategoria.objects.filter(
+                        id=subcategoria_id,
+                        categoria=categoria,
+                        activo=True,
+                    ).first()
+                    if not subcategoria:
+                        error_msg = 'La subcategoría seleccionada no pertenece a la categoría'
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'error': error_msg}, status=400)
+                        messages.error(request, error_msg)
+                        return redirect('productos_en_contenedor', contenedor_id=contenedor_id)
                 
                 # Crear producto con todos los campos
                 producto = Producto.objects.create(
