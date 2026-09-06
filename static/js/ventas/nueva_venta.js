@@ -57,6 +57,11 @@ function obtenerPrecioPorModalidad(producto, modalidad) {
     const precioUnidad = parseFloat(producto.precio_unidad || 0) || 0;
     const precioCaja = parseFloat(producto.precio_caja || 0) || 0;
     const precioMayor = parseFloat(producto.precio_mayor || 0) || 0;
+    const precioOferta = parseFloat(producto.precio_unidad_oferta || 0) || 0;
+
+    if (modalidad === 'oferta') {
+        return producto.en_oferta && precioOferta > 0 ? precioOferta : precioUnidad;
+    }
 
     if (modalidad === 'caja') {
         return precioCaja > 0 ? precioCaja : (precioUnidad * unidadesPorCaja);
@@ -88,8 +93,8 @@ function sincronizarCantidadDesdeCajas(item) {
 }
 
 function obtenerEtiquetaModalidadAlmacen(modalidad) {
-    if (modalidad === 'caja') return 'Caja';
     if (modalidad === 'mayor') return 'Mayor';
+    if (modalidad === 'oferta') return 'Oferta';
     return 'Unidad';
 }
 
@@ -207,8 +212,8 @@ function initSelectorUsuarioVendedor() {
 
         const opciones = [
             { value: 'unidad', text: 'Unidad', help: 'Venta unitaria' },
-            { value: 'caja', text: 'Caja', help: 'Venta por cajas' },
-            { value: 'mayor', text: 'Mayor', help: 'Venta por mayor (según umbral del producto)' }
+            { value: 'mayor', text: 'Mayor', help: 'Venta por mayor (según umbral del producto)' },
+            { value: 'oferta', text: 'Oferta', help: 'Precio de oferta del producto' }
         ];
 
         // Llenar selector tipo precio
@@ -237,10 +242,10 @@ function initSelectorTipoPrecio() {
 
         if (tipoPrecio === 'unidad') {
             helpText = '<i class="fas fa-info-circle"></i> Uso: precio_unitario del producto';
-        } else if (tipoPrecio === 'caja') {
-            helpText = '<i class="fas fa-info-circle"></i> Uso: precio_caja del producto';
         } else if (tipoPrecio === 'mayor') {
             helpText = '<i class="fas fa-info-circle"></i> Uso: precio_mayor del producto (según umbral de unidades por mayor)';
+        } else if (tipoPrecio === 'oferta') {
+            helpText = '<i class="fas fa-info-circle"></i> Uso: precio_unidad_oferta del producto';
         }
 
         $('#helpTipoPrecio').html(helpText);
@@ -336,7 +341,6 @@ function renderResultadosBusqueda(productos) {
         const enCarrito = carrito.find(item => item.productoId === p.id);
         const unidadesPorCaja = obtenerUnidadesPorCajaProducto(p);
         const unidadesPorMayor = obtenerUnidadesPorMayorProducto(p);
-        const cajasDisponibles = obtenerMaximoCajasProducto(p);
         const sinStock = parseInt(p.stock || 0, 10) < 1;
         const btnTexto = enCarrito
             ? 'Ya agregado'
@@ -369,7 +373,7 @@ function renderResultadosBusqueda(productos) {
                         ${precioDisplay}
                         ${segundaMonedaDisplay}
                     </div>
-                    <div class="producto-stock">Stock: ${p.stock} uds. | ${cajasDisponibles} caja(s) de ${unidadesPorCaja} | mayor desde ${unidadesPorMayor}</div>
+                    <div class="producto-stock">Stock: ${p.stock} uds. | mayor desde ${unidadesPorMayor}</div>
                 </div>
                 <button class="btn btn-sm ${btnClass} btn-agregar-producto"
                         data-producto='${JSON.stringify(p).replace(/'/g, "&#39;")}'
@@ -435,8 +439,8 @@ function agregarAlCarrito(producto) {
         precioUnitario: precioUnitario,
         precios: {
             unidad: obtenerPrecioPorModalidad(producto, 'unidad'),
-            caja: obtenerPrecioPorModalidad(producto, 'caja'),
             mayor: obtenerPrecioPorModalidad(producto, 'mayor'),
+            oferta: obtenerPrecioPorModalidad(producto, 'oferta'),
         },
         modalidad: modalidad,
         cajas: 0,
@@ -533,8 +537,8 @@ function renderCarrito() {
                 <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">
                         <button type="button" class="btn ${modalidad === 'unidad' ? 'btn-primary' : 'btn-outline-primary'} btn-modalidad" data-index="${index}" data-modalidad="unidad">Unidad</button>
-                        ${item.unidadesPorCaja > 1 ? `<button type="button" class="btn ${modalidad === 'caja' ? 'btn-primary' : 'btn-outline-primary'} btn-modalidad" data-index="${index}" data-modalidad="caja">Caja</button>` : ''}
                         ${mostrarMayor ? `<button type="button" class="btn ${modalidad === 'mayor' ? 'btn-primary' : 'btn-outline-primary'} btn-modalidad" data-index="${index}" data-modalidad="mayor">Mayor</button>` : ''}
+                        ${item.productoRaw?.en_oferta && item.productoRaw?.precio_unidad_oferta > 0 ? `<button type="button" class="btn ${modalidad === 'oferta' ? 'btn-primary' : 'btn-outline-primary'} btn-modalidad" data-index="${index}" data-modalidad="oferta">Oferta</button>` : ''}
                     </div>
                 </td>
                 <td class="text-center">
@@ -653,6 +657,9 @@ function cambiarModalidadAlmacen(index, modalidad) {
     } else if (modalidad === 'mayor') {
         item.cajas = 0;
         item.cantidad = item.unidadesPorMayor || 3;
+    } else if (modalidad === 'oferta') {
+        item.cajas = 0;
+        item.cantidad = 1;
     } else {
         item.cajas = 0;
         item.cantidad = 1;
@@ -684,7 +691,9 @@ function establecerCantidadAlmacen(index, valor) {
         item.cajas = Math.max(1, valor);
     } else {
         const umbral = item.unidadesPorMayor || 3;
-        if (modalidad === 'mayor') {
+        if (modalidad === 'oferta') {
+            if (valor > item.stock) valor = item.stock;
+        } else if (modalidad === 'mayor') {
             if (valor < umbral) valor = umbral;
             if (valor >= item.unidadesPorCaja) valor = item.unidadesPorCaja - 1;
         } else if (item.unidadesPorCaja > umbral && valor >= umbral) {

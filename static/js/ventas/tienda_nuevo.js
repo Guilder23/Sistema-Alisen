@@ -99,8 +99,8 @@ function convertirMonedaABs(monto) {
 }
 
 function obtenerEtiquetaModalidad(modalidad) {
-    if (modalidad === 'caja') return 'Caja';
     if (modalidad === 'mayor') return 'Mayor';
+    if (modalidad === 'oferta') return 'Oferta';
     return 'Unidad';
 }
 
@@ -164,14 +164,11 @@ function obtenerResumenModalidad(producto, cantidad, modalidad) {
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
     const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
 
-    if (modalidad === 'caja') {
-        const unidades = cantidad * unidadesPorCaja;
-        return `${cantidad} caja(s) = ${unidades} unidad(es)`;
-    }
-
     if (modalidad === 'mayor') {
         return `${cantidad} unidad(es) a precio mayorista (desde ${unidadesPorMayor})`;
     }
+
+    if (modalidad === 'oferta') return `${cantidad} unidad(es) a precio de oferta`;
 
     return `${cantidad} unidad(es)`;
 }
@@ -181,6 +178,11 @@ function obtenerPrecioBasePorModalidad(producto, modalidad) {
     const precioUnidad = parseFloat(producto.precio_unidad || 0) || 0;
     const precioCaja = parseFloat(producto.precio_caja || 0) || 0;
     const precioMayor = parseFloat(producto.precio_mayor || 0) || 0;
+    const precioOferta = parseFloat(producto.precio_unidad_oferta || 0) || 0;    
+
+    if (modalidad === 'oferta') {
+        return producto.en_oferta && precioOferta > 0 ? precioOferta : 0;
+    }
 
     if (modalidad === 'caja') {
         return precioCaja > 0 ? precioCaja : (precioUnidad * unidadesPorCaja);
@@ -193,8 +195,7 @@ function obtenerPrecioBasePorModalidad(producto, modalidad) {
     return precioUnidad;
 }
 function puedeUsarCaja(producto) {
-    const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
-    return unidadesPorCaja > 1;
+    return false;
 }
 
 function puedeUsarMayor(producto, tipoVendedor = tipoVendedorActual) {
@@ -206,6 +207,10 @@ function puedeUsarMayor(producto, tipoVendedor = tipoVendedorActual) {
     return unidadesPorCaja > unidadesPorMayor;
 }
 
+function puedeUsarOferta(producto) {
+    return Boolean(producto.en_oferta && Number(producto.precio_unidad_oferta || 0) > 0);
+}
+
 function determinarModalidadAutomaticaTienda(producto, cantidad, modalidadActual) {
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
     const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
@@ -215,9 +220,8 @@ function determinarModalidadAutomaticaTienda(producto, cantidad, modalidadActual
         return modalidadActual || 'unidad';
     }
 
-    // Caja siempre es manual: si el usuario ya eligió caja, no la tocamos aquí
-    if (modalidadActual === 'caja') {
-        return 'caja';
+    if (modalidadActual === 'oferta' && puedeUsarOferta(producto)) {
+        return 'oferta';
     }
 
     if (puedeUsarMayor(producto) && valor >= unidadesPorMayor && valor < unidadesPorCaja) {
@@ -227,8 +231,7 @@ function determinarModalidadAutomaticaTienda(producto, cantidad, modalidadActual
     return 'unidad';
 }
 function calcularUnidadesOperativas(producto, cantidad, modalidad) {
-    const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
-    return modalidad === 'caja' ? (cantidad * unidadesPorCaja) : cantidad;
+    return cantidad;
 }
 
 function actualizarUnidadDescuento() {
@@ -325,13 +328,7 @@ function validarCantidadSegunModalidad(cantidad, modalidad, unidadesPorCaja, tip
         return { valido: false, mensaje: 'La cantidad debe ser mayor a 0.' };
     }
 
-    // CAJA: siempre manual
-    if (modalidad === 'caja') {
-        if (unidadesPorCaja <= 1) {
-            return { valido: false, mensaje: 'Este producto no tiene presentación por caja.' };
-        }
-        return { valido: true };
-    }
+    if (modalidad === 'oferta') return { valido: true };
 
     // UNIDAD
     if (modalidad === 'unidad') {
@@ -367,14 +364,6 @@ function validarStockDisponible(producto, cantidad, modalidad, cantidadExistente
 
     if (unidadesSolicitadas > stockDisponible) {
         const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
-        if (modalidad === 'caja') {
-            const maximoCajas = Math.floor(stockDisponible / unidadesPorCaja);
-            return {
-                valido: false,
-                mensaje: `Stock insuficiente. Solo hay ${maximoCajas} caja(s) disponibles para "${producto.nombre}".`
-            };
-        }
-
         return {
             valido: false,
             mensaje: `Stock insuficiente. Disponible: ${stockDisponible} unidad(es) para "${producto.nombre}".`
@@ -436,12 +425,12 @@ function validarModalidadUnicaEnCarrito(producto, modalidad, tipoVendedor, index
 function obtenerModalidadesPermitidasProducto(producto, tipoVendedor) {
     const modalidades = ['unidad'];
 
-    if (puedeUsarCaja(producto)) {
-        modalidades.push('caja');
-    }
-
     if (puedeUsarMayor(producto, tipoVendedor)) {
         modalidades.push('mayor');
+    }
+
+    if (puedeUsarOferta(producto)) {
+        modalidades.push('oferta');
     }
 
     return modalidades;
@@ -576,14 +565,8 @@ function cambiarModalidadCarrito(index, nuevaModalidad) {
     const tipoVendedor = obtenerTipoVendedorItem(item);
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
 
-    // En depósito solo se permite caja
-    if (tipoVendedor === 'deposito') {
-        nuevaModalidad = 'caja';
-    }
-
-    // Validar si existe presentación por caja
-    if (nuevaModalidad === 'caja' && unidadesPorCaja <= 1) {
-        mostrarAlerta('Este producto no tiene presentación por caja.');
+    if (nuevaModalidad === 'oferta' && !puedeUsarOferta(producto)) {
+        mostrarAlerta('Este producto no está disponible en oferta.');
         renderCarrito();
         return;
     }
@@ -757,11 +740,10 @@ function renderCarrito() {
         const tipoVendedor = obtenerTipoVendedorItem(item);
 
         const unidadesPorCaja = parseInt(item.producto.unidades_por_caja || 1, 10);
-        const mostrarCaja = puedeUsarCaja(item.producto);
         const mostrarMayor = puedeUsarMayor(item.producto, tipoVendedor);
+        const mostrarOferta = puedeUsarOferta(item.producto);
         const modalidadesUsadas = obtenerModalidadesUsadasEnCarrito(item.producto.id, tipoVendedor, index);
         const unidadUsada = modalidadesUsadas.includes('unidad');
-        const cajaUsada = modalidadesUsadas.includes('caja');
         const mayorUsada = modalidadesUsadas.includes('mayor');
 
         return `
@@ -788,17 +770,6 @@ function renderCarrito() {
                             Unidad
                         </button>
 
-                        ${mostrarCaja ? `
-                            <button
-                                type="button"
-                                class="btn btn-sm ${cajaUsada ? 'btn-secondary' : (item.modalidad === 'caja' ? 'btn-primary' : 'btn-outline-primary')}"
-                                onclick="cambiarModalidadCarrito(${index}, 'caja')"
-                                ${cajaUsada ? 'disabled title="Caja ya usada para este producto"' : ''}
-                            >
-                                Caja
-                            </button>
-                        ` : ''}
-
                         ${mostrarMayor ? `
                             <button
                                 type="button"
@@ -807,6 +778,12 @@ function renderCarrito() {
                                 ${mayorUsada ? 'disabled title="Mayor ya usada para este producto"' : ''}
                             >
                                 Mayor
+                            </button>
+                        ` : ''}
+                        ${mostrarOferta ? `
+                            <button type="button" class="btn btn-sm ${item.modalidad === 'oferta' ? 'btn-primary' : 'btn-outline-primary'}"
+                                onclick="cambiarModalidadCarrito(${index}, 'oferta')">
+                                Oferta
                             </button>
                         ` : ''}
                     </div>
@@ -955,7 +932,7 @@ function actualizarPreviewProducto(productoId, tipoVendedorContexto = tipoVended
         } else if (modalidad === 'mayor') {
             cantidadInput.placeholder = `3 a ${Math.max(unidadesPorCaja - 1, 3)}`;
         } else {
-            cantidadInput.placeholder = 'Cantidad de cajas';
+            cantidadInput.placeholder = 'Cantidad de unidades';
         }
     }
 
@@ -975,7 +952,6 @@ function renderTarjetaProducto(producto) {
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
     const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
     const stock = parseInt(producto.stock || 0, 10);
-    const stockCajas = Math.floor(stock / Math.max(unidadesPorCaja, 1));
     const precioUnidad = obtenerPrecioBasePorModalidad(producto, 'unidad');
 
     const bloqueModalidades = `
@@ -986,11 +962,13 @@ function renderTarjetaProducto(producto) {
                         <input class="modalidad-input" type="radio" name="modalidad_${contextoId}" id="unidad_${contextoId}" value="unidad" checked>
                         <label class="modalidad-btn" for="unidad_${contextoId}">Unidad</label>
 
-                        <input class="modalidad-input" type="radio" name="modalidad_${contextoId}" id="caja_${contextoId}" value="caja">
-                        <label class="modalidad-btn" for="caja_${contextoId}">Caja</label>
-
                         <input class="modalidad-input" type="radio" name="modalidad_${contextoId}" id="mayor_${contextoId}" value="mayor">
                         <label class="modalidad-btn" for="mayor_${contextoId}">Mayor</label>
+
+                        ${puedeUsarOferta(producto) ? `
+                            <input class="modalidad-input" type="radio" name="modalidad_${contextoId}" id="oferta_${contextoId}" value="oferta">
+                            <label class="modalidad-btn" for="oferta_${contextoId}">Oferta</label>
+                        ` : ''}
                     </div>
 
                     <div class="producto-precio-aplicado" id="preview_modalidad_${contextoId}">
@@ -1045,12 +1023,6 @@ function renderTarjetaProducto(producto) {
                     <small>unidades</small>
                 </div>
 
-                <div class="producto-stock-card">
-                    <span class="producto-stock-titulo">Cajas actuales</span>
-                    <strong class="producto-stock-valor">${stockCajas}</strong>
-                    <small>cajas disponibles</small>
-                </div>
-
                 <div class="producto-stock-card producto-stock-card--soft">
                     <span class="producto-stock-titulo">Unidades por caja</span>
                     <strong class="producto-stock-valor">${unidadesPorCaja}</strong>
@@ -1065,14 +1037,11 @@ function renderTarjetaProducto(producto) {
 function renderTarjetaProductoCompacta(producto) {
     const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
     const stock = parseInt(producto.stock || 0, 10);
-    const stockCajas = Math.floor(stock / Math.max(unidadesPorCaja, 1));
-
     const precioUnidadBs = obtenerPrecioBasePorModalidad(producto, 'unidad');
-    const precioCajaBs = obtenerPrecioBasePorModalidad(producto, 'caja');
     const precioMayorBs = obtenerPrecioBasePorModalidad(producto, 'mayor');
+    const precioOfertaBs = obtenerPrecioBasePorModalidad(producto, 'oferta');
 
     const precioUnidadUsd = precioUnidadBs / obtenerTipoCambioActual();
-    const precioCajaUsd = precioCajaBs / obtenerTipoCambioActual();
     const precioMayorUsd = precioMayorBs / obtenerTipoCambioActual();
     const imagenUrl = producto.imagen_url || producto.foto || producto.imagen_principal_url || '/static/img/logoAlmacenn.png';
     const nombreProducto = producto.nombre || 'Producto';
@@ -1097,7 +1066,6 @@ function renderTarjetaProductoCompacta(producto) {
 
             <div class="producto-card-sugerido-meta">
                 <span class="meta-stock">Stock ${stock}</span>
-                ${stockCajas > 0 ? `<span class="meta-cajas">${stockCajas} cajas</span>` : ''}
             </div>
 
             <div class="producto-card-sugerido-precios">
@@ -1106,13 +1074,13 @@ function renderTarjetaProductoCompacta(producto) {
                     <span class="precio-mini-valor">Bs. ${Number(precioUnidadBs).toFixed(2)}</span>
                 </div>
                 <div class="precio-mini-linea">
-                    <span class="precio-mini-label">Caja</span>
-                    <span class="precio-mini-valor">Bs. ${Number(precioCajaBs).toFixed(2)}</span>
-                </div>
-                <div class="precio-mini-linea">
                     <span class="precio-mini-label">May.</span>
                     <span class="precio-mini-valor">Bs. ${Number(precioMayorBs).toFixed(2)}</span>
                 </div>
+                ${puedeUsarOferta(producto) ? `<div class="precio-mini-linea">
+                    <span class="precio-mini-label">Oferta</span>
+                    <span class="precio-mini-valor">Bs. ${Number(precioOfertaBs).toFixed(2)}</span>
+                </div>` : ''}
             </div>
 
             <div class="producto-card-sugerido-actions">
