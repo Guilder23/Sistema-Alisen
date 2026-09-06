@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const deliveryModal = document.getElementById('deliveryModal');
     const customerModal = document.getElementById('customerModal');
     const deliveryOptions = document.querySelectorAll('.delivery-option-card');
-    const continueDeliveryButton = document.getElementById('continueDeliveryButton');
     const productPrices = JSON.parse(document.getElementById('preciosMayoristas')?.textContent || '{}');
 
     let selectedDelivery = '';
@@ -173,17 +172,11 @@ document.addEventListener('DOMContentLoaded', () => {
             deliveryOptions.forEach((c) => c.classList.remove('active'));
             card.classList.add('active');
             selectedDelivery = card.dataset.delivery || '';
-            if (continueDeliveryButton) {
-                continueDeliveryButton.disabled = !selectedDelivery;
-            }
+            if (!selectedDelivery) return;
+            $(deliveryModal).modal('hide');
+            configureFields();
+            $(customerModal).modal('show');
         });
-    });
-
-    continueDeliveryButton?.addEventListener('click', () => {
-        if (!selectedDelivery) return;
-        $(deliveryModal).modal('hide');
-        configureFields();
-        $(customerModal).modal('show');
     });
 
     const configureFields = () => {

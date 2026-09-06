@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitOrderButton = document.getElementById('submitOrderButton');
     const deliveryModal = document.getElementById('deliveryModal');
     const deliveryOptions = document.querySelectorAll('.delivery-option-card');
-    const continueDeliveryButton = document.getElementById('continueDeliveryButton');
     const clearCartBtn = document.getElementById('clearCartBtn');
     const customerModal = document.getElementById('customerModal');
 
@@ -176,17 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
             deliveryOptions.forEach(item => item.classList.remove('active'));
             card.classList.add('active');
             selectedDelivery = card.dataset.delivery || '';
-            if (continueDeliveryButton) {
-                continueDeliveryButton.disabled = !selectedDelivery;
-            }
+            if (!selectedDelivery) return;
+            $(deliveryModal).modal('hide');
+            configureCustomerFields();
+            $(customerModal).modal('show');
         });
-    });
-
-    continueDeliveryButton?.addEventListener('click', () => {
-        if (!selectedDelivery) return;
-        $(deliveryModal).modal('hide');
-        configureCustomerFields();
-        $(customerModal).modal('show');
     });
 
     const configureCustomerFields = () => {
