@@ -788,19 +788,9 @@ def guardar_venta(request):
                     raise ValueError(f'Cantidad inválida para el producto ID {producto_id}.')
 
                 if modalidad == 'mayor':
-                    if unidades_por_caja <= unidades_por_mayor:
+                    if cantidad < unidades_por_mayor:
                         raise ValueError(
-                            f'El producto "{producto.nombre}" no tiene rango válido para venta por mayor.'
-                        )
-                    if cantidad < unidades_por_mayor or cantidad >= unidades_por_caja:
-                        raise ValueError(
-                            f'Venta por mayor debe estar entre {unidades_por_mayor} y {unidades_por_caja - 1} unidades. '
-                            f'Recibido: {cantidad}.'
-                        )
-                elif modalidad == 'unidad':
-                    if unidades_por_caja > unidades_por_mayor and cantidad >= unidades_por_mayor:
-                        raise ValueError(
-                            f'Venta por unidad solo permite entre 1 y {unidades_por_mayor - 1} unidades. '
+                            f'Venta por mayor requiere al menos {unidades_por_mayor} unidades. '
                             f'Recibido: {cantidad}.'
                         )
                 
@@ -2047,25 +2037,15 @@ def guardar_venta_tienda(request):
                 # VALIDAR MODALIDAD (tienda y depósito usan las mismas reglas)
                 if tipo_vendedor_item in ['tienda', 'deposito', 'almacen']:
                     if modalidad == 'mayor':
-                        if unidades_por_caja <= unidades_por_mayor:
+                        if cantidad < unidades_por_mayor:
                             raise ValueError(
-                                f'El producto "{producto.nombre}" no tiene rango válido para venta por mayor.'
-                            )
-                        if cantidad < unidades_por_mayor or cantidad >= unidades_por_caja:
-                            raise ValueError(
-                                f'Venta por mayor debe estar entre {unidades_por_mayor} y {unidades_por_caja - 1} unidades. '
+                                f'Venta por mayor requiere al menos {unidades_por_mayor} unidades. '
                                 f'Recibido: {cantidad}.'
                             )
                     elif modalidad == 'caja':
                         if cantidad < 1:
                             raise ValueError(
                                 'Venta por caja debe ser al menos 1 caja. '
-                                f'Recibido: {cantidad}.'
-                            )
-                    elif modalidad == 'unidad':
-                        if unidades_por_caja > unidades_por_mayor and cantidad >= unidades_por_mayor:
-                            raise ValueError(
-                                f'Venta por unidad solo permite entre 1 y {unidades_por_mayor - 1} unidades. '
                                 f'Recibido: {cantidad}.'
                             )
 

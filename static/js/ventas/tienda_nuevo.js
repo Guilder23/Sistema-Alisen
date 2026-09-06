@@ -199,12 +199,7 @@ function puedeUsarCaja(producto) {
 }
 
 function puedeUsarMayor(producto, tipoVendedor = tipoVendedorActual) {
-    const unidadesPorCaja = parseInt(producto.unidades_por_caja || 1, 10);
-    const unidadesPorMayor = obtenerUnidadesPorMayorProducto(producto);
-    const tipoVendedorNormalizado = normalizarTipoVendedor(tipoVendedor);
-    
-    // Ambos tienda y deposito pueden usar mayor si el producto lo permite
-    return unidadesPorCaja > unidadesPorMayor;
+    return Number(producto.precio_mayor || 0) > 0;
 }
 
 function puedeUsarOferta(producto) {
@@ -224,11 +219,7 @@ function determinarModalidadAutomaticaTienda(producto, cantidad, modalidadActual
         return 'oferta';
     }
 
-    if (puedeUsarMayor(producto) && valor >= unidadesPorMayor && valor < unidadesPorCaja) {
-        return 'mayor';
-    }
-
-    return 'unidad';
+    return modalidadActual || 'unidad';
 }
 function calcularUnidadesOperativas(producto, cantidad, modalidad) {
     return cantidad;
@@ -332,23 +323,15 @@ function validarCantidadSegunModalidad(cantidad, modalidad, unidadesPorCaja, tip
 
     // UNIDAD
     if (modalidad === 'unidad') {
-        // Si existe modalidad mayor, unidad solo permite hasta umbral-1
-        if (unidadesPorCaja > umbralMayor && valor >= umbralMayor) {
-            return { valido: false, mensaje: 'Con esa cantidad corresponde precio Mayor.' };
-        }
         return { valido: true };
     }
 
     // MAYOR
     if (modalidad === 'mayor') {
-        if (unidadesPorCaja <= umbralMayor) {
-            return { valido: false, mensaje: 'Este producto no tiene modalidad Mayor.' };
-        }
-
-        if (valor < umbralMayor || valor >= unidadesPorCaja) {
+        if (valor < umbralMayor) {
             return {
                 valido: false,
-                mensaje: `La modalidad Mayor requiere entre ${umbralMayor} y ${unidadesPorCaja - 1} unidades.`
+                mensaje: `La modalidad Mayor requiere al menos ${umbralMayor} unidades.`
             };
         }
 
@@ -585,8 +568,6 @@ function cambiarModalidadCarrito(index, nuevaModalidad) {
         
         if (item.cantidad < umbralMayor) {
             item.cantidad = umbralMayor;
-        } else if (item.cantidad >= unidadesPorCaja) {
-            item.cantidad = unidadesPorCaja - 1;
         }
     }
 

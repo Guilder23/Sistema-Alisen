@@ -73,7 +73,7 @@ function obtenerPrecioPorModalidad(producto, modalidad) {
 }
 
 function puedeUsarMayorProducto(producto) {
-    return obtenerUnidadesPorCajaProducto(producto) > obtenerUnidadesPorMayorProducto(producto);
+    return parseFloat(producto.precio_mayor || 0) > 0;
 }
 
 function obtenerMaximoCajasProducto(producto) {
@@ -521,7 +521,7 @@ function renderCarrito() {
         const precioEnDolares = (item.precioUnitario / tipoCambio).toFixed(2);
         const subtotalEnDolares = (parseFloat(subtotal) / tipoCambio).toFixed(2);
         const maximoCajas = Math.max(item.maximoCajas || 1, 1);
-        const mostrarMayor = item.unidadesPorCaja > (item.unidadesPorMayor || 3);
+        const mostrarMayor = puedeUsarMayorProducto(item.productoRaw || item);
         const cantidadMostrada = modalidad === 'caja' ? item.cajas : item.cantidad;
         const maxCantidad = modalidad === 'caja'
             ? maximoCajas
@@ -696,8 +696,6 @@ function establecerCantidadAlmacen(index, valor) {
         } else if (modalidad === 'mayor') {
             if (valor < umbral) valor = umbral;
             if (valor >= item.unidadesPorCaja) valor = item.unidadesPorCaja - 1;
-        } else if (item.unidadesPorCaja > umbral && valor >= umbral) {
-            valor = umbral - 1;
         }
         if (valor > item.stock) valor = item.stock;
         item.cantidad = Math.max(1, valor);
