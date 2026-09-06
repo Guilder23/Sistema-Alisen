@@ -28,11 +28,13 @@
         const iconClass = tipo === 'success' ? 'fa-check' : 'fa-exclamation-triangle';
         const titleText = titulo || (tipo === 'success' ? 'Correcto' : 'Atención');
         toast.style.cssText = `
-            position: fixed; top: 22px; right: 22px; z-index: 99999;
-            min-width: 280px; max-width: 380px;
+            position: fixed; bottom: 24px; right: 22px; top: auto; left: auto; z-index: 99999;
+            width: fit-content; min-width: 280px; max-width: 380px;
+            height: auto; min-height: 0; max-height: 96px;
+            box-sizing: border-box; overflow: hidden;
             background: #ffffff; border: 1px solid rgba(148,163,184,0.18);
             border-left: 4px solid ${tipo === 'success' ? '#16c784' : '#ef4444'};
-            border-radius: 18px; padding: 1rem 1.15rem;
+            border-radius: 12px; padding: 0.7rem 0.85rem;
             box-shadow: 0 20px 60px rgba(15,23,42,0.22);
             display: flex; align-items: center; gap: 0.85rem;
             animation: toastSlideIn 0.35s cubic-bezier(.2,.8,.2,1);
