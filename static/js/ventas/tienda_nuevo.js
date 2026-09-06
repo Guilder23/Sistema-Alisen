@@ -1541,16 +1541,10 @@ function inicializarGuardarVenta() {
         }
 
         const subtotalBs = carrito.reduce((sum, item) => sum + item.subtotal_bs, 0);
-        const detalleDescuento = obtenerDetalleDescuentoActual(subtotalBs);
-        const descuentoBs = detalleDescuento.descuentoBs;
+        const descuentoBs = carrito.reduce((sum, item) => sum + calcularDescuentoItemTienda(item), 0);
         const totalBs = subtotalBs - descuentoBs;
         const tiposVendedor = [...new Set(carrito.map((item) => obtenerEtiquetaTipoVendedor(obtenerTipoVendedorItem(item))))].join(', ');
-        const descuentoHtml = descuentoBs > 0
-            ? `
-                <p class="mb-1"><strong>Descuento:</strong> ${detalleDescuento.resumen}</p>
-                <p class="mb-0"><strong>Calculo:</strong> ${formatearMonto(subtotalBs)} - ${formatearMonto(descuentoBs)} = ${formatearMonto(totalBs)}</p>
-            `
-            : '<p class="mb-0"><strong>Descuento:</strong> Sin descuento</p>';
+        const descuentoHtml = `<p class="mb-1"><strong>Descuento:</strong> ${formatearMonto(descuentoBs)}</p>`;
 
         const confirmarVenta = () => {
             const urls = obtenerURLs();

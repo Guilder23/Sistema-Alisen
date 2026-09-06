@@ -870,6 +870,13 @@ function guardarVenta() {
     const tipoCambio = tipoCambioElement ? (parseFloat(tipoCambioElement.value) || 1) : 1;
     const etiqueta = moneda === 'USD' ? '$' : 'Bs.';
     const totalDisplay = moneda === 'USD' ? (totalFinal / tipoCambio).toFixed(2) : totalFinal.toFixed(2);
+    const descuentoTotal = carrito.reduce((sum, item) => {
+        const unidades = item.modalidad === 'caja' ? item.cajas * item.unidadesPorCaja : item.cantidad;
+        return sum + calcularDescuentoPorUnidad(item, unidades);
+    }, 0);
+    const subtotalTotal = totalFinal + descuentoTotal;
+    const subtotalDisplay = moneda === 'USD' ? (subtotalTotal / tipoCambio).toFixed(2) : subtotalTotal.toFixed(2);
+    const descuentoDisplay = moneda === 'USD' ? (descuentoTotal / tipoCambio).toFixed(2) : descuentoTotal.toFixed(2);
 
     const tipoPagoTexto = tipoPago === 'contado' ? 'Al Contado' : 'A Crédito';
 
@@ -884,6 +891,8 @@ function guardarVenta() {
                 <p><strong>Moneda:</strong> ${moneda}</p>
                 <p><strong>Productos:</strong> ${carrito.length} item(s)</p>
                 <hr>
+                <p><strong>Subtotal:</strong> ${etiqueta} ${subtotalDisplay.toFixed ? subtotalDisplay.toFixed(2) : subtotalDisplay}</p>
+                <p><strong>Descuento:</strong> ${etiqueta} ${descuentoDisplay}</p>
                 <p style="font-size:1.2rem;"><strong>Total: ${etiqueta} ${totalDisplay}</strong></p>
             </div>
         `,
