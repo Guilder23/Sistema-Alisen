@@ -830,6 +830,8 @@ def guardar_venta(request):
                 item_descuento_valor = Decimal(str(item.get('descuento_valor', 0) or 0))
                 if item_descuento_tipo not in ['ninguno', 'fijo', 'porcentaje']:
                     raise ValueError(f'Tipo de descuento inválido para "{producto.nombre}".')
+                if perfil.rol == 'almacen' and item_descuento_tipo == 'porcentaje':
+                    raise ValueError('El rol almacén solo puede aplicar descuentos por unidad.')
                 if item_descuento_valor < 0:
                     raise ValueError(f'El descuento no puede ser negativo para "{producto.nombre}".')
                 if item_descuento_tipo == 'porcentaje':

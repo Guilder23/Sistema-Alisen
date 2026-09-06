@@ -446,6 +446,7 @@ function agregarAlCarrito(producto) {
         unidadesPorCaja: unidadesPorCaja,
         unidadesPorMayor: unidadesPorMayor,
         maximoCajas: obtenerMaximoCajasProducto(producto),
+        descuentoActivo: false,
         descuentoTipo: 'ninguno',
         descuentoValor: 0,
         productoRaw: producto,
@@ -453,6 +454,29 @@ function agregarAlCarrito(producto) {
 
     renderCarrito();
     actualizarResumen();
+}
+
+function calcularDescuentoPorUnidad(item, unidades) {
+    if (!item.descuentoActivo || item.descuentoTipo !== 'fijo' || !(item.descuentoValor > 0)) return 0;
+    return Math.max(item.precioUnitario - Math.min(item.descuentoValor, item.precioUnitario), 0) * unidades;
+}
+
+function actualizarSubtotalRealFila(index) {
+    const item = carrito[index];
+    if (!item) return;
+
+    const unidades = item.modalidad === 'caja'
+        ? item.cajas * item.unidadesPorCaja
+        : item.cantidad;
+    const subtotal = item.precioUnitario * unidades;
+    const subtotalReal = Math.max(subtotal - calcularDescuentoPorUnidad(item, unidades), 0);
+    const moneda = document.getElementById('inputMoneda')?.value || 'BOB';
+    const tipoCambio = parseFloat(document.getElementById('tipoCambioActual')?.value) || 1;
+    const valor = moneda === 'USD'
+        ? `$ ${(subtotalReal / tipoCambio).toFixed(2)}`
+        : `Bs. ${subtotalReal.toFixed(2)}`;
+
+    $(`#carritoBody tr[data-index="${index}"] .carrito-subtotal-real`).text(valor);
 }
 
 // CARRITO: RENDERIZAR TABLA
@@ -488,11 +512,7 @@ function renderCarrito() {
             ? (item.cajas * item.unidadesPorCaja)
             : item.cantidad;
         const subtotal = (item.precioUnitario * unidadesOperativas).toFixed(2);
-        const descuento = item.descuentoTipo === 'porcentaje'
-            ? (parseFloat(subtotal) * Math.min(item.descuentoValor || 0, 100) / 100)
-            : item.descuentoTipo === 'fijo'
-                ? Math.max((item.precioUnitario - (item.descuentoValor || 0)) * unidadesOperativas, 0)
-                : 0;
+        const descuento = calcularDescuentoPorUnidad(item, unidadesOperativas);
         const subtotalReal = Math.max(parseFloat(subtotal) - descuento, 0).toFixed(2);
         const precioEnDolares = (item.precioUnitario / tipoCambio).toFixed(2);
         const subtotalEnDolares = (parseFloat(subtotal) / tipoCambio).toFixed(2);
@@ -547,16 +567,19 @@ function renderCarrito() {
                     </div>
                 </td>
                 <td class="text-center">
-                    <select class="form-control form-control-sm item-descuento-tipo" data-index="${index}">
-                        <option value="ninguno" ${item.descuentoTipo === 'ninguno' ? 'selected' : ''}>Sin descuento</option>
-                        <option value="fijo" ${item.descuentoTipo === 'fijo' ? 'selected' : ''}>Precio final / unidad</option>
-                        <option value="porcentaje" ${item.descuentoTipo === 'porcentaje' ? 'selected' : ''}>Porcentaje</option>
-                    </select>
-                    <input type="number" class="form-control form-control-sm mt-1 item-descuento-valor"
-                           data-index="${index}" min="0" step="0.01"
-                           value="${item.descuentoValor || 0}" ${item.descuentoTipo === 'ninguno' ? 'disabled' : ''}>
+                    <div class="custom-control custom-checkbox text-left mb-1">
+                        <input type="checkbox" class="custom-control-input item-descuento-activo"
+                               id="descuentoActivo-${index}" data-index="${index}"
+                               ${item.descuentoActivo ? 'checked' : ''}>
+                        <label class="custom-control-label small" for="descuentoActivo-${index}">Aplicar descuento</label>
+                    </div>
+                    <input type="number" class="form-control form-control-sm item-descuento-valor"
+                              data-index="${index}" min="0" max="${item.precioUnitario.toFixed(2)}" step="0.01"
+                              placeholder="Precio final / unidad"
+                              value="${item.descuentoActivo && item.descuentoTipo === 'fijo' ? item.descuentoValor : ''}"
+                              ${item.descuentoActivo ? '' : 'disabled'}>
                 </td>
-                <td class="text-right font-weight-bold text-success">
+                <td class="text-right font-weight-bold text-success carrito-subtotal-real">
                     ${moneda === 'BOB' ? `Bs. ${subtotalReal}` : `$ ${(parseFloat(subtotalReal) / tipoCambio).toFixed(2)}`}
                 </td>
                 <td class="text-center pr-3">
@@ -592,18 +615,23 @@ function renderCarrito() {
         establecerCantidadAlmacen(idx, val);
     });
 
-    $body.find('.item-descuento-tipo').off('change').on('change', function () {
-        const item = carrito[$(this).data('index')];
+    $body.find('.item-descuento-activo').off('change').on('change', function () {
+        const index = $(this).data('index');
+        const item = carrito[index];
         if (!item) return;
-        item.descuentoTipo = $(this).val();
-        if (item.descuentoTipo === 'ninguno') item.descuentoValor = 0;
-        renderCarrito();
+        item.descuentoActivo = $(this).prop('checked');
+        item.descuentoTipo = item.descuentoActivo && item.descuentoValor > 0 ? 'fijo' : 'ninguno';
+        $body.find(`.item-descuento-valor[data-index="${index}"]`).prop('disabled', !item.descuentoActivo);
+        actualizarSubtotalRealFila(index);
         actualizarResumen();
     });
     $body.find('.item-descuento-valor').off('input').on('input', function () {
-        const item = carrito[$(this).data('index')];
+        const index = $(this).data('index');
+        const item = carrito[index];
         if (!item) return;
         item.descuentoValor = Math.max(0, parseFloat($(this).val()) || 0);
+        item.descuentoTipo = item.descuentoActivo && item.descuentoValor > 0 ? 'fijo' : 'ninguno';
+        actualizarSubtotalRealFila(index);
         actualizarResumen();
     });
 
@@ -748,9 +776,7 @@ function actualizarResumen() {
     const descuentoBs = carrito.reduce((sum, item) => {
         const unidades = item.modalidad === 'caja' ? item.cajas * item.unidadesPorCaja : item.cantidad;
         const bruto = item.precioUnitario * unidades;
-        if (item.descuentoTipo === 'porcentaje') return sum + bruto * Math.min(item.descuentoValor, 100) / 100;
-        if (item.descuentoTipo === 'fijo') return sum + Math.max((item.precioUnitario - (item.descuentoValor || 0)) * unidades, 0);
-        return sum;
+        return sum + calcularDescuentoPorUnidad(item, unidades);
     }, 0);
     const descuentoDisplay = moneda === 'USD' ? (descuentoBs / tipoCambio).toFixed(2) : descuentoBs.toFixed(2);
     const totalFinal = totalPrecio - descuentoBs;
@@ -834,9 +860,7 @@ function guardarVenta() {
             ? (item.cajas * item.unidadesPorCaja)
             : item.cantidad;
         const bruto = item.precioUnitario * unidades;
-        const descuento = item.descuentoTipo === 'porcentaje'
-            ? bruto * Math.min(item.descuentoValor, 100) / 100
-            : item.descuentoTipo === 'fijo' ? Math.max((item.precioUnitario - (item.descuentoValor || 0)) * unidades, 0) : 0;
+        const descuento = calcularDescuentoPorUnidad(item, unidades);
         totalFinal += bruto - descuento;
     });
     
@@ -896,10 +920,10 @@ function enviarVenta(cliente, telefono, razonSocial, direccion, comentario, tipo
             tipo_vendedor: 'almacen',
             unidades_operativas: unidadesOperativas,
             precio_unitario: convertirBsAMoneda(item.precioUnitario).toFixed(2),
-            descuento_tipo: item.descuentoTipo || 'ninguno',
-            descuento_valor: item.descuentoTipo === 'fijo'
-                ? convertirBsAMoneda(item.descuentoValor || 0)
-                : (item.descuentoValor || 0),
+            descuento_tipo: item.descuentoActivo && item.descuentoTipo === 'fijo' && item.descuentoValor > 0 ? 'fijo' : 'ninguno',
+            descuento_valor: item.descuentoActivo && item.descuentoTipo === 'fijo' && item.descuentoValor > 0
+                ? convertirBsAMoneda(item.descuentoValor)
+                : 0,
         };
     });
     
