@@ -1744,7 +1744,8 @@ def agregar_producto_a_contenedor(request, contenedor_id):
                 descripcion = request.POST.get('descripcion', '').strip()
                 unidades_por_caja = int(request.POST.get('unidades_por_caja', 1))
                 unidades_por_mayor = max(int(request.POST.get('unidades_por_mayor', 3) or 3), 2)
-                precio_unidad = float(request.POST.get('precio_unidad', 0))
+                # El precio se configura posteriormente desde el panel del administrador.
+                precio_unidad = 0
                 stock_critico = int(request.POST.get('stock_critico', 10))
                 stock_bajo = int(request.POST.get('stock_bajo', 30))
                 cantidad = int(request.POST.get('cantidad', 1))
