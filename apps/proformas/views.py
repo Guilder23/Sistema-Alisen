@@ -51,12 +51,11 @@ def aplicar_descuento(total, descuento_tipo, descuento_valor):
 def calcular_descuento_item(subtotal, precio_unitario, cantidad, descuento_tipo, descuento_valor):
     tipo = (descuento_tipo or 'ninguno').strip().lower()
     valor = parse_decimal(descuento_valor)
-    if tipo not in ['ninguno', 'fijo', 'porcentaje'] or valor < 0:
-        raise ValueError('Descuento de producto inválido.')
     if tipo == 'porcentaje':
-        valor = min(valor, Decimal('100.00'))
-        descuento = (subtotal * valor / Decimal('100')).quantize(Decimal('0.01'))
-    elif tipo == 'fijo':
+        raise ValueError('Las proformas solo permiten precio final por unidad.')
+    if tipo not in ['ninguno', 'fijo'] or valor < 0:
+        raise ValueError('Descuento de producto inválido.')
+    if tipo == 'fijo':
         precio_final = min(valor, precio_unitario)
         descuento = min((precio_unitario - precio_final) * Decimal(str(cantidad)), subtotal)
     else:
