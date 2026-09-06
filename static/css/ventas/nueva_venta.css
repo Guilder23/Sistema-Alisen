@@ -856,6 +856,11 @@
     color: #111827;
 }
 
+.venta-card-resumen .resumen-linea-descuento span:first-child,
+.venta-card-resumen .resumen-linea-descuento strong {
+    color: #dc3545;
+}
+
 .venta-card-resumen .resumen-total {
     border-top: 1px solid #e8edf5;
     padding-top: 1rem;
