@@ -82,6 +82,13 @@ def verificar_permiso_proformas(request):
     return es_almacen(request) or es_tienda(request)
 
 
+def proformas_accesibles(request):
+    proformas = Proforma.objects.filter(activo=True).select_related('usuario')
+    if request.user.is_superuser or request.user.is_staff:
+        return proformas
+    return proformas.filter(usuario=request.user)
+
+
 def obtener_stock_proforma(producto, perfil, tipo_ubicacion='tienda'):
     if perfil is None:
         return producto.stock
@@ -103,7 +110,7 @@ def listar_proformas(request):
     if not verificar_permiso_proformas(request):
         messages.error(request, 'No tiene permiso para gestionar proformas.')
         return redirect('dashboard')
-    proformas = Proforma.objects.filter(activo=True).select_related('usuario')
+    proformas = proformas_accesibles(request)
     return render(request, 'proformas/proformas.html', {'proformas': proformas})
 
 
@@ -122,7 +129,7 @@ def ver_proforma(request, id):
     if not verificar_permiso_proformas(request):
         messages.error(request, 'No tiene permiso para gestionar proformas.')
         return redirect('dashboard')
-    proforma = get_object_or_404(Proforma, pk=id, activo=True)
+    proforma = get_object_or_404(proformas_accesibles(request), pk=id)
     return render(request, 'proformas/modals/ver.html', {'proforma': proforma})
 
 
@@ -131,7 +138,7 @@ def editar_proforma(request, id):
     if not verificar_permiso_proformas(request):
         messages.error(request, 'No tiene permiso para gestionar proformas.')
         return redirect('dashboard')
-    proforma = get_object_or_404(Proforma, pk=id, activo=True)
+    proforma = get_object_or_404(proformas_accesibles(request), pk=id)
     return render(request, 'proformas/modals/editar.html', {'proforma': proforma})
 
 
@@ -140,7 +147,7 @@ def eliminar_proforma(request, id):
     if not verificar_permiso_proformas(request):
         messages.error(request, 'No tiene permiso para gestionar proformas.')
         return redirect('dashboard')
-    proforma = get_object_or_404(Proforma, pk=id, activo=True)
+    proforma = get_object_or_404(proformas_accesibles(request), pk=id)
     if request.method == 'POST':
         proforma.activo = False
         proforma.save()
@@ -186,7 +193,7 @@ def buscar_productos(request):
 def obtener_proforma(request, id):
     if not verificar_permiso_proformas(request):
         return JsonResponse({'error': 'No tiene permiso para gestionar proformas.'}, status=403)
-    proforma = get_object_or_404(Proforma, pk=id, activo=True)
+    proforma = get_object_or_404(proformas_accesibles(request), pk=id)
     items = []
     for item in proforma.items.select_related('producto').all():
         items.append({
@@ -233,7 +240,7 @@ def generar_pdf_proforma(request, id):
     if not verificar_permiso_proformas(request):
         messages.error(request, 'No tiene permiso para gestionar proformas.')
         return redirect('dashboard')
-    proforma = get_object_or_404(Proforma, pk=id, activo=True)
+    proforma = get_object_or_404(proformas_accesibles(request), pk=id)
 
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.75 * inch, bottomMargin=0.75 * inch)
@@ -470,7 +477,7 @@ def guardar_proforma(request):
 def actualizar_proforma(request, id):
     if not verificar_permiso_proformas(request):
         return JsonResponse({'success': False, 'error': 'No tiene permiso para gestionar proformas.'}, status=403)
-    proforma = get_object_or_404(Proforma, pk=id, activo=True)
+    proforma = get_object_or_404(proformas_accesibles(request), pk=id)
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
 
@@ -513,7 +520,6 @@ def actualizar_proforma(request, id):
             proforma.descuento_tipo = 'ninguno'
             proforma.descuento_valor = Decimal('0.00')
             proforma.descuento = Decimal('0.00')
-            proforma.usuario = request.user
             proforma.save()
 
             proforma.items.all().delete()
