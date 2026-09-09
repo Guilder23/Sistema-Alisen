@@ -70,6 +70,7 @@
         $('#edit_stock').val(data.stock);
         $('#edit_unidades_por_caja').val(data.unidades_por_caja);
         $('#edit_unidades_por_mayor').val(data.unidades_por_mayor || 3);
+        actualizarCajasEditadas(data.stock, data.unidades_por_caja);
         $('#edit_stock_critico').val(data.stock_critico);
         $('#edit_stock_bajo').val(data.stock_bajo);
         $('#edit_activo').prop('checked', data.activo);
@@ -78,6 +79,13 @@
         $('#modalEditarProducto').modal('show');
 
         window.GaleriaProducto?.loadData('#modalEditarProducto', data);
+    }
+
+    function actualizarCajasEditadas(stock, unidadesPorCaja) {
+        const total = parseInt(stock, 10) || 0;
+        const unidades = parseInt(unidadesPorCaja, 10) || 1;
+        $('#edit_cantidad_cajas').val(Math.floor(total / unidades));
+        $('#edit_cantidad_total').val(total);
     }
     
     function editarProductoAJAX(productoId) {
