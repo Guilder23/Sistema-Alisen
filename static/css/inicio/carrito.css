@@ -7,8 +7,14 @@
 }
 
 .cart-main-wrapper {
-    padding-top: calc(var(--navbar-height) + 20px);
+    padding-top: calc(var(--navbar-height) + 32px) !important;
     min-height: calc(100vh - 120px);
+}
+
+@media (max-width: 991.98px) {
+    .cart-main-wrapper {
+        padding-top: calc(var(--navbar-height) + 24px) !important;
+    }
 }
 
 /* --------------------------------------------------------------------------
