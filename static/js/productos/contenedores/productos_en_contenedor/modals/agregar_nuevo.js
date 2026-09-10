@@ -232,7 +232,6 @@
                 const categoria = document.getElementById('categoria_modal').value;
                 const unidadesPorCaja = document.getElementById('unidades_por_caja_modal').value;
                 const unidadesPorMayor = document.getElementById('unidades_por_mayor_modal').value;
-                const precioUnidad = document.getElementById('precio_unidad_modal').value;
                 const cantidad = document.getElementById('cantidad_modal').value;
 
                 if (!codigo || !nombre) {
@@ -249,10 +248,6 @@
                 }
                 if (!unidadesPorMayor || parseInt(unidadesPorMayor, 10) < 2) {
                     alert('Las unidades por mayor deben ser al menos 2');
-                    return;
-                }
-                if (!precioUnidad || precioUnidad < 0) {
-                    alert('El precio unitario debe ser un número válido y mayor o igual a 0');
                     return;
                 }
                 if (!cantidad || cantidad < 1) {

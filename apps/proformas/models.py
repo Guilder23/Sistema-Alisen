@@ -45,8 +45,8 @@ class Proforma(models.Model):
 class ProformaItem(models.Model):
     MODALIDADES = (
         ('unidad', 'Unidad'),
-        ('caja', 'Caja'),
         ('mayor', 'Mayor'),
+        ('oferta', 'Oferta'),
     )
 
     proforma = models.ForeignKey(Proforma, on_delete=models.CASCADE, related_name='items')

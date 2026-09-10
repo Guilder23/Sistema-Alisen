@@ -78,12 +78,12 @@
             <table class="table table-sm tabla-productos mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 30%;">Foto</th>
-                        <!--<th style="width: 30%;">Producto</th>-->
-                        <th style="width: 20%;">Código</th>
-                        <th style="width: 15%;">Detalle</th>
+                        <th style="width: 12%;">Foto</th>
+                        <th style="width: 12%;">Código</th>
+                        <th style="width: 20%;">Nombre</th>
+                        <th style="width: 20%;">Detalle</th>
                         <th style="width: 15%;">Cantidad Recibida</th>
-                        <th style="width: 15%;">Stock Cajas</th>
+                        <th style="width: 12%;">Stock Cajas</th>
                         <!--<th style="width: 15%;">Cantidad Disponible</th>-->
                         <th class="text-center" style="width: 20%;">Acciones</th>
                     </tr>
@@ -100,13 +100,13 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <!--<td>
-                            <div class="text-truncate" style="max-width: 300px;" title="{{ pc.producto.nombre }}">
-                                {{ pc.producto.nombre }}
-                            </div>
-                        </td>-->
                         <td>
                             <span class="codigo-badge">{{ pc.producto.codigo }}</span>
+                        </td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 220px;" title="{{ pc.producto.nombre }}">
+                                {{ pc.producto.nombre }}
+                            </div>
                         </td>
                         <td>
                             <span class="badge-detalle">{{ pc.producto.descripcion|default:'Sin detalle' }}</span>

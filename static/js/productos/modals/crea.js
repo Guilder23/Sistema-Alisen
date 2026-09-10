@@ -15,12 +15,15 @@
         });
         $('#modalCrearProducto').on('shown.bs.modal', function() {
             window.GaleriaProducto?.init(this);
+            calcularUnidadesTotal();
         });
 
         // Limpiar cuando se cierra el modal
         $('#modalCrearProducto').on('hidden.bs.modal', function() {
             limpiarFormulario();
         });
+
+        $('#cantidad_cajas, #unidades_por_caja').on('input change', calcularUnidadesTotal);
         
         // Manejar submit con AJAX
         $(document).on('submit', '#formCrearProducto', function(e) {
@@ -35,6 +38,12 @@
         
         console.log('✓ Modal Crear Producto inicializado');
     };
+
+    function calcularUnidadesTotal() {
+        const cantidadCajas = parseInt($('#cantidad_cajas').val(), 10) || 0;
+        const unidadesPorCaja = parseInt($('#unidades_por_caja').val(), 10) || 1;
+        $('#cantidad_total').val(cantidadCajas * unidadesPorCaja);
+    }
     
     function crearProductoAJAX() {
         const form = $('#formCrearProducto')[0];
@@ -89,6 +98,7 @@
         const categoria = $('#categoria').val();
         const unidades_por_caja = $('#unidades_por_caja').val();
         const unidades_por_mayor = $('#unidades_por_mayor').val();
+        const cantidad_cajas = $('#cantidad_cajas').val();
         
         if (!codigo) {
             mostrarNotificacion('El código del producto es requerido', 'warning');
@@ -119,6 +129,12 @@
             $('#unidades_por_mayor').focus();
             return false;
         }
+
+        if (!cantidad_cajas || parseInt(cantidad_cajas, 10) < 1) {
+            mostrarNotificacion('La cantidad de cajas debe ser al menos 1', 'warning');
+            $('#cantidad_cajas').focus();
+            return false;
+        }
         
         return true;
     }
@@ -126,5 +142,6 @@
     function limpiarFormulario() {
         $('#formCrearProducto')[0].reset();
         window.GaleriaProducto?.reset('#modalCrearProducto');
+        calcularUnidadesTotal();
     }
 })();

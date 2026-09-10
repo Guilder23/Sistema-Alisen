@@ -86,8 +86,8 @@ class ReservaProducto(models.Model):
 class ReservaItem(models.Model):
     MODALIDADES = (
         ('unidad', 'Unidad'),
-        ('caja', 'Caja'),
         ('mayor', 'Mayor'),
+        ('oferta', 'Oferta'),
     )
 
     reserva = models.ForeignKey(ReservaProducto, on_delete=models.CASCADE, related_name='items')

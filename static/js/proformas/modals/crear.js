@@ -22,13 +22,54 @@ function formatCurrency(value) {
     return parseNumber(value).toFixed(2);
 }
 
+function obtenerPrecioModalidad(item, modalidad) {
+    if (modalidad === 'oferta') {
+        return item.en_oferta && item.precio_unidad_oferta > 0 ? item.precio_unidad_oferta : item.precio_unidad;
+    }
+    if (modalidad === 'mayor') {
+        return item.precio_mayor > 0 ? item.precio_mayor : item.precio_unidad;
+    }
+    if (modalidad === 'caja') {
+        return item.precio_caja > 0 ? item.precio_caja : item.precio_unidad * (parseInt(item.unidades_por_caja, 10) || 1);
+    }
+    return item.precio_unidad;
+}
+
+function puedeUsarMayor(item) {
+    return (parseInt(item.unidades_por_caja, 10) || 1) > (parseInt(item.unidades_por_mayor, 10) || 3);
+}
+
+function cambiarModalidadProforma(item, modalidad) {
+    item.modalidad = modalidad;
+    item.precio_unitario = obtenerPrecioModalidad(item, modalidad);
+    item.cantidad = modalidad === 'mayor' ? (parseInt(item.unidades_por_mayor, 10) || 3) : 1;
+    item.descuento_valor = 0;
+    item.descuento_tipo = 'ninguno';
+    item.descuentoActivo = false;
+}
+
 const proformaItems = [];
 
 function calcularDescuentoItem(item) {
     if (!item.descuentoActivo) return 0;
-    const bruto = item.precio_unitario * item.cantidad;
-    if (item.descuento_tipo === 'fijo') return Math.max(item.precio_unitario - (item.descuento_valor || 0), 0) * item.cantidad;
+    if (item.descuento_tipo === 'fijo') {
+        const precioFinal = Math.min(Math.max(item.descuento_valor || 0, 0), item.precio_unitario);
+        return Math.max(item.precio_unitario - precioFinal, 0) * item.cantidad;
+    }
     return 0;
+}
+
+function actualizarFilaProforma(item, index) {
+    const fila = document.querySelector(`tr[data-index="${index}"]`);
+    if (!fila) return;
+    const subtotal = item.precio_unitario * item.cantidad;
+    const descuento = calcularDescuentoItem(item);
+    fila.children[1].textContent = formatCurrency(item.precio_unitario);
+    fila.children[4].textContent = formatCurrency(subtotal);
+    const descuentoMonto = fila.querySelector('.descuento-monto');
+    if (descuentoMonto) descuentoMonto.textContent = formatCurrency(descuento);
+    fila.children[6].textContent = formatCurrency(descuento);
+    fila.children[7].textContent = formatCurrency(Math.max(subtotal - descuento, 0));
 }
 
 function actualizarResumenProforma() {
@@ -47,8 +88,8 @@ function renderizarItemsProforma() {
 
     if (proformaItems.length === 0) {
         body.innerHTML = `
-            <tr data-index="${index}">
-                <td colspan="8" class="text-center text-muted py-4">
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">
                     Busca y agrega productos para construir la proforma.
                 </td>
             </tr>`;
@@ -58,13 +99,19 @@ function renderizarItemsProforma() {
 
     proformaItems.forEach((item, index) => {
         body.insertAdjacentHTML('beforeend', `
-            <tr>
+            <tr data-index="${index}">
                 <td>${item.codigo} - ${item.nombre}</td>
                 <td>${formatCurrency(item.precio_unitario)}</td>
                 <td>
                     <input type="number" min="1" class="form-control form-control-sm cantidad-item" data-index="${index}" value="${item.cantidad}">
                 </td>
-                <td>${item.modalidad}</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn ${item.modalidad === 'unidad' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="unidad">Producto</button>
+                        ${puedeUsarMayor(item) ? `<button type="button" class="btn ${item.modalidad === 'mayor' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="mayor">Mayor</button>` : ''}
+                        ${item.en_oferta && item.precio_unidad_oferta > 0 ? `<button type="button" class="btn ${item.modalidad === 'oferta' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="oferta">Oferta</button>` : ''}
+                    </div>
+                </td>
                 <td>${formatCurrency(item.precio_unitario * item.cantidad)}</td>
                 <td>
                     <div class="custom-control custom-checkbox mb-1">
@@ -73,7 +120,7 @@ function renderizarItemsProforma() {
                     </div>
                     <input type="number" min="0" max="${Number(item.precio_unitario).toFixed(2)}" step="0.01" class="form-control form-control-sm descuento-valor-item" data-index="${index}" placeholder="Precio final / unidad" value="${item.descuentoActivo && item.descuento_tipo === 'fijo' ? item.descuento_valor : ''}" ${item.descuentoActivo ? '' : 'disabled'}>
                 </td>
-                <td class="text-danger">${formatCurrency(calcularDescuentoItem(item))}</td>
+                <td class="text-danger descuento-monto">${formatCurrency(calcularDescuentoItem(item))}</td>
                 <td class="font-weight-bold text-success">${formatCurrency(item.precio_unitario * item.cantidad - calcularDescuentoItem(item))}</td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-item" data-index="${index}">
@@ -87,10 +134,19 @@ function renderizarItemsProforma() {
         input.addEventListener('change', function () {
             const index = parseInt(this.dataset.index, 10);
             const value = parseInt(this.value, 10);
-            proformaItems[index].cantidad = value > 0 ? value : 1;
+            const item = proformaItems[index];
+            const minimo = item.modalidad === 'mayor' ? (parseInt(item.unidades_por_mayor, 10) || 3) : 1;
+            item.cantidad = value >= minimo ? value : minimo;
             renderizarItemsProforma();
         });
     });
+
+    document.querySelectorAll('.modalidad-item').forEach((button) => button.addEventListener('click', function () {
+        const item = proformaItems[parseInt(this.dataset.index, 10)];
+        if (!item) return;
+        cambiarModalidadProforma(item, this.dataset.modalidad);
+        renderizarItemsProforma();
+    }));
 
     document.querySelectorAll('.descuento-activo-item').forEach((input) => input.addEventListener('change', function () {
         const item = proformaItems[parseInt(this.dataset.index, 10)];
@@ -99,6 +155,7 @@ function renderizarItemsProforma() {
         item.descuento_tipo = item.descuentoActivo && item.descuento_valor > 0 ? 'fijo' : 'ninguno';
         const valor = document.querySelector(`.descuento-valor-item[data-index="${this.dataset.index}"]`);
         if (valor) valor.disabled = !item.descuentoActivo;
+        actualizarFilaProforma(item, parseInt(this.dataset.index, 10));
         actualizarResumenProforma();
     }));
     document.querySelectorAll('.descuento-valor-item').forEach((input) => input.addEventListener('input', function () {
@@ -106,11 +163,7 @@ function renderizarItemsProforma() {
         const item = proformaItems[index];
         item.descuento_valor = parseNumber(this.value);
         item.descuento_tipo = item.descuentoActivo && item.descuento_valor > 0 ? 'fijo' : 'ninguno';
-        const fila = document.querySelector(`tr[data-index="${index}"]`);
-        if (fila) {
-            fila.children[6].textContent = formatCurrency(calcularDescuentoItem(item));
-            fila.children[7].textContent = formatCurrency(Math.max(item.precio_unitario * item.cantidad - calcularDescuentoItem(item), 0));
-        }
+        actualizarFilaProforma(item, index);
         actualizarResumenProforma();
     }));
 
@@ -160,6 +213,13 @@ function mostrarProductosResultado(productos) {
                     codigo: producto.codigo,
                     nombre: producto.nombre,
                     precio_unitario: producto.precio_unidad || 0,
+                    precio_unidad: producto.precio_unidad || 0,
+                    precio_mayor: producto.precio_mayor || 0,
+                    precio_caja: producto.precio_caja || 0,
+                    precio_unidad_oferta: producto.precio_unidad_oferta || 0,
+                    en_oferta: Boolean(producto.en_oferta),
+                    unidades_por_caja: producto.unidades_por_caja || 1,
+                    unidades_por_mayor: producto.unidades_por_mayor || 3,
                     cantidad: 1,
                     modalidad: 'unidad',
                     descuento_tipo: 'ninguno',
