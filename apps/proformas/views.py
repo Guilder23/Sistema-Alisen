@@ -65,6 +65,38 @@ def calcular_descuento_item(subtotal, precio_unitario, cantidad, descuento_tipo,
     return tipo, valor.quantize(Decimal('0.01')), descuento.quantize(Decimal('0.01'))
 
 
+def obtener_precio_modalidad_proforma(producto, modalidad):
+    modalidad = (modalidad or 'unidad').strip().lower()
+    if modalidad not in {'unidad', 'mayor', 'oferta'}:
+        raise ValueError('Modalidad de precio inválida.')
+
+    precio_unidad = parse_decimal(producto.precio_unidad)
+    if modalidad == 'oferta':
+        precio_oferta = parse_decimal(producto.precio_unidad_oferta)
+        if not producto.en_oferta or precio_oferta <= 0:
+            raise ValueError(f'El producto "{producto.nombre}" no está disponible en oferta.')
+        return modalidad, precio_oferta
+    if modalidad == 'mayor':
+        return modalidad, parse_decimal(producto.precio_mayor) or precio_unidad
+    return modalidad, precio_unidad
+
+
+def validar_cantidad_modalidad_proforma(producto, modalidad, cantidad):
+    unidades_por_caja = max(int(producto.unidades_por_caja or 1), 1)
+    unidades_por_mayor = max(int(producto.unidades_por_mayor or 3), 2)
+    if modalidad == 'mayor' and unidades_por_caja > unidades_por_mayor:
+        if cantidad < unidades_por_mayor or cantidad >= unidades_por_caja:
+            raise ValueError(
+                f'Precio por mayor requiere entre {unidades_por_mayor} y '
+                f'{unidades_por_caja - 1} unidades para "{producto.nombre}".'
+            )
+    if modalidad == 'unidad' and unidades_por_caja > unidades_por_mayor and cantidad >= unidades_por_mayor:
+        raise ValueError(
+            f'Precio por producto requiere entre 1 y {unidades_por_mayor - 1} '
+            f'unidades para "{producto.nombre}".'
+        )
+
+
 def es_almacen(request):
     return hasattr(request.user, 'perfil') and request.user.perfil.rol == 'almacen'
 
@@ -181,6 +213,8 @@ def buscar_productos(request):
             'precio_unidad': float(producto.precio_unidad or 0),
             'precio_caja': float(producto.precio_caja or 0),
             'precio_mayor': float(producto.precio_mayor or 0),
+            'precio_unidad_oferta': float(producto.precio_unidad_oferta or 0),
+            'en_oferta': bool(producto.en_oferta),
             'unidades_por_caja': producto.unidades_por_caja or 1,
             'unidades_por_mayor': producto.unidades_por_mayor or 1,
         })
@@ -208,6 +242,13 @@ def obtener_proforma(request, id):
             'subtotal_neto': float(item.subtotal_neto),
             'descuento_tipo': item.descuento_tipo,
             'descuento_valor': float(item.descuento_valor),
+            'precio_unidad': float(item.producto.precio_unidad or 0),
+            'precio_caja': float(item.producto.precio_caja or 0),
+            'precio_mayor': float(item.producto.precio_mayor or 0),
+            'precio_unidad_oferta': float(item.producto.precio_unidad_oferta or 0),
+            'en_oferta': bool(item.producto.en_oferta),
+            'unidades_por_caja': item.producto.unidades_por_caja or 1,
+            'unidades_por_mayor': item.producto.unidades_por_mayor or 3,
         })
 
     return JsonResponse({
@@ -417,12 +458,13 @@ def guardar_proforma(request):
                 producto_id = item.get('producto_id')
                 cantidad = int(item.get('cantidad', 0) or 0)
                 modalidad = item.get('modalidad', 'unidad')
-                precio_unitario = parse_decimal(item.get('precio_unitario', '0'))
 
                 if cantidad <= 0:
                     raise ValueError('Cada producto debe tener una cantidad mayor a cero.')
 
                 producto = Producto.objects.get(pk=producto_id)
+                modalidad, precio_unitario = obtener_precio_modalidad_proforma(producto, modalidad)
+                validar_cantidad_modalidad_proforma(producto, modalidad, cantidad)
                 stock_disponible = obtener_stock_proforma(
                     producto, getattr(request.user, 'perfil', None), tipo_ubicacion
                 )
@@ -432,7 +474,7 @@ def guardar_proforma(request):
                         f'Disponible: {stock_disponible}.'
                     )
                 if precio_unitario <= 0:
-                    precio_unitario = parse_decimal(producto.precio_unidad or '0')
+                    raise ValueError(f'El producto "{producto.nombre}" no tiene precio configurado.')
 
                 subtotal_item = precio_unitario * cantidad
                 item_descuento_tipo = item.get('descuento_tipo', 'ninguno')
@@ -527,14 +569,15 @@ def actualizar_proforma(request, id):
                 producto_id = item.get('producto_id')
                 cantidad = int(item.get('cantidad', 0) or 0)
                 modalidad = item.get('modalidad', 'unidad')
-                precio_unitario = parse_decimal(item.get('precio_unitario', '0'))
 
                 if cantidad <= 0:
                     raise ValueError('Cada producto debe tener una cantidad mayor a cero.')
 
                 producto = Producto.objects.get(pk=producto_id)
+                modalidad, precio_unitario = obtener_precio_modalidad_proforma(producto, modalidad)
+                validar_cantidad_modalidad_proforma(producto, modalidad, cantidad)
                 if precio_unitario <= 0:
-                    precio_unitario = parse_decimal(producto.precio_unidad or '0')
+                    raise ValueError(f'El producto "{producto.nombre}" no tiene precio configurado.')
 
                 subtotal_item = precio_unitario * cantidad
                 item_descuento_tipo = item.get('descuento_tipo', 'ninguno')
