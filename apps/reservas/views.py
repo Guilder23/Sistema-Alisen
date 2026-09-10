@@ -173,6 +173,38 @@ def calcular_descuento_item(subtotal, precio_unitario, cantidad, descuento_tipo,
     return tipo, valor.quantize(Decimal('0.01')), min(descuento, subtotal).quantize(Decimal('0.01'))
 
 
+def obtener_precio_modalidad_reserva(producto, modalidad):
+    modalidad = (modalidad or 'unidad').strip().lower()
+    if modalidad not in {'unidad', 'mayor', 'oferta'}:
+        raise ValueError('La modalidad del producto es inválida.')
+
+    precio_unidad = parse_decimal(producto.precio_unidad)
+    if modalidad == 'mayor':
+        return modalidad, parse_decimal(producto.precio_mayor) or precio_unidad
+    if modalidad == 'oferta':
+        precio_oferta = parse_decimal(producto.precio_unidad_oferta)
+        if not producto.en_oferta or precio_oferta <= 0:
+            raise ValueError(f'El producto "{producto.nombre}" no está disponible en oferta.')
+        return modalidad, precio_oferta
+    return modalidad, precio_unidad
+
+
+def validar_cantidad_modalidad_reserva(producto, modalidad, cantidad):
+    unidades_por_caja = max(int(producto.unidades_por_caja or 1), 1)
+    unidades_por_mayor = max(int(producto.unidades_por_mayor or 3), 2)
+    if modalidad == 'mayor' and unidades_por_caja > unidades_por_mayor:
+        if cantidad < unidades_por_mayor or cantidad >= unidades_por_caja:
+            raise ValueError(
+                f'Precio por mayor requiere entre {unidades_por_mayor} y '
+                f'{unidades_por_caja - 1} unidades para "{producto.nombre}".'
+            )
+    if modalidad == 'unidad' and unidades_por_caja > unidades_por_mayor and cantidad >= unidades_por_mayor:
+        raise ValueError(
+            f'Precio por producto requiere entre 1 y {unidades_por_mayor - 1} '
+            f'unidades para "{producto.nombre}".'
+        )
+
+
 @login_required
 def listar_reservas(request):
     if not hasattr(request.user, 'perfil') or request.user.perfil.rol != 'tienda':
@@ -230,6 +262,8 @@ def buscar_productos(request):
             'precio_unidad': float(producto.precio_unidad or 0),
             'precio_caja': float(producto.precio_caja or 0),
             'precio_mayor': float(producto.precio_mayor or 0),
+            'precio_unidad_oferta': float(producto.precio_unidad_oferta or 0),
+            'en_oferta': bool(producto.en_oferta),
             'unidades_por_caja': producto.unidades_por_caja or 1,
             'unidades_por_mayor': producto.unidades_por_mayor or 1,
             'tipo_ubicacion': tipo_ubicacion,
@@ -320,16 +354,14 @@ def guardar_reserva(request):
                 producto_id = item.get('producto_id')
                 cantidad = int(item.get('cantidad', 0) or 0)
                 modalidad = (item.get('modalidad') or 'unidad').lower()
-                precio_unitario = parse_decimal(item.get('precio_unitario', '0'))
 
                 if cantidad <= 0:
                     raise ValueError('Cada producto debe tener una cantidad mayor a cero.')
-                if modalidad not in ['unidad', 'caja', 'mayor']:
-                    raise ValueError('La modalidad del producto es inválida.')
-
                 producto = Producto.objects.get(pk=producto_id)
+                modalidad, precio_unitario = obtener_precio_modalidad_reserva(producto, modalidad)
+                validar_cantidad_modalidad_reserva(producto, modalidad, cantidad)
                 if precio_unitario <= 0:
-                    precio_unitario = parse_decimal(producto.precio_unidad or '0')
+                    raise ValueError(f'El producto "{producto.nombre}" no tiene precio configurado.')
 
                 if (item.get('descuento_tipo') or 'ninguno').strip().lower() == 'porcentaje':
                     raise ValueError('Las reservas solo permiten precio final por unidad.')

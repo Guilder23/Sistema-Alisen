@@ -26,13 +26,45 @@ function formatCurrency(value) {
     return roundMoney(parseNumber(value)).toFixed(2);
 }
 
+function obtenerPrecioModalidad(item, modalidad) {
+    if (modalidad === 'mayor') return item.precio_mayor > 0 ? item.precio_mayor : item.precio_unidad;
+    if (modalidad === 'oferta') return item.en_oferta && item.precio_unidad_oferta > 0 ? item.precio_unidad_oferta : item.precio_unidad;
+    return item.precio_unidad;
+}
+
+function puedeUsarMayor(item) {
+    return (parseInt(item.unidades_por_caja, 10) || 1) > (parseInt(item.unidades_por_mayor, 10) || 3);
+}
+
+function cambiarModalidadReserva(item, modalidad) {
+    item.modalidad = modalidad;
+    item.precio_unitario = obtenerPrecioModalidad(item, modalidad);
+    item.cantidad = modalidad === 'mayor' ? (parseInt(item.unidades_por_mayor, 10) || 3) : 1;
+    item.descuento_valor = 0;
+    item.descuento_tipo = 'ninguno';
+    item.descuentoActivo = false;
+}
+
 const reservaItems = [];
 
 function calcularDescuentoItem(item) {
     if (!item.descuentoActivo) return 0;
-    const bruto = Number(item.precio_unitario) * Number(item.cantidad);
-    if (item.descuento_tipo === 'fijo') return Math.max(Number(item.precio_unitario) - (item.descuento_valor || 0), 0) * Number(item.cantidad);
+    if (item.descuento_tipo === 'fijo') {
+        const precioFinal = Math.min(Math.max(item.descuento_valor || 0, 0), item.precio_unitario);
+        return Math.max(Number(item.precio_unitario) - precioFinal, 0) * Number(item.cantidad);
+    }
     return 0;
+}
+
+function actualizarFilaReserva(item, index) {
+    const fila = document.querySelector(`tr[data-index="${index}"]`);
+    if (!fila) return;
+    const subtotal = Number(item.precio_unitario) * Number(item.cantidad);
+    const descuento = calcularDescuentoItem(item);
+    fila.children[1].textContent = formatCurrency(item.precio_unitario);
+    fila.children[4].textContent = formatCurrency(subtotal);
+    fila.children[6].textContent = formatCurrency(descuento);
+    fila.children[7].textContent = formatCurrency(Math.max(subtotal - descuento, 0));
 }
 
 function actualizarResumenReserva() {
@@ -51,8 +83,8 @@ function renderizarItemsReserva() {
 
     if (reservaItems.length === 0) {
         body.innerHTML = `
-            <tr data-index="${index}">
-                <td colspan="8" class="text-center text-muted py-4">Busca y agrega productos para construir la reserva.</td>
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">Busca y agrega productos para construir la reserva.</td>
             </tr>`;
         actualizarResumenReserva();
         return;
@@ -60,13 +92,19 @@ function renderizarItemsReserva() {
 
     reservaItems.forEach((item, index) => {
         body.insertAdjacentHTML('beforeend', `
-            <tr>
+            <tr data-index="${index}">
                 <td>${item.codigo} - ${item.nombre}</td>
                 <td>${formatCurrency(item.precio_unitario)}</td>
                 <td>
                     <input type="number" min="1" class="form-control form-control-sm cantidad-item" data-index="${index}" value="${item.cantidad}">
                 </td>
-                <td>${item.modalidad}</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn ${item.modalidad === 'unidad' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="unidad">Producto</button>
+                        ${puedeUsarMayor(item) ? `<button type="button" class="btn ${item.modalidad === 'mayor' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="mayor">Mayor</button>` : ''}
+                        ${item.en_oferta && item.precio_unidad_oferta > 0 ? `<button type="button" class="btn ${item.modalidad === 'oferta' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="oferta">Oferta</button>` : ''}
+                    </div>
+                </td>
                 <td>${formatCurrency(item.precio_unitario * item.cantidad)}</td>
                 <td>
                     <div class="custom-control custom-checkbox mb-1">
@@ -81,6 +119,7 @@ function renderizarItemsReserva() {
                            value="${item.descuentoActivo && item.descuento_tipo === 'fijo' ? item.descuento_valor : ''}"
                            ${item.descuentoActivo ? '' : 'disabled'}>
                 </td>
+                <td class="text-danger descuento-monto">${formatCurrency(calcularDescuentoItem(item))}</td>
                 <td class="font-weight-bold text-success">${formatCurrency(item.precio_unitario * item.cantidad - calcularDescuentoItem(item))}</td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-item" data-index="${index}">
@@ -94,10 +133,19 @@ function renderizarItemsReserva() {
         input.addEventListener('change', function () {
             const index = parseInt(this.dataset.index, 10);
             const value = parseInt(this.value, 10);
-            reservaItems[index].cantidad = value > 0 ? value : 1;
+            const item = reservaItems[index];
+            const minimo = item.modalidad === 'mayor' ? (parseInt(item.unidades_por_mayor, 10) || 3) : 1;
+            item.cantidad = value >= minimo ? value : minimo;
             renderizarItemsReserva();
         });
     });
+
+    document.querySelectorAll('.modalidad-item').forEach((button) => button.addEventListener('click', function () {
+        const item = reservaItems[parseInt(this.dataset.index, 10)];
+        if (!item) return;
+        cambiarModalidadReserva(item, this.dataset.modalidad);
+        renderizarItemsReserva();
+    }));
 
     document.querySelectorAll('.btn-eliminar-item').forEach((button) => {
         button.addEventListener('click', function () {
@@ -114,17 +162,15 @@ function renderizarItemsReserva() {
         item.descuento_tipo = item.descuentoActivo && item.descuento_valor > 0 ? 'fijo' : 'ninguno';
         const inputValor = document.querySelector(`.descuento-valor-item[data-index="${this.dataset.index}"]`);
         if (inputValor) inputValor.disabled = !item.descuentoActivo;
-        renderizarItemsReserva();
+        actualizarFilaReserva(item, parseInt(this.dataset.index, 10));
+        actualizarResumenReserva();
     }));
     document.querySelectorAll('.descuento-valor-item').forEach((input) => input.addEventListener('input', function () {
         const item = reservaItems[parseInt(this.dataset.index, 10)];
         if (!item) return;
         item.descuento_valor = parseNumber(this.value);
         item.descuento_tipo = item.descuentoActivo && item.descuento_valor > 0 ? 'fijo' : 'ninguno';
-        const fila = document.querySelector(`tr[data-index="${this.dataset.index}"]`);
-        const subtotalReal = Number(item.precio_unitario) * Number(item.cantidad) - calcularDescuentoItem(item);
-        const celda = fila?.children[6];
-        if (celda) celda.textContent = formatCurrency(Math.max(subtotalReal, 0));
+        actualizarFilaReserva(item, parseInt(this.dataset.index, 10));
         actualizarResumenReserva();
     }));
 
@@ -166,6 +212,12 @@ function mostrarProductosResultado(productos) {
                     codigo: producto.codigo,
                     nombre: producto.nombre,
                     precio_unitario: producto.precio_unidad || 0,
+                    precio_unidad: producto.precio_unidad || 0,
+                    precio_mayor: producto.precio_mayor || 0,
+                    precio_unidad_oferta: producto.precio_unidad_oferta || 0,
+                    en_oferta: Boolean(producto.en_oferta),
+                    unidades_por_caja: producto.unidades_por_caja || 1,
+                    unidades_por_mayor: producto.unidades_por_mayor || 3,
                     cantidad: 1,
                     modalidad: 'unidad',
                     descuento_tipo: 'ninguno',
