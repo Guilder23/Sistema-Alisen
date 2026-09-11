@@ -186,6 +186,17 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
+/* Los rangos de precio necesitan aprovechar mejor el ancho del panel. */
+.tienda-filtros .filtro-seccion .row.gx-1 {
+    margin-right: -0.25rem;
+    margin-left: -0.25rem;
+}
+
+.tienda-filtros .filtro-seccion .row.gx-1 > [class*="col-"] {
+    padding-right: 0.25rem;
+    padding-left: 0.25rem;
+}
+
 /* --------------------------------------------------------------------------
    4. DRAWER MÓVIL DE FILTROS (<992px)
    -------------------------------------------------------------------------- */

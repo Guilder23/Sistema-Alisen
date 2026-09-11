@@ -30,7 +30,7 @@
             <div class="tienda-mobile-topbar d-lg-none d-flex justify-content-between align-items-center mb-3">
                 <button type="button" class="btn btn-outline-primary btn-sm tienda-filtro-toggle" id="btnOpenFilters">
                     <i class="fas fa-sliders-h mr-1"></i> Filtros
-                    {% if categoria or subcategoria or precio_min or precio_max or genero %}
+                    {% if categoria or subcategoria or precio_min or precio_max %}
                     <span class="badge badge-primary ml-1">Activo</span>
                     {% endif %}
                 </button>
@@ -91,18 +91,6 @@
                                         </a>
                                         {% endfor %}
                                     </div>
-                                </div>
-
-                                <!-- Género -->
-                                <div class="filtro-seccion mb-3">
-                                    <h6 class="filtro-title mb-2">
-                                        <i class="fas fa-venus-mars mr-1 text-muted"></i>Género
-                                    </h6>
-                                    <select class="form-control form-control-sm modern-select" id="filtroGenero" name="genero" onchange="this.form.submit()">
-                                        {% for key, label in genero_choices %}
-                                        <option value="{{ key }}" {% if genero == key %}selected{% endif %}>{{ label }}</option>
-                                        {% endfor %}
-                                    </select>
                                 </div>
 
                                 <!-- Rango de Precio -->
