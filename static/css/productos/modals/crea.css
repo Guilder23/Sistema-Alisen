@@ -12,6 +12,12 @@
 #modalCrearProducto .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+    color: #ffffff !important;
+}
+
+#modalCrearProducto .modal-header .modal-title i,
+#modalCrearProducto .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalCrearProducto .modal-body {
