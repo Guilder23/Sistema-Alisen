@@ -10,6 +10,12 @@
 #modalVerDeposito .modal-header .modal-title {
     font-weight: 600;
     letter-spacing: 0.5px;
+    color: #ffffff !important;
+}
+
+#modalVerDeposito .modal-header .modal-title i,
+#modalVerDeposito .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalVerDeposito .modal-body h6 {

@@ -1,1 +1,7 @@
 /* Estilos para modal de edición */
+
+#modalEditarAlmacen .modal-header .modal-title,
+#modalEditarAlmacen .modal-header .modal-title i,
+#modalEditarAlmacen .modal-header .close {
+	color: #ffffff !important;
+}

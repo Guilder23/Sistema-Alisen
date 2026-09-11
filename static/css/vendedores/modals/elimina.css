@@ -11,6 +11,12 @@
 #modalEliminarVendedor .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+    color: #ffffff !important;
+}
+
+#modalEliminarVendedor .modal-header .modal-title i,
+#modalEliminarVendedor .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalEliminarVendedor .modal-body {

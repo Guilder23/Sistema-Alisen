@@ -14,7 +14,12 @@
     font-weight: 600;
     color: #ffffff;
 }
+     color: #ffffff !important;
+}
 
+#modalEditarCategoria .modal-header .modal-title i,
+#modalEditarCategoria .modal-header .close {
+     color: #ffffff !important;
 #modalEditarCategoria .modal-title i {
     color: #ffffff;
 }

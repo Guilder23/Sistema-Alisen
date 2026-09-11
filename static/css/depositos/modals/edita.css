@@ -10,7 +10,12 @@
 #modalEditarDeposito .modal-header .modal-title {
     font-weight: 600;
     letter-spacing: 0.5px;
-    color: #212529;
+    color: #ffffff !important;
+}
+
+#modalEditarDeposito .modal-header .modal-title i,
+#modalEditarDeposito .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalEditarDeposito .form-label {

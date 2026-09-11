@@ -5,3 +5,9 @@
 	border-radius: 0.5rem;
 }
 #modalEditarSubcategoria .modal-content{border-radius:10px}
+
+#modalEditarSubcategoria .modal-header .modal-title,
+#modalEditarSubcategoria .modal-header .modal-title i,
+#modalEditarSubcategoria .modal-header .close {
+	color: #ffffff !important;
+}

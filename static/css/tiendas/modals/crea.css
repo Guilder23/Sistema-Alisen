@@ -10,6 +10,12 @@
 #modalCrearTienda .modal-header .modal-title {
     font-weight: 600;
     letter-spacing: 0.5px;
+    color: #ffffff !important;
+}
+
+#modalCrearTienda .modal-header .modal-title i,
+#modalCrearTienda .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalCrearTienda .form-label {

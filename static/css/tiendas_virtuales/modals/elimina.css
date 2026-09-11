@@ -1,0 +1,5 @@
+#modalEliminarTiendaVirtual .modal-header .modal-title,
+#modalEliminarTiendaVirtual .modal-header .modal-title i,
+#modalEliminarTiendaVirtual .modal-header .close {
+    color: #ffffff !important;
+}

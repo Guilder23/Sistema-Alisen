@@ -1,0 +1,5 @@
+#modalEditarTiendaVirtual .modal-header .modal-title,
+#modalEditarTiendaVirtual .modal-header .modal-title i,
+#modalEditarTiendaVirtual .modal-header .close {
+    color: #ffffff !important;
+}

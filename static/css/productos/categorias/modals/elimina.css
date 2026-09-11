@@ -11,7 +11,12 @@
 #modalEliminarCategoria .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+     color: #ffffff !important;
 }
+
+#modalEliminarCategoria .modal-header .modal-title i,
+#modalEliminarCategoria .modal-header .close {
+     color: #ffffff !important;
 
 #modalEliminarCategoria .modal-body {
     padding: 1.5rem;

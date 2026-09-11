@@ -1,1 +1,7 @@
 /* Estilos para modal de creación */
+
+#modalCrearAlmacen .modal-header .modal-title,
+#modalCrearAlmacen .modal-header .modal-title i,
+#modalCrearAlmacen .modal-header .close {
+	color: #ffffff !important;
+}

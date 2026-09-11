@@ -11,7 +11,12 @@
 #modalEditarTienda .modal-header .modal-title {
     font-weight: 600;
     letter-spacing: 0.5px;
-    color: #333;
+    color: #ffffff !important;
+}
+
+#modalEditarTienda .modal-header .modal-title i,
+#modalEditarTienda .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalEditarTienda .form-label {

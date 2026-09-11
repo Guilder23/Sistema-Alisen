@@ -12,3 +12,9 @@
 	border-bottom: 2px solid #dbeafe !important;
 }
 #modalVerSubcategoria .modal-content{border-radius:10px}
+
+#modalVerSubcategoria .modal-header .modal-title,
+#modalVerSubcategoria .modal-header .modal-title i,
+#modalVerSubcategoria .modal-header .close {
+	color: #ffffff !important;
+}
