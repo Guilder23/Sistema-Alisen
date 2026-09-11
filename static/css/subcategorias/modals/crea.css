@@ -1,9 +1,24 @@
-#modalCrearSubcategoria .modal-header,
-#modalEditarSubcategoria .modal-header {
+#modalCrearSubcategoria .modal-header {
 	background: #1e3a8a;
 	color: #ffffff;
 	padding: 1rem 1.5rem;
 	border-bottom: 3px solid #065f46;
+}
+
+#modalEditarSubcategoria .modal-header {
+	background: #facc15;
+	color: #ffffff;
+	padding: 1rem 1.5rem;
+	border-bottom: 3px solid #ca8a04;
+}
+
+#modalCrearSubcategoria .modal-header .modal-title,
+#modalCrearSubcategoria .modal-header .modal-title i,
+#modalCrearSubcategoria .modal-header .close,
+#modalEditarSubcategoria .modal-header .modal-title,
+#modalEditarSubcategoria .modal-header .modal-title i,
+#modalEditarSubcategoria .modal-header .close {
+	color: #ffffff !important;
 }
 
 #modalCrearSubcategoria .modal-body,

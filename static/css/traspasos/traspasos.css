@@ -51,6 +51,85 @@
     gap: 15px;
 }
 
+.traspasos-table-wrap {
+    margin: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.45rem;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.traspasos-table {
+    min-width: 620px;
+    margin-bottom: 0;
+    font-size: 0.78rem;
+    color: #475569;
+}
+
+.traspasos-table thead th {
+    padding: 0.55rem 0.65rem;
+    border-top: 0;
+    border-bottom: 1px solid #dbe3ed;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.traspasos-table tbody td {
+    padding: 0.55rem 0.65rem;
+    border-top: 1px solid #eef2f7;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.traspasos-table tbody tr:first-child td {
+    border-top: 0;
+}
+
+.traspasos-table tbody tr:hover {
+    background: #f8fbff;
+}
+
+.traspasos-table .traspaso-code {
+    color: #1e3a8a;
+    font-weight: 800;
+}
+
+.traspasos-table .traspaso-estado {
+    padding: 0.2rem 0.45rem;
+    font-size: 0.65rem;
+}
+
+.traspasos-table .traspaso-actions {
+    text-align: right;
+}
+
+.traspasos-table .traspaso-actions .btn {
+    width: 27px;
+    height: 27px;
+    padding: 0;
+    border-radius: 0.3rem;
+    font-size: 0.7rem;
+}
+
+.traspasos-table .devolucion-row {
+    background: #fffaf3;
+}
+
+.traspasos-table .devolucion-row:hover {
+    background: #fff4e5;
+}
+
+.traspasos-table .alert {
+    border: 0;
+    border-radius: 0;
+    font-size: 0.78rem;
+}
+
 /* Cards de traspasos */
 .traspaso-card {
     border: 1px solid #ddd;

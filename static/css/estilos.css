@@ -102,6 +102,13 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     letter-spacing: -0.015em;
 }
 
+/* Los encabezados de página usan fondo de color y necesitan contraste propio. */
+.page-header .page-title,
+.page-header .page-title i,
+.page-header .page-subtitle {
+    color: #ffffff !important;
+}
+
 a {
     color: var(--color-primario);
     text-decoration: none;

@@ -12,6 +12,12 @@
 #modalEliminarProducto .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+    color: #ffffff !important;
+}
+
+#modalEliminarProducto .modal-header .modal-title i,
+#modalEliminarProducto .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalEliminarProducto .modal-body {

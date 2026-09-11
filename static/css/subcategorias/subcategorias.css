@@ -18,6 +18,10 @@
 	vertical-align: middle;
 }
 
+.tabla-subcategorias thead th.text-center {
+	text-align: center;
+}
+
 .tabla-subcategorias tbody td {
 	padding: 0.75rem;
 	vertical-align: middle;
@@ -46,6 +50,16 @@
 	min-width: 36px;
 	margin-right: 0.2rem;
 	border-radius: 0.375rem;
+}
+
+.tabla-subcategorias .acciones-col .btn-sm {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	border-radius: 0.25rem;
 }
 
 .acciones-col {

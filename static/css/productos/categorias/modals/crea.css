@@ -12,7 +12,12 @@
 #modalCrearCategoria .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+     color: #ffffff !important;
 }
+
+#modalCrearCategoria .modal-header .modal-title i,
+#modalCrearCategoria .modal-header .close {
+     color: #ffffff !important;
 
 #modalCrearCategoria .modal-body {
     padding: 1.25rem 1.5rem;

@@ -10,6 +10,12 @@
 #modalEliminarDeposito .modal-header .modal-title {
     font-weight: 600;
     letter-spacing: 0.5px;
+    color: #ffffff !important;
+}
+
+#modalEliminarDeposito .modal-header .modal-title i,
+#modalEliminarDeposito .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalEliminarDeposito .modal-content {

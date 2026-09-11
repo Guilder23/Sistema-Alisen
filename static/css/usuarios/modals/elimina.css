@@ -11,6 +11,12 @@
 #modalEliminarUsuario .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+    color: #ffffff !important;
+}
+
+#modalEliminarUsuario .modal-header .modal-title i,
+#modalEliminarUsuario .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalEliminarUsuario .modal-body {

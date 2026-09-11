@@ -12,6 +12,12 @@
 #modalVerVendedor .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+    color: #ffffff !important;
+}
+
+#modalVerVendedor .modal-header .modal-title i,
+#modalVerVendedor .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalVerVendedor .modal-body {

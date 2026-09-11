@@ -1,3 +1,15 @@
+.page-header .page-title {
+    color: #0f172a !important;
+}
+
+.page-header .page-title i {
+    color: #2563eb !important;
+}
+
+.page-header .page-subtitle {
+    color: #64748b !important;
+}
+
 .form-card {
     border-radius: 0.75rem;
     box-shadow: 0 2px 8px rgba(15,23,42,0.06);

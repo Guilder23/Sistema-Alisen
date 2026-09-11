@@ -159,7 +159,7 @@
 }
 
 .sidebar-link.active {
-    background: var(--color-primario);
+    background: #1e3a8a;
     color: white;
 }
 

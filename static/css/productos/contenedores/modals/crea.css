@@ -12,7 +12,12 @@
 #modalCrearContenedor .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+     color: #ffffff !important;
 }
+
+#modalCrearContenedor .modal-header .modal-title i,
+#modalCrearContenedor .modal-header .close {
+     color: #ffffff !important;
 
 #modalCrearContenedor .modal-body {
     padding: 1.25rem 1.5rem;

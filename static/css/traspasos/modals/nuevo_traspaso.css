@@ -9,6 +9,15 @@
     background-color: #1e3a8a;
 }
 
+#modalNuevoTraspaso .modal-header .modal-title,
+#modalNuevoTraspaso .modal-header .modal-title i,
+#modalNuevoTraspaso .modal-header .close,
+#modalEditarCantidad .modal-header .modal-title,
+#modalEditarCantidad .modal-header .modal-title i,
+#modalEditarCantidad .modal-header .close {
+    color: #ffffff !important;
+}
+
 /* Scrollbars del listado dentro del modal */
 .scroll-y::-webkit-scrollbar {
     width: 6px;

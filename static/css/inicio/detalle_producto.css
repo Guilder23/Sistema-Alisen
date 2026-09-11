@@ -226,6 +226,13 @@
     border-radius: var(--radio-md);
 }
 
+.detail-cta-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
 /* --------------------------------------------------------------------------
    5. ACORDEÓN Y NOTA DE SOPORTE
    -------------------------------------------------------------------------- */
@@ -321,5 +328,9 @@
     }
     .detail-cta-buttons .btn-detail-action {
         width: 100%;
+    }
+
+    .detail-cta-buttons {
+        gap: 0.6rem;
     }
 }

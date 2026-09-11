@@ -11,9 +11,20 @@
     min-height: calc(100vh - 120px);
 }
 
+.cart-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
 @media (max-width: 991.98px) {
     .cart-main-wrapper {
         padding-top: calc(var(--navbar-height) + 24px) !important;
+    }
+
+    .cart-header-actions {
+        gap: 0.6rem;
     }
 }
 

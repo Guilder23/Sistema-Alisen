@@ -1,1 +1,7 @@
 /* Estilos para modal de visualización */
+
+#modalVerAlmacen .modal-header .modal-title,
+#modalVerAlmacen .modal-header .modal-title i,
+#modalVerAlmacen .modal-header .close {
+	color: #ffffff !important;
+}

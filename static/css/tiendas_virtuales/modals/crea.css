@@ -1,0 +1,5 @@
+[id="modalCrearTienda Virtual"] .modal-header .modal-title,
+[id="modalCrearTienda Virtual"] .modal-header .modal-title i,
+[id="modalCrearTienda Virtual"] .modal-header .close {
+    color: #ffffff !important;
+}

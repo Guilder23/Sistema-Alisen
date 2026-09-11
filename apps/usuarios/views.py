@@ -69,7 +69,6 @@ def tienda(request):
     buscar = request.GET.get('buscar', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
     subcategoria_id = request.GET.get('subcategoria', '').strip()
-    genero = request.GET.get('genero', '').strip()
     precio_min = request.GET.get('precio_min', '').strip()
     precio_max = request.GET.get('precio_max', '').strip()
     orden = request.GET.get('orden', '').strip()
@@ -88,9 +87,6 @@ def tienda(request):
 
     if subcategoria_id:
         productos = productos.filter(subcategoria_id=subcategoria_id)
-
-    if genero:
-        productos = productos.filter(genero=genero)
 
     subcategorias = Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre')
     if categoria_id:
@@ -125,8 +121,6 @@ def tienda(request):
         productos = productos.order_by('-fecha_creacion')
 
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
-    genero_choices = Producto.GENERO_CHOICES
-
     for p in productos:
         if p.en_oferta and p.precio_unidad_oferta and p.precio_unidad:
             p.ahorro = Decimal(p.precio_unidad) - Decimal(p.precio_unidad_oferta)
@@ -137,11 +131,9 @@ def tienda(request):
         'productos': productos,
         'categorias': categorias,
         'subcategorias': subcategorias,
-        'genero_choices': genero_choices,
         'buscar': buscar,
         'categoria': categoria_id,
         'subcategoria': subcategoria_id,
-        'genero': genero,
         'precio_min': precio_min,
         'precio_max': precio_max,
         'orden': orden,
@@ -160,7 +152,6 @@ def tienda_mayorista(request):
     buscar = request.GET.get('buscar', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
     subcategoria_id = request.GET.get('subcategoria', '').strip()
-    genero = request.GET.get('genero', '').strip()
     precio_min = request.GET.get('precio_min', '').strip()
     precio_max = request.GET.get('precio_max', '').strip()
     orden = request.GET.get('orden', '').strip()
@@ -182,9 +173,6 @@ def tienda_mayorista(request):
         productos = productos.filter(categoria_id=categoria_id)
     if subcategoria_id:
         productos = productos.filter(subcategoria_id=subcategoria_id)
-    if genero:
-        productos = productos.filter(genero=genero)
-
     subcategorias = Subcategoria.objects.filter(activo=True).select_related('categoria').order_by('categoria__nombre', 'nombre')
     if categoria_id:
         subcategorias = subcategorias.filter(categoria_id=categoria_id)
@@ -217,11 +205,9 @@ def tienda_mayorista(request):
         'productos': productos,
         'categorias': Categoria.objects.filter(activo=True).order_by('nombre'),
         'subcategorias': subcategorias,
-        'genero_choices': Producto.GENERO_CHOICES,
         'buscar': buscar,
         'categoria': categoria_id,
         'subcategoria': subcategoria_id,
-        'genero': genero,
         'precio_min': precio_min,
         'precio_max': precio_max,
         'orden': orden,

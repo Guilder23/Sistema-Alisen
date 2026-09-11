@@ -12,6 +12,12 @@
 #modalCrearUsuario .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+    color: #ffffff !important;
+}
+
+#modalCrearUsuario .modal-header .modal-title i,
+#modalCrearUsuario .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalCrearUsuario .modal-body {

@@ -1,3 +1,8 @@
+#modalEliminarSubcategoria .modal-header .modal-title,
+#modalEliminarSubcategoria .modal-header .modal-title i,
+#modalEliminarSubcategoria .modal-header .close {
+	color: #ffffff !important;
+}
 #modalEliminarSubcategoria .modal-header {
 	padding: 1rem 1.5rem;
 }

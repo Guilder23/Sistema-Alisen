@@ -12,6 +12,12 @@
 #modalVerProducto .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+    color: #ffffff !important;
+}
+
+#modalVerProducto .modal-header .modal-title i,
+#modalVerProducto .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalVerProducto .modal-body {

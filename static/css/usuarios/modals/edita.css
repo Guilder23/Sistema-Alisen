@@ -12,6 +12,12 @@
 #modalEditarUsuario .modal-title {
     font-size: 1.05rem;
     font-weight: 600;
+    color: #ffffff !important;
+}
+
+#modalEditarUsuario .modal-header .modal-title i,
+#modalEditarUsuario .modal-header .close {
+    color: #ffffff !important;
 }
 
 #modalEditarUsuario .modal-body {

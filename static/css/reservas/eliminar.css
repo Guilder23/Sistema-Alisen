@@ -3,17 +3,14 @@
 }
 
 .page-header .page-title i {
-    color: #2563eb !important;
+    color: #dc2626 !important;
 }
 
 .page-header .page-subtitle {
     color: #64748b !important;
 }
 
-.modal-reserva-anular .modal-content {
+.form-card {
     border-radius: 0.75rem;
-}
-
-.modal-reserva-anular .form-group {
-    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }

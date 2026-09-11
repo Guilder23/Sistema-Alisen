@@ -1,1 +1,7 @@
 /* Estilos para modal de eliminación */
+
+#modalEliminarAlmacen .modal-header .modal-title,
+#modalEliminarAlmacen .modal-header .modal-title i,
+#modalEliminarAlmacen .modal-header .close {
+	color: #ffffff !important;
+}
