@@ -124,7 +124,7 @@
         const rol = $('#editRol').val();
         
         // Validar campos requeridos
-        if (!username || !email || !rol) {
+        if (!username || !rol) {
             alert('Por favor complete todos los campos requeridos');
             console.log('✗ Campos incompletos');
             return false;

@@ -639,7 +639,7 @@ def crear_usuario(request):
         try:
             # Obtener datos del formulario
             username = request.POST.get('username')
-            email = request.POST.get('email')
+            email = request.POST.get('email', '').strip()
             first_name = request.POST.get('first_name', '')
             last_name = request.POST.get('last_name', '')
             telefono = request.POST.get('telefono', '').strip()

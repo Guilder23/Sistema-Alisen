@@ -94,7 +94,7 @@
         console.log('  - rol:', rol || 'VACÍO');
         
         // Validar campos requeridos
-        if (!username || !email || !password || !password2 || !rol) {
+        if (!username || !password || !password2 || !rol) {
             alert('Por favor complete todos los campos requeridos');
             console.log('✗ Campos incompletos');
             return false;
@@ -109,7 +109,7 @@
         
         // Validar email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        if (email && !emailRegex.test(email)) {
             alert('Correo electrónico inválido');
             console.log('✗ Email inválido');
             return false;
