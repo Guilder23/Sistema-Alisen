@@ -224,12 +224,14 @@
     font-weight: 700;
     font-size: 0.88rem;
     border-radius: var(--radio-md);
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .detail-cta-buttons {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: center;
-    flex-wrap: wrap;
     gap: 0.5rem;
 }
 
@@ -309,6 +311,78 @@
     flex-shrink: 0;
 }
 
+.detail-trust-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    align-items: stretch;
+    margin: 0 0 1.5rem;
+    border: 1px solid rgba(16, 185, 129, 0.18);
+    border-radius: 16px;
+    background: #ecfdf5;
+    overflow: hidden;
+}
+
+.detail-trust-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.9rem 1rem;
+}
+
+.detail-trust-item + .detail-trust-item {
+    border-left: 1px solid rgba(16, 185, 129, 0.16);
+}
+
+.detail-trust-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #d1fae5;
+    color: #0f766e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.detail-trust-item strong {
+    display: block;
+    font-size: 0.96rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #111827;
+}
+
+.detail-trust-item span {
+    display: block;
+    font-size: 0.77rem;
+    line-height: 1.2;
+    color: #4b5563;
+}
+
+@media (max-width: 767.98px) {
+    .detail-trust-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .detail-trust-item + .detail-trust-item {
+        border-left: 1px solid rgba(16, 185, 129, 0.16);
+        border-top: none;
+    }
+
+    .gallery-counter-badge {
+        top: 8px;
+        left: 8px;
+        min-width: 42px;
+        padding: 0.35rem 0.5rem;
+        font-size: 0.66rem;
+    }
+}
+
 /* --------------------------------------------------------------------------
    6. RESPONSIVE BREAKPOINTS
    -------------------------------------------------------------------------- */
@@ -326,11 +400,12 @@
     .detail-product-title {
         font-size: 1.2rem;
     }
-    .detail-cta-buttons .btn-detail-action {
-        width: 100%;
+    .detail-cta-buttons {
+        grid-template-columns: 1fr;
+        gap: 0.6rem;
     }
 
-    .detail-cta-buttons {
-        gap: 0.6rem;
+    .detail-cta-buttons .btn-detail-action {
+        width: 100%;
     }
 }

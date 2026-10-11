@@ -6,6 +6,56 @@ document.addEventListener('DOMContentLoaded', function() {
     const addButtons = Array.from(document.querySelectorAll('.btn-add'));
     const whatsappButtons = Array.from(document.querySelectorAll('.btn-whatsapp-buy'));
 
+    const carousel = document.getElementById('homeCarousel');
+    if (carousel) {
+        const slides = Array.from(carousel.querySelectorAll('.home-carousel-slide'));
+        const dots = Array.from(carousel.querySelectorAll('.home-carousel-dots button'));
+        const previousButton = carousel.querySelector('.home-carousel-prev');
+        const nextButton = carousel.querySelector('.home-carousel-next');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let activeSlide = 0;
+        let autoplayTimer;
+
+        const showSlide = (index) => {
+            activeSlide = (index + slides.length) % slides.length;
+            slides.forEach((slide, slideIndex) => {
+                const isActive = slideIndex === activeSlide;
+                slide.classList.toggle('is-active', isActive);
+                slide.setAttribute('aria-hidden', String(!isActive));
+                slide.inert = !isActive;
+                dots[slideIndex].classList.toggle('is-active', isActive);
+                dots[slideIndex].setAttribute('aria-current', String(isActive));
+            });
+        };
+
+        const stopAutoplay = () => window.clearInterval(autoplayTimer);
+        const startAutoplay = () => {
+            stopAutoplay();
+            if (!reducedMotion && !document.hidden) {
+                autoplayTimer = window.setInterval(() => showSlide(activeSlide + 1), 5000);
+            }
+        };
+
+        previousButton.addEventListener('click', () => {
+            showSlide(activeSlide - 1);
+            startAutoplay();
+        });
+        nextButton.addEventListener('click', () => {
+            showSlide(activeSlide + 1);
+            startAutoplay();
+        });
+        dots.forEach((dot, index) => dot.addEventListener('click', () => {
+            showSlide(index);
+            startAutoplay();
+        }));
+        carousel.addEventListener('mouseenter', stopAutoplay);
+        carousel.addEventListener('mouseleave', startAutoplay);
+        carousel.addEventListener('focusin', stopAutoplay);
+        carousel.addEventListener('focusout', startAutoplay);
+        document.addEventListener('visibilitychange', startAutoplay);
+        startAutoplay();
+    }
+
     // Carrusel de Categorías (botones atrás/adelante)
     const categoriesTrack = document.getElementById('categoriesTrack');
     const catPrevBtn = document.getElementById('catPrevBtn');

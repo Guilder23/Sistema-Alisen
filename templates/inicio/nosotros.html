@@ -22,108 +22,176 @@
     {% include 'componentes/navbarprincipal.html' %}
 
     <main class="about-main-wrapper">
-        <!-- Hero Nosotros -->
-        <section class="about-hero py-5 text-center text-white">
-            <div class="container">
-                <span class="badge badge-primary px-3 py-2 mb-2 font-weight-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">Conócenos</span>
-                <h1 class="h2 font-weight-bold text-white mb-2">Comercio Confiable & Cercano para Bolivia</h1>
-                <p class="text-white-50 mx-auto small mb-4" style="max-width: 650px;">
-                    En {{ tienda_nombre|default:'ALICEN' }} conectamos productos de calidad con familias, distribuidores y tiendas de todo el país a través de una atención directa, transparente y rápida.
-                </p>
-                <div class="d-flex justify-content-center gap-2 flex-wrap">
-                    <a href="{% url 'tienda' %}" class="btn btn-primary btn-sm font-weight-bold">
-                        <i class="fas fa-store mr-1"></i> Ver Catálogo
-                    </a>
-                    <a href="{% url 'tienda_mayorista' %}" class="btn btn-success btn-sm font-weight-bold">
-                        <i class="fas fa-boxes mr-1"></i> Canal Mayorista
+        <section class="about-hero" aria-labelledby="aboutHeroTitle">
+            <div class="about-hero-content">
+                <span class="about-hero-label">Conócenos</span>
+                <h1 id="aboutHeroTitle">Conectamos<br><span>Bolivia</span></h1>
+                <p>En <strong>ALICEN</strong> trabajamos para ofrecerte productos de calidad,<br class="d-none d-md-block">
+                    precios competitivos y una atención transparente.<br class="d-none d-md-block">
+                    Atendemos a clientes, emprendedores, tiendas y empresas,<br class="d-none d-md-block">
+                    con ventas al detalle y al por mayor.</p>
+                <div class="about-hero-actions">
+                    <a href="{% url 'tienda' %}" class="about-hero-button about-hero-button-retail">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i> Tienda Minorista
                     </a>
                 </div>
             </div>
         </section>
 
-        <!-- Estadísticas y Logros -->
-        <section class="about-stats-section container py-4">
-            <div class="row g-3 text-center">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card bg-white p-3 rounded-lg shadow-sm border">
-                        <div class="stat-icon text-primary mb-2"><i class="fas fa-shipping-fast"></i></div>
-                        <h3 class="stat-num font-weight-bold mb-1">+98%</h3>
-                        <p class="stat-text text-muted small mb-0">Envíos a tiempo</p>
-                    </div>
+        <div class="container about-content">
+            <section class="about-stats" aria-label="Alicen en cifras">
+                <div class="about-stat">
+                    <i class="fas fa-truck" aria-hidden="true"></i>
+                    <div><strong>+98%</strong><span>Envíos a tiempo</span></div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card bg-white p-3 rounded-lg shadow-sm border">
-                        <div class="stat-icon text-success mb-2"><i class="fas fa-map-marked-alt"></i></div>
-                        <h3 class="stat-num font-weight-bold mb-1">9</h3>
-                        <p class="stat-text text-muted small mb-0">Departamentos cubiertos</p>
-                    </div>
+                <div class="about-stat">
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                    <div><strong>9</strong><span>Departamentos<br>cubiertos</span></div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card bg-white p-3 rounded-lg shadow-sm border">
-                        <div class="stat-icon text-warning mb-2"><i class="fas fa-users"></i></div>
-                        <h3 class="stat-num font-weight-bold mb-1">+500</h3>
-                        <p class="stat-text text-muted small mb-0">Clientes satisfechos</p>
-                    </div>
+                <div class="about-stat">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                    <div><strong>+500</strong><span>Clientes satisfechos</span></div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card bg-white p-3 rounded-lg shadow-sm border">
-                        <div class="stat-icon text-info mb-2"><i class="fas fa-boxes"></i></div>
-                        <h3 class="stat-num font-weight-bold mb-1">+200</h3>
-                        <p class="stat-text text-muted small mb-0">Productos activos</p>
-                    </div>
+                <div class="about-stat">
+                    <i class="fas fa-cube" aria-hidden="true"></i>
+                    <div><strong>+200</strong><span>Productos activos</span></div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Misión y Valores -->
-        <section class="about-purpose-section container py-4">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="purpose-card bg-white p-4 rounded-lg shadow-sm border h-100">
-                        <span class="section-eyebrow text-primary">Nuestro Propósito</span>
-                        <h4 class="font-weight-bold mb-3">Misión</h4>
-                        <p class="text-muted small mb-3">
-                            Ser el aliado estratégico de emprendedores, mayoristas y compradores minoristas en Bolivia, facilitando el acceso a productos de alta rotación con precios justos, control de stock real y soporte humano permanente.
-                        </p>
-                        <div class="d-flex align-items-center gap-2 text-success small font-weight-bold">
-                            <i class="fas fa-check-circle"></i> Calidad garantizada en cada despacho.
+            <section class="about-purpose-list" aria-label="Nuestra misión y visión">
+                <article class="about-purpose-row">
+                    <div class="about-purpose-copy">
+                        <span class="about-purpose-icon about-purpose-icon-green"><i class="fas fa-bullseye" aria-hidden="true"></i></span>
+                        <div class="about-purpose-text">
+                            <span class="about-eyebrow">Nuestro Propósito</span>
+                            <h2>Nuestra misión</h2>
+                            <p>Conectar a clientes, emprendedores y empresas en Bolivia con una amplia variedad de productos de calidad. Vendemos por unidad y por mayor, facilitando el acceso a artículos que mejoran su vida, impulsan negocios y generan nuevas oportunidades.</p>
+                            <strong class="about-promise about-promise-green"><i class="fas fa-check-circle" aria-hidden="true"></i> Calidad garantizada en cada despacho.</strong>
                         </div>
                     </div>
-                </div>
+                    <img src="{% static 'img/nosotros/mision.png' %}" alt="Crecimiento y oportunidades para nuestros clientes" loading="lazy">
+                </article>
 
-                <div class="col-md-6">
-                    <div class="purpose-card bg-white p-4 rounded-lg shadow-sm border h-100">
-                        <span class="section-eyebrow text-success">Nuestra Visión</span>
-                        <h4 class="font-weight-bold mb-3">Compromiso con el Cliente</h4>
-                        <p class="text-muted small mb-3">
-                            Construir la red de distribución virtual más eficiente y transparente del país, asegurando que cada pedido llegue en el menor tiempo posible y con la mejor atención posventa.
-                        </p>
-                        <div class="d-flex align-items-center gap-2 text-primary small font-weight-bold">
-                            <i class="fas fa-check-circle"></i> Respuesta ágil en WhatsApp en minutos.
+                <article class="about-purpose-row">
+                    <div class="about-purpose-copy">
+                        <span class="about-purpose-icon about-purpose-icon-green"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
+                        <div class="about-purpose-text">
+                            <span class="about-eyebrow about-eyebrow-green">Nuestra Visión</span>
+                            <h2>Compromiso con el Cliente</h2>
+                            <p>Ser la plataforma líder en Bolivia en la comercialización y distribución de productos, atendiendo tanto a clientes particulares como a emprendedores, tiendas y empresas, ofreciendo precios justos, stock real y una experiencia de compra eficiente, transparente y confiable.</p>
+                            <strong class="about-promise about-promise-blue"><i class="fas fa-clock" aria-hidden="true"></i> Respuesta ágil en WhatsApp en minutos.</strong>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
+                    <img src="{% static 'img/nosotros/compromiso.png' %}" alt="Compromiso con el crecimiento y la atención al cliente" loading="lazy">
+                </article>
+            </section>
 
-        <!-- CTA Contacto -->
-        <section class="container py-4 mb-4">
-            <div class="about-cta-card bg-white p-4 p-md-5 rounded-lg shadow-sm border text-center">
-                <h4 class="font-weight-bold mb-2">¿Quieres cotizar tu pedido o necesitas más información?</h4>
-                <p class="text-muted small mx-auto mb-4" style="max-width: 550px;">
-                    Nuestro equipo está disponible para asesorarte sobre disponibilidad, precios por lote y logística.
-                </p>
-                <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20más%20información" target="_blank" class="btn btn-success font-weight-bold">
-                    <i class="fab fa-whatsapp mr-2"></i> Escribir al WhatsApp (+591 68504229)
-                </a>
-            </div>
-        </section>
+            <section class="about-values" aria-labelledby="aboutValuesTitle">
+                <div class="about-values-intro">
+                    <span class="about-values-icon"><i class="fas fa-gem" aria-hidden="true"></i></span>
+                    <div><h2 id="aboutValuesTitle">Nuestros valores</h2><p>Principios que guían nuestro trabajo cada día.</p></div>
+                </div>
+                <article class="about-value">
+                    <i class="fas fa-shield-alt value-icon value-icon-green" aria-hidden="true"></i>
+                    <div><h3>Confianza</h3><p>Información clara, productos de calidad y procesos seguros.</p></div>
+                </article>
+                <article class="about-value">
+                    <i class="fas fa-users value-icon value-icon-blue" aria-hidden="true"></i>
+                    <div><h3>Atención cercana</h3><p>Escuchamos y apoyamos a cada cliente, brindando un trato directo y personalizado.</p></div>
+                </article>
+                <article class="about-value">
+                    <i class="fas fa-handshake value-icon value-icon-teal" aria-hidden="true"></i>
+                    <div><h3>Compromiso</h3><p>Trabajamos para que cada pedido llegue a tiempo y en perfectas condiciones.</p></div>
+                </article>
+                <article class="about-value">
+                    <i class="fas fa-cog value-icon value-icon-green" aria-hidden="true"></i>
+                    <div><h3>Crecimiento juntos</h3><p>Impulsamos a nuestros clientes, emprendedores y empresas, ofreciendo precios competitivos y más oportunidades.</p></div>
+                </article>
+            </section>
+
+            <section class="about-operation" aria-labelledby="aboutOperationTitle">
+                <div class="about-operation-store">
+                    <div class="about-section-heading">
+                        <span class="about-heading-icon"><i class="fas fa-store" aria-hidden="true"></i></span>
+                        <div><h2 id="aboutOperationTitle">Nuestro centro de operación</h2><p>Tienda física - Casa Matriz</p></div>
+                    </div>
+                    <img class="about-operation-image" src="{% static 'img/nosotros/operacion.png' %}" alt="Interior de la tienda Alicen Casa Matriz" loading="lazy">
+                </div>
+                <div class="about-operation-details">
+                    <article class="about-contact-item">
+                        <span class="about-contact-icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span>
+                        <div><h3>Dirección</h3><p>Av. Ayacucho entre Heroínas y General Acha<br>GALERÍA COCHABAMBA<br>Local 21A, 1er piso</p></div>
+                    </article>
+                    <article class="about-contact-item">
+                        <span class="about-contact-icon about-contact-icon-gold"><i class="far fa-clock" aria-hidden="true"></i></span>
+                        <div><h3>Horario de atención</h3><p>Lunes a sábado<br>10:00 am a 7:00 pm</p></div>
+                    </article>
+                    <a class="about-map-link" href="https://maps.app.goo.gl/AexTuzzzauEvykfU8" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i> Ver en Google Maps <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <p class="about-operation-note"><i class="fas fa-quote-left" aria-hidden="true"></i> Conectamos a Bolivia con productos de calidad, atención cercana y oportunidades para crecer. Acompañamos a familias y emprendedores con opciones para cada necesidad, precios competitivos y compras seguras, al detalle o por mayor.</p>
+                </div>
+            </section>
+
+            <section class="about-stores" aria-labelledby="aboutStoresTitle">
+                <div class="about-section-heading">
+                    <span class="about-heading-icon about-heading-icon-green"><i class="fas fa-store-alt" aria-hidden="true"></i></span>
+                    <div><h2 id="aboutStoresTitle">Nuestras tiendas en Bolivia</h2><p>También nos encuentras en:</p></div>
+                </div>
+                <div class="about-store-grid">
+                    <article class="about-store-card">
+                        <img src="{% static 'img/nosotros/imagen1.png' %}" alt="Vista urbana de Cochabamba" loading="lazy">
+                        <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>Cochabamba</h3><span class="store-tag store-tag-blue">Casa Matriz</span></div>
+                    </article>
+                    <article class="about-store-card">
+                        <img src="{% static 'img/nosotros/imagen2.png' %}" alt="Vista urbana de La Paz" loading="lazy">
+                        <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>La Paz</h3><span class="store-tag store-tag-green">Sucursal</span></div>
+                    </article>
+                    <article class="about-store-card">
+                        <img src="{% static 'img/nosotros/imagen4.png' %}" alt="Vista urbana de El Alto" loading="lazy">
+                        <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>El Alto</h3><span class="store-tag store-tag-green">Sucursal</span></div>
+                    </article>
+                    <article class="about-store-card">
+                        <img src="{% static 'img/nosotros/imagen3.png' %}" alt="Vista urbana de Santa Cruz" loading="lazy">
+                        <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>Santa Cruz</h3><span class="store-tag store-tag-green">Sucursal</span></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="about-process" aria-labelledby="aboutProcessTitle">
+                <div class="about-section-heading">
+                    <span class="about-heading-icon"><i class="fas fa-shipping-fast" aria-hidden="true"></i></span>
+                    <div><h2 id="aboutProcessTitle">¿Cómo llega tu compra?</h2></div>
+                </div>
+                <div class="about-process-grid">
+                    <article class="about-process-step">
+                        <div class="process-step-heading"><span class="process-number">1</span><i class="fas fa-shopping-cart process-icon" aria-hidden="true"></i><div><h3>Envía tu pedido</h3><p>Agrega productos al carrito y selecciona cómo deseas recibir tu pedido:</p></div></div>
+                        <div class="delivery-options">
+                            <span><i class="fas fa-store" aria-hidden="true"></i>Recoger<br>en tienda</span>
+                            <span><i class="fas fa-home" aria-hidden="true"></i>Envío a<br>domicilio</span>
+                            <span><i class="fas fa-truck" aria-hidden="true"></i>Envío a<br>otra ciudad</span>
+                        </div>
+                    </article>
+                    <article class="about-process-step">
+                        <div class="process-step-heading"><span class="process-number">2</span><i class="far fa-check-circle process-icon" aria-hidden="true"></i><div><h3>Confirmamos</h3><p>Verificamos stock y costo de envío.</p></div></div>
+                        <div class="process-illustration process-confirm"><i class="fas fa-clipboard-check" aria-hidden="true"></i><i class="fas fa-box" aria-hidden="true"></i></div>
+                    </article>
+                    <article class="about-process-step">
+                        <div class="process-step-heading"><span class="process-number">3</span><i class="far fa-credit-card process-icon" aria-hidden="true"></i><div><h3>Realizas el pago</h3><p>Puedes pagar con:</p></div></div>
+                        <div class="payment-options">
+                            <span><i class="fas fa-money-bill-wave" aria-hidden="true"></i>Efectivo</span>
+                            <span><i class="fas fa-qrcode" aria-hidden="true"></i>QR</span>
+                            <span><i class="fas fa-university" aria-hidden="true"></i>Transferencia</span>
+                        </div>
+                    </article>
+                    <article class="about-process-step">
+                        <div class="process-step-heading"><span class="process-number">4</span><i class="fas fa-truck process-icon" aria-hidden="true"></i><div><h3>Recibe tu paquete</h3><p>Coordinamos el despacho.</p></div></div>
+                        <div class="process-illustration process-delivery"><i class="fas fa-box-open" aria-hidden="true"></i><strong>ALICEN</strong><i class="fas fa-map-marker-alt" aria-hidden="true"></i></div>
+                    </article>
+                </div>
+            </section>
+        </div>
     </main>
-
-    <!-- Floating WhatsApp Button -->
-    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20más%20información" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="Escríbenos por WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-    </a>
 
     {% include 'componentes/footerprincipal.html' %}
 

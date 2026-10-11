@@ -43,6 +43,17 @@
                 </div>
             </div>
 
+            <nav class="catalog-category-tabs" aria-label="Categorías del catálogo mayorista">
+                <div class="catalog-category-tabs-scroll">
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'categoria' and key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="catalog-category-tab {% if not categoria %}active{% endif %}">Todas</a>
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'ofertas' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}{% if not ofertas %}ofertas=1{% endif %}" class="catalog-category-tab catalog-offers-tab {% if ofertas %}active{% endif %}"><i class="fas fa-fire" aria-hidden="true"></i> Ofertas</a>
+                    {% for categoria_item in categorias %}
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'categoria' and key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}categoria={{ categoria_item.id }}" class="catalog-category-tab {% if categoria == categoria_item.id|stringformat:'s' %}active{% endif %}">{{ categoria_item.nombre }}</a>
+                    {% endfor %}
+                </div>
+                <span class="catalog-category-next" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+            </nav>
+
             <!-- Topbar móvil de filtros (SOLO EN MÓVIL/TABLET, OCULTA EN PC) -->
             <div class="tienda-mobile-topbar d-lg-none d-flex justify-content-between align-items-center mb-3">
                 <button type="button" class="btn btn-outline-success btn-sm tienda-filtro-toggle" id="btnOpenMayoristaFilters">
@@ -54,7 +65,7 @@
             </div>
 
             <!-- Chips de Subcategorías -->
-            {% if subcategorias %}
+            {% if categoria and subcategorias %}
             <div class="tienda-filtros-superiores mb-3" aria-label="Filtros rápidos del catálogo mayorista">
                 <div class="tienda-filtros-superiores-label text-success">
                     <i class="fas fa-layer-group mr-1"></i> Subcategorías:
@@ -156,7 +167,7 @@
                         </div>
                     </div>
 
-                    <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 products-grid">
+                    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-4 row-cols-xl-4 g-2 g-md-3 products-grid">
                         {% for producto in productos %}
                         <div class="col mb-3">
                             <article class="product-card mayorista-product-card h-100">
@@ -175,15 +186,6 @@
                                 </a>
 
                                 <div class="product-card-body">
-                                    <div class="product-card-top-meta mb-1">
-                                        {% if producto.categoria %}
-                                        <span class="badge-tag badge-category">{{ producto.categoria.nombre }}</span>
-                                        {% endif %}
-                                        {% if producto.subcategoria %}
-                                        <span class="badge-tag badge-outline-success">{{ producto.subcategoria.nombre }}</span>
-                                        {% endif %}
-                                    </div>
-
                                     <h3 class="product-title">
                                         <a href="{% url 'product_detail_mayorista' producto.id %}">{{ producto.nombre }}</a>
                                     </h3>
@@ -199,9 +201,27 @@
                                     </div>
 
                                     <div class="product-actions mt-auto pt-2">
-                                        <a class="btn btn-success btn-block btn-sm btn-view-mayorista" href="{% url 'product_detail_mayorista' producto.id %}">
-                                            <i class="fas fa-eye mr-1"></i> Ver detalle
-                                        </a>
+                                        <button class="btn btn-add-cart btn-add-mayorista" type="button"
+                                            data-product-id="{{ producto.id }}"
+                                            data-product-name="{{ producto.nombre|escapejs }}"
+                                            data-product-price="{{ producto.precio_mayor|floatformat:2 }}"
+                                            data-product-image="{% if producto.imagen_principal_url %}{{ producto.imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}"
+                                            data-product-stock="{{ producto.stock }}"
+                                            data-product-minimum="{{ producto.unidades_por_mayor }}"
+                                            title="Agregar pedido mayorista al carrito"
+                                            aria-label="Agregar {{ producto.nombre }} al carrito mayorista">
+                                            <i class="fas fa-cart-plus" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="btn btn-whatsapp-direct btn-whatsapp-mayorista" type="button"
+                                            data-whatsapp-number="{{ tienda_whatsapp|slice:'1:' }}"
+                                            data-product-name="{{ producto.nombre|escapejs }}"
+                                            data-product-price="{{ producto.precio_mayor|floatformat:2 }}"
+                                            data-product-minimum="{{ producto.unidades_por_mayor }}"
+                                            title="Consultar pedido mayorista por WhatsApp"
+                                            aria-label="Pedir {{ producto.nombre }} por WhatsApp">
+                                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                                            <span>Pedir</span>
+                                        </button>
                                     </div>
                                 </div>
                             </article>
@@ -233,6 +253,6 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/componentes/navbarprincipal.js' %}"></script>
-    <script src="{% static 'js/inicio/tienda_mayorista.js' %}"></script>
+    <script src="{% static 'js/inicio/tienda_mayorista.js' %}?v=2"></script>
 </body>
 </html>

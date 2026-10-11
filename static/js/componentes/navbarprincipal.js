@@ -46,24 +46,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Identificar y activar el botón correspondiente en la barra inferior móvil
     const currentPath = window.location.pathname;
+    const navNosotros = document.getElementById('bottomNavNosotros');
     const navInicio = document.getElementById('bottomNavInicio');
     const navTienda = document.getElementById('bottomNavTienda');
-    const navMayorista = document.getElementById('bottomNavMayorista');
-    const navCarrito = document.getElementById('bottomNavCarrito');
+    const navFaq = document.getElementById('bottomNavFaq');
 
     // Remover active por defecto
-    [navInicio, navTienda, navMayorista, navCarrito].forEach(el => el?.classList.remove('active'));
+    [navNosotros, navInicio, navTienda, navFaq].forEach(el => el?.classList.remove('active'));
 
-    if (currentPath === '/' || currentPath === '') {
+    if (currentPath.includes('nosotros')) {
+        navNosotros?.classList.add('active');
+    } else if (currentPath.includes('preguntas-frecuentes')) {
+        navFaq?.classList.add('active');
+    } else if (currentPath === '/' || currentPath === '' || currentPath === '/inicio/') {
         navInicio?.classList.add('active');
     } else if (currentPath.includes('mayorista')) {
-        if (currentPath.includes('carrito')) {
-            navCarrito?.classList.add('active');
-        } else {
-            navMayorista?.classList.add('active');
-        }
-    } else if (currentPath.includes('carrito')) {
-        navCarrito?.classList.add('active');
+        navTienda?.classList.add('active');
     } else if (currentPath.includes('tienda') || currentPath.includes('producto') || currentPath.includes('product')) {
         navTienda?.classList.add('active');
     }

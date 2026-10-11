@@ -1,7 +1,10 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
+from django.urls import reverse
 
 from apps.productos.models import Categoria, Producto
 from apps.subcategorias.models import Subcategoria
+from apps.usuarios.models import PerfilUsuario
 
 
 class TiendaMayoristaTests(TestCase):
@@ -62,5 +65,42 @@ class TiendaMayoristaTests(TestCase):
 		self.assertEqual(response_mayorista.status_code, 200)
 		self.assertEqual(list(response_tienda.context['subcategorias'].values_list('id', flat=True)), [self.subcategoria.id])
 		self.assertEqual(list(response_mayorista.context['subcategorias'].values_list('id', flat=True)), [self.subcategoria.id])
+
+
+class UsuarioEmailOpcionalTests(TestCase):
+	def setUp(self):
+		self.admin = User.objects.create_user(username='admin', password='password123')
+		PerfilUsuario.objects.create(usuario=self.admin, rol='administrador')
+		self.client.force_login(self.admin)
+
+	def test_crear_usuario_sin_correo(self):
+		response = self.client.post(reverse('crear_usuario'), {
+			'username': 'usuario_nuevo',
+			'password': 'password123',
+			'password2': 'password123',
+			'rol': 'administrador',
+			'is_active': 'on',
+		})
+
+		self.assertRedirects(response, reverse('listar_usuarios'))
+		self.assertEqual(User.objects.get(username='usuario_nuevo').email, '')
+
+	def test_editar_usuario_con_correo_vacio(self):
+		usuario = User.objects.create_user(
+			username='usuario_existente',
+			password='password123',
+			email='anterior@correo.com',
+		)
+		PerfilUsuario.objects.create(usuario=usuario, rol='administrador')
+
+		response = self.client.post(reverse('editar_usuario', args=[usuario.id]), {
+			'email': '',
+			'rol': 'administrador',
+			'is_active': 'on',
+		})
+
+		self.assertRedirects(response, reverse('listar_usuarios'))
+		usuario.refresh_from_db()
+		self.assertEqual(usuario.email, '')
 
 # Create your tests here.

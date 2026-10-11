@@ -22,97 +22,144 @@
     {% include 'componentes/navbarprincipal.html' %}
 
     <main class="faq-main-wrapper">
-        <!-- Hero FAQ -->
-        <section class="faq-hero py-4 py-md-5 text-center">
-            <div class="container">
-                <span class="badge badge-primary px-3 py-2 mb-2 font-weight-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">Centro de Ayuda</span>
-                <h1 class="h3 font-weight-bold text-white mb-2">Preguntas Frecuentes</h1>
-                <p class="text-white-50 mx-auto small mb-0" style="max-width: 600px;">
-                    Resolvemos tus dudas más habituales sobre compras, pagos, envíos y ventas por mayor en Bolivia.
-                </p>
+        <section class="faq-shipping-hero" aria-labelledby="faqShippingTitle">
+            <div class="container faq-shipping-hero-inner">
+                <div class="faq-shipping-copy">
+                    <span class="faq-kicker"><i class="fas fa-truck" aria-hidden="true"></i> ALICEN EN TODO EL PAÍS</span>
+                    <h1 id="faqShippingTitle">Realizamos envíos<br><span>a todo Bolivia</span></h1>
+                    <p>Tu pedido llega de forma segura por empresas de encomienda, transporte local y delivery.</p>
+                </div>
+                <img src="{% static 'img/Faq/BannerSuperior.png' %}" alt="Cobertura de envíos de Alicen en Bolivia" fetchpriority="high">
             </div>
         </section>
 
-        <!-- Acordeón FAQ -->
-        <section class="faq-content-section container py-4 py-md-5">
-            <div class="faq-accordion-box bg-white p-3 p-md-4 rounded-lg shadow-sm border mx-auto" style="max-width: 800px;">
-                <div class="faq-item open">
-                    <button class="faq-question-btn" type="button">
-                        <span><i class="fab fa-whatsapp mr-2 text-success"></i> ¿Cómo realizo mi pedido por WhatsApp?</span>
-                        <i class="fas fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer-body open">
-                        <p class="mb-0">
-                            Solo debes agregar los productos que te gusten a tu carrito, hacer clic en <strong>"Completar datos"</strong>, ingresar tus datos de entrega y se generará un mensaje automático a nuestro WhatsApp con tu pedido desglosado para confirmar disponibilidad y método de pago.
-                        </p>
+        <div class="container faq-page-content">
+            <section class="faq-shipping-methods" aria-label="Opciones de envío">
+                <article class="faq-shipping-card faq-shipping-card-blue">
+                    <h2><span><i class="fas fa-box" aria-hidden="true"></i></span> Otros departamentos</h2>
+                    <img src="{% static 'img/Faq/bus.png' %}" alt="Envío de pedidos por empresas de encomienda y flotas" loading="lazy">
+                    <p>Enviamos por empresas de encomienda que tienen oficinas para enviar y recoger tu pedido, ya sea en bus o empresas de encomiendas que operan en Bolivia.</p>
+                </article>
+                <article class="faq-shipping-card faq-shipping-card-green">
+                    <h2><span><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span> Provincias</h2>
+                    <img src="{% static 'img/Faq/minibus.png' %}" alt="Transporte local hacia provincias" loading="lazy">
+                    <p>A provincias enviamos en líneas de transporte local que operan en tu zona.</p>
+                </article>
+                <article class="faq-shipping-card faq-shipping-card-gold">
+                    <h2><span><i class="fas fa-motorcycle" aria-hidden="true"></i></span> Delivery o envío a domicilio</h2>
+                    <img src="{% static 'img/Faq/moto.png' %}" alt="Servicio de delivery para entrega a domicilio" loading="lazy">
+                    <p>También puedes solicitar delivery o envío a domicilio en tu ciudad, donde tenemos tiendas físicas establecidas.</p>
+                </article>
+            </section>
+
+            <section class="faq-delivery-benefits" aria-label="Beneficios de nuestros envíos">
+                <article><span class="faq-benefit-icon faq-benefit-blue"><i class="fas fa-shield-alt" aria-hidden="true"></i></span><div><h2>Envío seguro</h2><p>Tu pedido viaja<br>bien protegido.</p></div></article>
+                <article><span class="faq-benefit-icon faq-benefit-red"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span><div><h2>Cobertura nacional</h2><p>Llegamos a todos los departamentos y provincias.</p></div></article>
+                <article><span class="faq-benefit-icon faq-benefit-blue"><i class="far fa-clock" aria-hidden="true"></i></span><div><h2>Entrega confiable</h2><p>Con empresas de transporte y delivery confiables.</p></div></article>
+            </section>
+
+            <section class="faq-questions-section" aria-labelledby="faqQuestionsTitle">
+                <header class="faq-heading">
+                    <div>
+                        <span class="faq-kicker"><i class="fas fa-circle-question" aria-hidden="true"></i> CENTRO DE AYUDA</span>
+                        <h2 id="faqQuestionsTitle">Preguntas <span>Frecuentes</span></h2>
+                        <p>Resolvemos tus dudas más habituales sobre compras, pagos, envíos y ventas por mayor en Bolivia.</p>
+                    </div>
+                    <label class="faq-search" for="faqSearch">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input type="search" id="faqSearch" placeholder="¿Qué necesitas saber?" autocomplete="off">
+                    </label>
+                </header>
+
+                <p class="faq-search-empty" id="faqSearchEmpty" hidden>No encontramos preguntas con ese texto. Escríbenos por WhatsApp y te ayudamos.</p>
+
+                <div class="faq-accordion-grid" id="faqAccordion">
+                    <div class="faq-column">
+                        <article class="faq-item open">
+                            <button class="faq-question-btn" type="button" id="faqQuestion1" aria-expanded="true" aria-controls="faqAnswer1"><span class="faq-question-icon faq-icon-green"><i class="fab fa-whatsapp" aria-hidden="true"></i></span><span class="faq-question-text">¿Cómo puedo hacer mi pedido por WhatsApp?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body open" id="faqAnswer1" role="region" aria-labelledby="faqQuestion1" aria-hidden="false"><p>¡Es muy fácil! 😊 Agrega al carrito los productos que te gusten, haz clic en “Completar datos” y selecciona cómo deseas recibir tu pedido: recoger en tienda, delivery o entrega local, o envío a otra ciudad. Al finalizar, se abrirá WhatsApp con el detalle de tu pedido para que podamos confirmar la disponibilidad y coordinar el pago y la entrega.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion2" aria-expanded="false" aria-controls="faqAnswer2"><span class="faq-question-icon faq-icon-blue"><i class="fas fa-tag" aria-hidden="true"></i></span><span class="faq-question-text">¿Cómo puedo saber el precio de un producto?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer2" role="region" aria-labelledby="faqQuestion2" aria-hidden="true"><p>Puedes consultar el precio directamente en nuestra tienda virtual. Si tienes alguna duda sobre el precio, las características o la disponibilidad de un producto, escríbenos por WhatsApp y con gusto te ayudaremos.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion3" aria-expanded="false" aria-controls="faqAnswer3"><span class="faq-question-icon faq-icon-red"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span><span class="faq-question-text">¿Dónde están ubicados?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer3" role="region" aria-labelledby="faqQuestion3" aria-hidden="true"><p>Contamos con una tienda física en Cochabamba y puntos de venta en La Paz, Santa Cruz y El Alto. Escríbenos por WhatsApp y te compartiremos las direcciones y los horarios de atención.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion4" aria-expanded="false" aria-controls="faqAnswer4"><span class="faq-question-icon faq-icon-gold"><i class="fas fa-store" aria-hidden="true"></i></span><span class="faq-question-text">¿En qué ciudades de Bolivia tienen tiendas físicas?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer4" role="region" aria-labelledby="faqQuestion4" aria-hidden="true"><p>Tenemos presencia comercial en Cochabamba, La Paz, Santa Cruz y El Alto. Para conocer la ubicación exacta de nuestras tiendas y puntos de venta, comunícate con nosotros por WhatsApp.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion5" aria-expanded="false" aria-controls="faqAnswer5"><span class="faq-question-icon faq-icon-orange"><i class="fas fa-box" aria-hidden="true"></i></span><span class="faq-question-text">¿Puedo reservar un producto?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer5" role="region" aria-labelledby="faqQuestion5" aria-hidden="true"><p>¡Claro que sí! Puedes reservar tu producto realizando un adelanto mínimo. Escríbenos para consultar el monto del adelanto y las condiciones de la reserva.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion6" aria-expanded="false" aria-controls="faqAnswer6"><span class="faq-question-icon faq-icon-blue"><i class="fas fa-truck" aria-hidden="true"></i></span><span class="faq-question-text">¿Realizan envíos a todos los departamentos de Bolivia?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer6" role="region" aria-labelledby="faqQuestion6" aria-hidden="true"><p>¡Sí! Realizamos envíos a diferentes lugares de Bolivia. Indícanos la ciudad o el destino al que deseas recibir tu pedido y te ayudaremos a coordinar el envío.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion7" aria-expanded="false" aria-controls="faqAnswer7"><span class="faq-question-icon faq-icon-green"><i class="fas fa-map-marked-alt" aria-hidden="true"></i></span><span class="faq-question-text">¿También hacen envíos a provincias?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer7" role="region" aria-labelledby="faqQuestion7" aria-hidden="true"><p>¡Sí! Llegamos a diferentes provincias mediante líneas de transporte y servicios locales. Escríbenos con el nombre de tu provincia o localidad para confirmar las opciones de envío disponibles.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion8" aria-expanded="false" aria-controls="faqAnswer8"><span class="faq-question-icon faq-icon-orange"><i class="fas fa-motorcycle" aria-hidden="true"></i></span><span class="faq-question-text">¿Pueden enviar mi pedido hasta mi domicilio?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer8" role="region" aria-labelledby="faqQuestion8" aria-hidden="true"><p>¡Sí! Podemos coordinar un servicio de delivery hasta tu domicilio, según tu ubicación. Para que el pedido salga de nuestra tienda, es necesario cancelar previamente el costo de los productos. El costo del delivery varía según la distancia y la ubicación de entrega.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion9" aria-expanded="false" aria-controls="faqAnswer9"><span class="faq-question-icon faq-icon-green"><i class="fas fa-motorcycle" aria-hidden="true"></i></span><span class="faq-question-text">¿Puedo recibir mi pedido por delivery?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer9" role="region" aria-labelledby="faqQuestion9" aria-hidden="true"><p>¡Por supuesto! Puedes solicitar nuestro servicio de delivery, si está disponible en tu zona, o enviar a tu propio repartidor de confianza para recoger tu pedido en nuestra tienda. Recuerda que el pedido debe estar pagado antes de su entrega al repartidor.</p></div>
+                        </article>
+                    </div>
+
+                    <div class="faq-column">
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion10" aria-expanded="false" aria-controls="faqAnswer10"><span class="faq-question-icon faq-icon-orange"><i class="fas fa-box" aria-hidden="true"></i></span><span class="faq-question-text">¿Por qué transporte envían los pedidos?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer10" role="region" aria-labelledby="faqQuestion10" aria-hidden="true"><p>Realizamos los envíos según el destino:</p><ul><li><strong>A otras ciudades:</strong> enviamos los pedidos como encomienda mediante flotas, camiones y empresas de transporte establecidas y reconocidas.</li><li><strong>A provincias:</strong> coordinamos los envíos mediante líneas de transporte o servicios locales disponibles en la zona.</li></ul><p>Te informaremos sobre las opciones disponibles al coordinar tu pedido.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion11" aria-expanded="false" aria-controls="faqAnswer11"><span class="faq-question-icon faq-icon-blue"><i class="fas fa-coins" aria-hidden="true"></i></span><span class="faq-question-text">¿Quién paga el costo del envío?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer11" role="region" aria-labelledby="faqQuestion11" aria-hidden="true"><p>Por lo general, el costo del envío corre por cuenta del cliente. Sin embargo, cuando se trata de pedidos grandes, podemos cubrir el costo del envío, según las condiciones acordadas para la compra.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion12" aria-expanded="false" aria-controls="faqAnswer12"><span class="faq-question-icon faq-icon-blue"><i class="far fa-clock" aria-hidden="true"></i></span><span class="faq-question-text">¿Cuánto tarda en llegar mi pedido?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer12" role="region" aria-labelledby="faqQuestion12" aria-hidden="true"><p>El tiempo de entrega depende del destino y del medio de transporte:</p><ul><li>Ciudades cercanas: aproximadamente 1 día.</li><li>Ciudades más lejanas: entre 2 y 3 días.</li><li>Provincias: en algunos casos, el pedido puede llegar el mismo día, dependiendo de la localidad y del transporte disponible.</li></ul><p>Los tiempos son estimados y pueden variar según la ruta y los horarios de despacho.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion13" aria-expanded="false" aria-controls="faqAnswer13"><span class="faq-question-icon faq-icon-purple"><i class="fas fa-boxes-stacked" aria-hidden="true"></i></span><span class="faq-question-text">¿Puedo comprar por unidad y también al por mayor?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer13" role="region" aria-labelledby="faqQuestion13" aria-hidden="true"><p>¡Por supuesto! En ALICEN puedes comprar tanto por unidad como al por mayor. Si necesitas varias unidades de un producto, consúltanos por nuestros precios especiales para compras por cantidad. ¡Con gusto te ayudaremos a encontrar la mejor opción!</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion14" aria-expanded="false" aria-controls="faqAnswer14"><span class="faq-question-icon faq-icon-green"><i class="fas fa-money-bill-wave" aria-hidden="true"></i></span><span class="faq-question-text">¿Qué formas de pago aceptan?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer14" role="region" aria-labelledby="faqQuestion14" aria-hidden="true"><p>Para tu comodidad, aceptamos diferentes métodos de pago:</p><ul><li>Efectivo.</li><li>Pago mediante QR.</li><li>Depósito bancario.</li><li>Giros internacionales.</li></ul><p>Si necesitas confirmar algún método de pago antes de realizar tu pedido, puedes consultarnos por WhatsApp.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion15" aria-expanded="false" aria-controls="faqAnswer15"><span class="faq-question-icon faq-icon-red"><i class="fas fa-shield-alt" aria-hidden="true"></i></span><span class="faq-question-text">¿Qué pasa si mi producto llega dañado?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer15" role="region" aria-labelledby="faqQuestion15" aria-hidden="true"><p>Queremos que recibas tu pedido en buenas condiciones. Si tu producto llega dañado, debes comunicarte con nosotros de inmediato y dentro de un plazo máximo de 12 horas desde la recepción del pedido. Envíanos fotografías y un video donde se pueda apreciar el daño para que nuestro equipo revise tu caso y te brinde una solución según corresponda.</p><p><strong>Importante:</strong> Los reclamos por productos dañados deben realizarse dentro de este plazo para poder ser evaluados.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion16" aria-expanded="false" aria-controls="faqAnswer16"><span class="faq-question-icon faq-icon-blue"><i class="fas fa-plane" aria-hidden="true"></i></span><span class="faq-question-text">¿Realizan envíos a otros países?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer16" role="region" aria-labelledby="faqQuestion16" aria-hidden="true"><p>¡Sí! También realizamos envíos internacionales mediante servicios de mensajería y transporte como correo postal, DHL, FedEx y UPS, según la disponibilidad para el país de destino. Escríbenos indicando el país al que deseas enviar tu pedido para consultar las opciones y los costos.</p></div>
+                        </article>
+                        <article class="faq-item">
+                            <button class="faq-question-btn" type="button" id="faqQuestion17" aria-expanded="false" aria-controls="faqAnswer17"><span class="faq-question-icon faq-icon-green"><i class="fas fa-circle-check" aria-hidden="true"></i></span><span class="faq-question-text">¿Es seguro comprar en ALICEN?</span><i class="fas fa-chevron-down faq-chevron" aria-hidden="true"></i></button>
+                            <div class="faq-answer-body" id="faqAnswer17" role="region" aria-labelledby="faqQuestion17" aria-hidden="true"><p>¡Queremos que compres con confianza! Contamos con presencia comercial en Cochabamba, La Paz, Santa Cruz y El Alto. Además, puedes comunicarte directamente con nosotros por WhatsApp para consultar sobre nuestros productos, confirmar los detalles de tu pedido y coordinar la entrega.</p></div>
+                        </article>
                     </div>
                 </div>
+            </section>
 
-                <div class="faq-item">
-                    <button class="faq-question-btn" type="button">
-                        <span><i class="fas fa-truck mr-2 text-primary"></i> ¿Hacen envíos a todos los departamentos de Bolivia?</span>
-                        <i class="fas fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer-body">
-                        <p class="mb-0">
-                            ¡Sí! Realizamos despachos a los 9 departamentos de Bolivia a través de flotas, encomiendas y empresas de transporte seguro. El costo de envío varía según la ciudad y peso del paquete.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question-btn" type="button">
-                        <span><i class="fas fa-boxes mr-2 text-warning"></i> ¿Puedo comprar productos por mayor?</span>
-                        <i class="fas fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer-body">
-                        <p class="mb-0">
-                            Sí, contamos con una sección exclusiva de <strong>Tienda Mayorista (B2B)</strong> con precios especiales por lote. Cada producto indica su compra mínima en unidades para acceder a la tarifa mayorista.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question-btn" type="button">
-                        <span><i class="fas fa-money-bill-wave mr-2 text-success"></i> ¿Cuáles son los métodos de pago disponibles?</span>
-                        <i class="fas fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer-body">
-                        <p class="mb-0">
-                            Aceptamos pagos por transferencia bancaria (Bancos de Bolivia), código QR Simple (Banco Unión, BCP, BNB, etc.) y pago contra entrega en ciudades habilitadas para delivery local.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button class="faq-question-btn" type="button">
-                        <span><i class="fas fa-clock mr-2 text-info"></i> ¿Cuánto tiempo demora en llegar mi pedido?</span>
-                        <i class="fas fa-chevron-down faq-chevron"></i>
-                    </button>
-                    <div class="faq-answer-body">
-                        <p class="mb-0">
-                            Los pedidos locales se entregan en el mismo día o en 24 horas hábiles. Los envíos interdepartamentales demoran entre 24 a 48 horas según el destino.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Caja de Ayuda WhatsApp -->
-            <div class="faq-contact-box bg-white p-4 rounded-lg shadow-sm border text-center mx-auto mt-4" style="max-width: 800px;">
-                <h5 class="font-weight-bold mb-1">¿Tienes otra consulta o pedido especial?</h5>
-                <p class="text-muted small mb-3">Escríbenos directamente y te atenderemos al instante.</p>
-                <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20tengo%20una%20consulta" target="_blank" class="btn btn-success font-weight-bold">
-                    <i class="fab fa-whatsapp mr-2"></i> Contactar por WhatsApp
-                </a>
-            </div>
-        </section>
+            <section class="faq-contact-box" aria-labelledby="faqContactTitle">
+                <span class="faq-contact-icon"><i class="fab fa-whatsapp" aria-hidden="true"></i></span>
+                <div><h2 id="faqContactTitle">¿Tienes otra consulta o necesitas ayuda con tu pedido?</h2><p>¡Estamos aquí para ayudarte! 💚 Escríbenos directamente por WhatsApp y con gusto resolveremos tus dudas para que puedas comprar de manera fácil, cómoda y segura.</p></div>
+                <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp" aria-hidden="true"></i> Escríbenos al WhatsApp</a>
+                <img class="faq-contact-agent" src="{% static 'img/Faq/Agente.png' %}" alt="Asesora de atención Alicen" loading="lazy">
+            </section>
+        </div>
     </main>
 
     <!-- Floating WhatsApp Button -->
-    <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20tengo%20una%20consulta" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="Escríbenos por WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-
     {% include 'componentes/footerprincipal.html' %}
 
     <!-- Scripts -->

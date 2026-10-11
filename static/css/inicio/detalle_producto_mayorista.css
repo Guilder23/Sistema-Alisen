@@ -12,19 +12,24 @@
 .badge-mayorista-pill-detail {
     position: absolute;
     top: 12px;
-    left: 12px;
+    right: 12px;
+    left: auto;
     z-index: 5;
     background: var(--color-mayorista);
     color: #ffffff;
     font-size: 0.75rem;
     font-weight: 800;
-    padding: 0.3rem 0.75rem;
+    padding: 0.35rem 0.8rem;
     border-radius: var(--radio-full);
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 .mayorista-price-box {
     border-left: 4px solid var(--color-mayorista);
+    background: transparent;
+    border: none;
+    border-left: 4px solid var(--color-mayorista);
+    padding-left: 0.75rem;
 }
 
 .mayorista-rule-tag {
@@ -34,7 +39,7 @@
     background: #ecfdf5;
     border: 1px solid #a7f3d0;
     padding: 0.3rem 0.65rem;
-    border-radius: var(--radio-sm);
+    border-radius: 999px;
     display: inline-block;
 }
 
@@ -53,7 +58,45 @@
     border-color: var(--color-mayorista-hover);
 }
 
-.mayorista-support-card {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
+.detail-trust-strip-mayorista {
+    background: #f5fff9;
+    border-color: rgba(16, 185, 129, 0.18);
+}
+
+.detail-trust-strip-mayorista .detail-trust-icon {
+    background: #dcfce7;
+    color: var(--color-mayorista);
+}
+
+.detail-trust-strip-mayorista .detail-trust-item + .detail-trust-item {
+    border-left: 1px solid rgba(16, 185, 129, 0.18);
+}
+
+.mayorista-product-card .badge-mayorista-pill {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 2;
+    background: var(--color-mayorista);
+    color: #ffffff;
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 0.18rem 0.45rem;
+    border-radius: var(--radio-full);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+    line-height: 1;
+}
+
+.mayorista-minimum-chip {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #047857;
+    background: #ecfdf5;
+    border: 1px solid #bbf7d0;
+    border-radius: 999px;
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
 }

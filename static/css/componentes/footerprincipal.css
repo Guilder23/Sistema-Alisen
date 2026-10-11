@@ -84,6 +84,52 @@
     color: rgba(248, 250, 252, 0.5) !important;
 }
 
+.footer-principal-legal-only {
+    padding-top: 0.9rem !important;
+    padding-bottom: 0.9rem !important;
+}
+
+.footer-principal-legal-only .footer-bottom {
+    margin-top: 0 !important;
+    padding-top: 0.75rem !important;
+}
+
+.footer-legal-phones {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.footer-legal-phones a {
+    color: rgba(248, 250, 252, 0.72);
+    font-size: 0.75rem;
+    text-decoration: none;
+}
+
+.footer-legal-phones a:hover { color: #ffffff; }
+.footer-legal-phones i { margin-right: 0.2rem; }
+
+.footer-developed-by {
+    margin-top: 0.5rem;
+    color: rgba(248, 250, 252, 0.58);
+    font-size: 0.72rem;
+}
+
+.footer-developed-by strong {
+    color: rgba(248, 250, 252, 0.88);
+    font-weight: 700;
+}
+
+@media (min-width: 768px) {
+    .footer-bottom .footer-legal-phones,
+    .footer-bottom .footer-developed-by {
+        margin-top: 0;
+    }
+}
+
 @media (max-width: 991.98px) {
     .footer-principal {
         padding-bottom: 1.5rem;
