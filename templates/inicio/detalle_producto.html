@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
     <link rel="stylesheet" href="{% static 'css/inicio/index.css' %}">
-    <link rel="stylesheet" href="{% static 'css/inicio/detalle_producto.css' %}">
+    <link rel="stylesheet" href="{% static 'css/inicio/detalle_producto.css' %}?v=2">
     <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
 <body class="detalle-page">
@@ -37,9 +37,9 @@
 
         <!-- Tarjeta Principal del Producto -->
         <section class="detail-hero-card">
-            <div class="row g-3 g-md-4">
+            <div class="row g-3 g-lg-4">
                 <!-- Columna Izquierda: Galería Multimedia -->
-                <div class="col-md-6 col-lg-5">
+                <div class="col-12 col-lg-7">
                     <div class="product-gallery-modern">
                         <div class="gallery-main-container" id="galleryMainWrap">
                             {% if producto.en_oferta and producto.precio_unidad_oferta %}
@@ -78,33 +78,24 @@
                 </div>
 
                 <!-- Columna Derecha: Información y Acciones -->
-                <div class="col-md-6 col-lg-7">
+                <div class="col-12 col-lg-5">
                     <div class="detail-info-pane">
-                        <div class="detail-category-tag mb-2">
-                            {% if producto.categoria %}
-                            <span class="badge-tag badge-category">{{ producto.categoria.nombre }}</span>
-                            {% endif %}
-                            {% if producto.genero %}
-                            <span class="badge-tag badge-gender">{{ producto.get_genero_display }}</span>
-                            {% endif %}
-                        </div>
-
                         <h1 class="detail-product-title">{{ producto.nombre }}</h1>
 
                         <!-- Bloque de Precio -->
                         <div class="detail-price-box mb-3">
                             {% if producto.en_oferta and producto.precio_unidad_oferta %}
-                                <div class="d-flex align-items-center gap-2 mb-1">
+                                <div class="detail-price-header">
                                     <span class="detail-price-old">Bs {{ producto.precio_unidad|floatformat:2 }}</span>
                                     {% if producto.ahorro %}
                                     <span class="savings-tag font-weight-bold">Ahorras Bs {{ producto.ahorro|floatformat:2 }}</span>
                                     {% endif %}
                                 </div>
-                                <div class="detail-price-final text-danger">Bs {{ producto.precio_unidad_oferta|floatformat:2 }}</div>
+                                <div class="detail-price-final">Bs {{ producto.precio_unidad_oferta|floatformat:2 }}</div>
                             {% else %}
                                 <div class="detail-price-final">Bs {{ producto.precio_unidad|floatformat:2 }}</div>
                             {% endif %}
-                            <small class="text-muted d-block mt-1"><i class="fas fa-check-circle text-success mr-1"></i> Stock disponible para entrega inmediata</small>
+                            <div class="stock-status-row"><i class="fas fa-check-circle"></i> Stock disponible para entrega inmediata</div>
                         </div>
 
                         <!-- Sucursales Disponibles -->
@@ -126,7 +117,7 @@
 
                             <div class="d-flex align-items-center gap-3 flex-wrap mb-3">
                                 <div class="quantity-stepper-wrap">
-                                    <label for="detailQuantity" class="small text-muted font-weight-bold mb-1 d-block">Cantidad:</label>
+                                    <label for="detailQuantity" class="small text-muted font-weight-bold mb-1 d-block">Cantid:</label>
                                     <div class="input-group input-group-quantity">
                                         <div class="input-group-prepend">
                                             <button class="btn btn-stepper" type="button" id="btnQtyMinus"><i class="fas fa-minus"></i></button>
@@ -139,7 +130,7 @@
                                 </div>
                             </div>
 
-                            <div class="detail-cta-buttons d-flex gap-2 flex-wrap">
+                            <div class="detail-cta-buttons">
                                 <button type="submit" class="btn btn-primary btn-detail-action btn-add-main">
                                     <i class="fas fa-cart-plus mr-1"></i> Agregar al Carrito
                                 </button>
@@ -154,28 +145,44 @@
 
                         <!-- Acordeón de Descripción -->
                         <div class="description-accordion-modern mb-3">
-                            <button class="description-toggle-btn active" type="button" aria-expanded="true">
-                                <span class="font-weight-bold"><i class="fas fa-align-left mr-2 text-primary"></i>Descripción del producto</span>
+                            <button class="description-toggle-btn" type="button" aria-expanded="false">
+                                <span class="description-toggle-label"><i class="fas fa-align-left mr-2 text-primary"></i>Descripción del producto</span>
                                 <i class="fas fa-chevron-down toggle-icon"></i>
                             </button>
-                            <div class="description-body-content open">
+                            <div class="description-body-content">
                                 <p>{{ producto.descripcion|default:'No hay descripción disponible para este producto.' }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Nota de Envíos & Soporte -->
-                        <div class="detail-support-card">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="support-icon text-success"><i class="fab fa-whatsapp"></i></div>
-                                <div>
-                                    <strong class="d-block text-dark font-weight-bold" style="font-size: 0.88rem;">Atención y Pedidos por WhatsApp</strong>
-                                    <span class="text-muted small">Atención directa al <strong>+591 68504229</strong> para confirmar envío y método de pago.</span>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </section>
+
+        <section class="detail-trust-strip" aria-label="Beneficios de compra">
+            <article class="detail-trust-item">
+                <div class="detail-trust-icon">
+                    <i class="fas fa-headset" aria-hidden="true"></i>
+                </div>
+                <div><strong>Atención directa</strong><span>Te asesoramos siempre</span></div>
+            </article>
+            <article class="detail-trust-item">
+                <div class="detail-trust-icon">
+                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                </div>
+                <div><strong>Compra segura</strong><span>Todos tus datos protegidos</span></div>
+            </article>
+            <article class="detail-trust-item">
+                <div class="detail-trust-icon">
+                    <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+                </div>
+                <div><strong>Precios mayoristas</strong><span>Mejores precios para tu negocio</span></div>
+            </article>
+            <article class="detail-trust-item">
+                <div class="detail-trust-icon">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                </div>
+                <div><strong>Producto original</strong><span>Garantía de calidad</span></div>
+            </article>
         </section>
 
         <!-- Productos Similares -->
@@ -191,14 +198,17 @@
                 </a>
             </div>
 
-            <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 g-md-3 products-grid">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 row-cols-xl-5 g-3 products-grid similares-grid">
                 {% for similar in similares %}
                 <div class="col mb-3">
                     <article class="product-card h-100">
-                        <a href="{% url 'product_detail' similar.id %}" class="product-card-visual d-block">
+                        <a href="{% url 'product_detail' similar.id %}" class="product-card-visual d-block" title="{{ similar.nombre }}">
                             {% if similar.en_oferta and similar.precio_unidad_oferta %}
-                            <span class="badge-offer-pill"><i class="fas fa-tag"></i> Oferta</span>
+                            <span class="badge-offer-pill">
+                                <i class="fas fa-tag"></i> Oferta
+                            </span>
                             {% endif %}
+
                             <div class="product-image-container">
                                 {% if similar.imagen_principal_url %}
                                     <img src="{{ similar.imagen_principal_url }}" alt="{{ similar.nombre }}" loading="lazy">
@@ -207,17 +217,56 @@
                                 {% endif %}
                             </div>
                         </a>
+
                         <div class="product-card-body">
+                            {% if similar.genero %}
+                            <div class="product-card-top-meta">
+                                <span class="badge-tag badge-gender">{{ similar.get_genero_display }}</span>
+                            </div>
+                            {% endif %}
+
                             <h3 class="product-title">
                                 <a href="{% url 'product_detail' similar.id %}">{{ similar.nombre }}</a>
                             </h3>
+
                             <div class="product-pricing">
-                                <div class="price-current">Bs {{ similar.precio_unidad|floatformat:2 }}</div>
+                                {% if similar.en_oferta and similar.precio_unidad_oferta %}
+                                    <div class="price-old-wrap">
+                                        <span class="price-old">Bs {{ similar.precio_unidad|floatformat:2 }}</span>
+                                        {% if similar.ahorro %}
+                                        <span class="savings-tag">Ahorra Bs {{ similar.ahorro|floatformat:2 }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="price-current text-danger">Bs {{ similar.precio_unidad_oferta|floatformat:2 }}</div>
+                                {% else %}
+                                    <div class="price-current">Bs {{ similar.precio_unidad|floatformat:2 }}</div>
+                                {% endif %}
                             </div>
+
                             <div class="product-actions mt-auto pt-2">
-                                <a href="{% url 'product_detail' similar.id %}" class="btn btn-outline-primary btn-block btn-sm">
-                                    Ver producto
-                                </a>
+                                <button class="btn btn-add-cart btn-add" type="button"
+                                    data-product-id="{{ similar.id }}"
+                                    data-product-name="{{ similar.nombre|escapejs }}"
+                                    data-product-price="{% if similar.en_oferta and similar.precio_unidad_oferta %}{{ similar.precio_unidad_oferta|floatformat:2 }}{% else %}{{ similar.precio_unidad|floatformat:2 }}{% endif %}"
+                                    data-product-oferta="{% if similar.en_oferta and similar.precio_unidad_oferta %}true{% else %}false{% endif %}"
+                                    data-product-image="{% if similar.imagen_principal_url %}{{ similar.imagen_principal_url }}{% else %}{% static 'img/logoAlmacen.png' %}{% endif %}"
+                                    data-product-stock="{{ similar.stock }}"
+                                    title="Agregar al carrito"
+                                    aria-label="Agregar al carrito"
+                                >
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+
+                                <button class="btn btn-whatsapp-direct btn-whatsapp-buy" type="button"
+                                    data-whatsapp-number="{{ tienda_whatsapp|slice:'1:' }}"
+                                    data-product-name="{{ similar.nombre|escapejs }}"
+                                    data-product-price="{% if similar.en_oferta and similar.precio_unidad_oferta %}{{ similar.precio_unidad_oferta|floatformat:2 }}{% else %}{{ similar.precio_unidad|floatformat:2 }}{% endif %}"
+                                    title="Pedir por WhatsApp"
+                                    aria-label="Pedir por WhatsApp"
+                                >
+                                    <i class="fab fa-whatsapp"></i>
+                                    <span>Pedir</span>
+                                </button>
                             </div>
                         </div>
                     </article>

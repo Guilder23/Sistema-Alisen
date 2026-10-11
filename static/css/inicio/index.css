@@ -175,6 +175,11 @@
     margin-bottom: 0.7rem !important;
 }
 
+.similares-grid > .col {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
 @media (min-width: 768px) {
     .products-grid {
         margin-left: -0.5rem;
@@ -187,6 +192,13 @@
     }
 }
 
+@media (min-width: 992px) {
+    .similares-grid > .col {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+}
+
 @media (max-width: 575.98px) {
     .products-grid {
         margin-left: -0.25rem;
@@ -196,6 +208,10 @@
         padding-left: 0.25rem;
         padding-right: 0.25rem;
         margin-bottom: 0.5rem !important;
+    }
+    .similares-grid > .col {
+        flex: 0 0 50%;
+        max-width: 50%;
     }
 }
 

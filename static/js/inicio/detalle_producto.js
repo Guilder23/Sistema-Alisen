@@ -131,29 +131,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // Galería Multimedia (Imágenes y Video)
     const galleryMainMedia = document.getElementById('galleryMainMedia');
     const galleryThumbs = document.getElementById('galleryThumbs');
+    const galleryCounterBadge = document.getElementById('galleryCounterBadge');
+    const totalGalleryItems = galleryThumbs ? galleryThumbs.querySelectorAll('.gallery-thumb-item').length : 1;
 
-    const showImage = (src, alt) => {
-        if (!galleryMainMedia) return;
-        galleryMainMedia.innerHTML = `<img src="${src}" alt="${alt || 'Producto'}" id="galleryMainImage" class="gallery-main-img">`;
+    const updateGalleryCounter = (index) => {
+        if (!galleryCounterBadge || !totalGalleryItems) return;
+        galleryCounterBadge.textContent = `${index}/${totalGalleryItems}`;
     };
 
-    const showVideo = (src) => {
+    const showImage = (src, alt, index = 1) => {
+        if (!galleryMainMedia) return;
+        galleryMainMedia.innerHTML = `<img src="${src}" alt="${alt || 'Producto'}" id="galleryMainImage" class="gallery-main-img">`;
+        updateGalleryCounter(index);
+    };
+
+    const showVideo = (src, index = totalGalleryItems) => {
         if (!galleryMainMedia) return;
         const sep = src.includes('?') ? '&' : '?';
         galleryMainMedia.innerHTML = `<iframe src="${src}${sep}rel=0&autoplay=1&enablejsapi=1" style="width:100%; aspect-ratio:16/9; border:0; border-radius:12px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="Video del producto"></iframe>`;
+        updateGalleryCounter(index);
     };
 
-    galleryThumbs?.querySelectorAll('.gallery-thumb-item').forEach((thumb) => {
+    galleryThumbs?.querySelectorAll('.gallery-thumb-item').forEach((thumb, index) => {
         thumb.addEventListener('click', () => {
             galleryThumbs.querySelectorAll('.gallery-thumb-item').forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
             const type = thumb.dataset.type;
             const src = thumb.dataset.src;
             if (type === 'video') {
-                showVideo(src);
+                showVideo(src, index + 1);
             } else {
-                showImage(src, thumb.querySelector('img')?.alt);
+                showImage(src, thumb.querySelector('img')?.alt, index + 1);
             }
         });
     });
+
+    if (galleryMainMedia && galleryThumbs) {
+        const activeThumb = galleryThumbs.querySelector('.gallery-thumb-item.active') || galleryThumbs.querySelector('.gallery-thumb-item');
+        if (activeThumb) {
+            const activeIndex = [...galleryThumbs.querySelectorAll('.gallery-thumb-item')].indexOf(activeThumb) + 1;
+            updateGalleryCounter(activeIndex);
+        }
+    }
 });
