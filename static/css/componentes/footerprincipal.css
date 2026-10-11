@@ -112,28 +112,22 @@
 .footer-legal-phones a:hover { color: #ffffff; }
 .footer-legal-phones i { margin-right: 0.2rem; }
 
-.footer-legal-social {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
+.footer-developed-by {
     margin-top: 0.5rem;
+    color: rgba(248, 250, 252, 0.58);
+    font-size: 0.72rem;
 }
 
-.footer-legal-social a {
-    display: inline-flex;
-    width: 30px;
-    height: 30px;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    color: rgba(248, 250, 252, 0.85);
-    text-decoration: none;
+.footer-developed-by strong {
+    color: rgba(248, 250, 252, 0.88);
+    font-weight: 700;
 }
 
-.footer-legal-social a:hover {
-    background: var(--color-primario);
-    color: #ffffff;
+@media (min-width: 768px) {
+    .footer-bottom .footer-legal-phones,
+    .footer-bottom .footer-developed-by {
+        margin-top: 0;
+    }
 }
 
 @media (max-width: 991.98px) {

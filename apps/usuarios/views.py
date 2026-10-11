@@ -69,6 +69,7 @@ def tienda(request):
     buscar = request.GET.get('buscar', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
     subcategoria_id = request.GET.get('subcategoria', '').strip()
+    ofertas = request.GET.get('ofertas') == '1'
     precio_min = request.GET.get('precio_min', '').strip()
     precio_max = request.GET.get('precio_max', '').strip()
     orden = request.GET.get('orden', '').strip()
@@ -81,6 +82,9 @@ def tienda(request):
             Q(descripcion__icontains=buscar) |
             Q(categoria__nombre__icontains=buscar)
         )
+
+    if ofertas:
+        productos = productos.filter(en_oferta=True, precio_unidad_oferta__gt=0)
 
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
@@ -134,6 +138,7 @@ def tienda(request):
         'buscar': buscar,
         'categoria': categoria_id,
         'subcategoria': subcategoria_id,
+        'ofertas': ofertas,
         'precio_min': precio_min,
         'precio_max': precio_max,
         'orden': orden,
@@ -152,6 +157,7 @@ def tienda_mayorista(request):
     buscar = request.GET.get('buscar', '').strip()
     categoria_id = request.GET.get('categoria', '').strip()
     subcategoria_id = request.GET.get('subcategoria', '').strip()
+    ofertas = request.GET.get('ofertas') == '1'
     precio_min = request.GET.get('precio_min', '').strip()
     precio_max = request.GET.get('precio_max', '').strip()
     orden = request.GET.get('orden', '').strip()
@@ -169,6 +175,8 @@ def tienda_mayorista(request):
             Q(categoria__nombre__icontains=buscar) |
             Q(subcategoria__nombre__icontains=buscar)
         )
+    if ofertas:
+        productos = productos.filter(en_oferta=True, precio_unidad_oferta__gt=0)
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
     if subcategoria_id:
@@ -208,6 +216,7 @@ def tienda_mayorista(request):
         'buscar': buscar,
         'categoria': categoria_id,
         'subcategoria': subcategoria_id,
+        'ofertas': ofertas,
         'precio_min': precio_min,
         'precio_max': precio_max,
         'orden': orden,

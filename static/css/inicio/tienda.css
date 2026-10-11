@@ -11,6 +11,83 @@
     min-height: calc(100vh - 120px);
 }
 
+.catalog-category-tabs {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.65rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--color-borde);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: var(--sombra-card);
+}
+
+.catalog-category-tabs-scroll {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.45rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.catalog-category-tabs-scroll::-webkit-scrollbar { display: none; }
+
+.catalog-category-tab {
+    display: inline-flex;
+    min-height: 32px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.9rem;
+    border: 1px solid #e6edf4;
+    border-radius: 999px;
+    background: #f7f9fc;
+    color: #273750;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.catalog-category-tab:hover,
+.catalog-category-tab.active {
+    border-color: var(--color-primario);
+    background: var(--color-primario);
+    color: #ffffff;
+}
+
+.catalog-category-tab.catalog-offers-tab:not(.active) { color: #e85a17; }
+.catalog-category-next { padding: 0 0.2rem; color: #53657d; font-size: 0.75rem; }
+
+.tienda-main .product-card-visual {
+    height: auto;
+    aspect-ratio: 1 / 1;
+    background: #f1f4f7;
+}
+
+.tienda-main .product-image-container { padding: 0.18rem; }
+
+.tienda-main .product-image-container img {
+    max-width: 98%;
+    max-height: 98%;
+}
+
+.tienda-main .product-card { border-radius: 8px; }
+.tienda-main .product-card-body { padding: 0.24rem 0.42rem 0.35rem; }
+.tienda-main .product-card-top-meta { margin-bottom: 0.05rem; }
+.tienda-main .product-title { margin-bottom: 0; line-height: 1.05; }
+.tienda-main .product-pricing { margin: 0.05rem 0; }
+.tienda-main .price-old-wrap { margin-bottom: 0; }
+.tienda-mayorista-page .mayorista-minimum-chip { margin-top: 2px !important; padding: 0.08rem 0.32rem; }
+
 /* --------------------------------------------------------------------------
    1. BARRA SUPERIOR MÓVIL (OCULTA EN ESCRITORIO)
    -------------------------------------------------------------------------- */

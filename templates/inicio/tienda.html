@@ -26,11 +26,22 @@
 
     <main class="tienda-main">
         <section class="container py-3 py-md-4">
-            <!-- Barra superior móvil (SOLO EN MÓVIL/TABLET, OCULTA EN PC) -->
+            <nav class="catalog-category-tabs" aria-label="Categorías del catálogo">
+                <div class="catalog-category-tabs-scroll">
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'categoria' and key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="catalog-category-tab {% if not categoria %}active{% endif %}">Todas</a>
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'ofertas' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}{% if not ofertas %}ofertas=1{% endif %}" class="catalog-category-tab catalog-offers-tab {% if ofertas %}active{% endif %}"><i class="fas fa-fire" aria-hidden="true"></i> Ofertas</a>
+                    {% for categoria_item in categorias %}
+                    <a href="?{% for key,value in request.GET.items %}{% if key != 'categoria' and key != 'subcategoria' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}categoria={{ categoria_item.id }}" class="catalog-category-tab {% if categoria == categoria_item.id|stringformat:'s' %}active{% endif %}">{{ categoria_item.nombre }}</a>
+                    {% endfor %}
+                </div>
+                <span class="catalog-category-next" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+            </nav>
+
+            <!-- Barra de conteo y filtros móvil -->
             <div class="tienda-mobile-topbar d-lg-none d-flex justify-content-between align-items-center mb-3">
                 <button type="button" class="btn btn-outline-primary btn-sm tienda-filtro-toggle" id="btnOpenFilters">
                     <i class="fas fa-sliders-h mr-1"></i> Filtros
-                    {% if categoria or subcategoria or precio_min or precio_max %}
+                    {% if categoria or subcategoria or precio_min or precio_max or ofertas %}
                     <span class="badge badge-primary ml-1">Activo</span>
                     {% endif %}
                 </button>
@@ -40,7 +51,7 @@
             </div>
 
             <!-- Chips de Subcategorías Superiores -->
-            {% if subcategorias %}
+            {% if categoria and subcategorias %}
             <div class="tienda-filtros-superiores mb-3" aria-label="Filtros rápidos de subcategorías">
                 <div class="tienda-filtros-superiores-label">
                     <i class="fas fa-layer-group mr-1 text-primary"></i> Subcategorías:
@@ -146,7 +157,7 @@
                         </div>
                     </div>
 
-                    <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 products-grid">
+                    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-4 row-cols-xl-4 g-2 g-md-3 products-grid">
                         {% for producto in productos %}
                         <div class="col mb-3">
                             <article class="product-card h-100">
@@ -167,11 +178,11 @@
                                 </a>
 
                                 <div class="product-card-body">
-                                    <div class="product-card-top-meta mb-1">
-                                        {% if producto.genero %}
+                                    {% if producto.genero %}
+                                    <div class="product-card-top-meta">
                                         <span class="badge-tag badge-gender">{{ producto.get_genero_display }}</span>
-                                        {% endif %}
                                     </div>
+                                    {% endif %}
 
                                     <h3 class="product-title">
                                         <a href="{% url 'product_detail' producto.id %}">{{ producto.nombre }}</a>
