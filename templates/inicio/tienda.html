@@ -144,11 +144,6 @@
                             <h2 class="h5 mb-0 font-weight-bold">Catálogo de Productos</h2>
                             <p class="text-muted small mb-0">{{ productos|length }} producto{{ productos|length|pluralize }} disponible{{ productos|length|pluralize }}</p>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <a href="{% url 'tienda_mayorista' %}" class="btn btn-outline-success btn-sm">
-                                <i class="fas fa-boxes mr-1"></i> Catálogo Mayorista
-                            </a>
-                        </div>
                     </div>
 
                     <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-2 g-md-3 products-grid">
@@ -173,9 +168,6 @@
 
                                 <div class="product-card-body">
                                     <div class="product-card-top-meta mb-1">
-                                        {% if producto.categoria %}
-                                        <span class="badge-tag badge-category">{{ producto.categoria.nombre }}</span>
-                                        {% endif %}
                                         {% if producto.genero %}
                                         <span class="badge-tag badge-gender">{{ producto.get_genero_display }}</span>
                                         {% endif %}

@@ -196,6 +196,26 @@
   transition: var(--transicion);
 }
 
+.navbar-principal .desktop-nav .nav-icon-btn {
+  background: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.navbar-principal .desktop-nav .nav-icon-btn:hover,
+.navbar-principal .desktop-nav .nav-icon-btn:focus {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.navbar-principal .desktop-nav .nav-icon-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 3px;
+}
+
 .navbar-principal .nav-icon-btn:hover, 
 .navbar-principal .nav-icon-btn:focus {
   background: rgba(255, 255, 255, 0.16);

@@ -22,6 +22,33 @@
     {% include 'componentes/navbarprincipal.html' %}
 
     <main class="index-main">
+        <section class="home-carousel" id="homeCarousel" aria-label="Promociones principales">
+            <div class="home-carousel-viewport">
+                <div class="home-carousel-track">
+                    <a class="home-carousel-slide is-active" href="{% url 'tienda' %}" aria-hidden="false">
+                        <img src="{% static 'img/Carrusel/carrusel1.png' %}" alt="Todo lo que buscas en un solo lugar, compra al detalle o por mayor" fetchpriority="high">
+                    </a>
+                    <a class="home-carousel-slide" href="{% url 'tienda' %}" aria-hidden="true" inert>
+                        <img src="{% static 'img/Carrusel/carrusel2.png' %}" alt="Conectividad inteligente, el futuro en tus manos" loading="lazy">
+                    </a>
+                    <a class="home-carousel-slide" href="{% url 'tienda' %}" aria-hidden="true" inert>
+                        <img src="{% static 'img/Carrusel/carrusel3.png' %}" alt="Innovación y aventura, equípate para lo extraordinario" loading="lazy">
+                    </a>
+                </div>
+                <button type="button" class="home-carousel-arrow home-carousel-prev" aria-label="Imagen anterior">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="home-carousel-arrow home-carousel-next" aria-label="Imagen siguiente">
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="home-carousel-dots" role="group" aria-label="Seleccionar promoción">
+                <button type="button" class="is-active" aria-label="Mostrar promoción 1" aria-current="true"></button>
+                <button type="button" aria-label="Mostrar promoción 2" aria-current="false"></button>
+                <button type="button" aria-label="Mostrar promoción 3" aria-current="false"></button>
+            </div>
+        </section>
+
         <!-- Sección de Categorías Directa -->
         <section class="categories-section py-3 py-md-4" id="categorias">
             <div class="container">
@@ -85,9 +112,6 @@
                         <a href="{% url 'tienda' %}" class="btn btn-outline-primary btn-sm btn-quick">
                             <i class="fas fa-th mr-1"></i> Todo el catálogo
                         </a>
-                        <a href="{% url 'tienda_mayorista' %}" class="btn btn-outline-success btn-sm btn-quick">
-                            <i class="fas fa-boxes mr-1"></i> Mayorista
-                        </a>
                     </div>
                 </div>
 
@@ -115,9 +139,6 @@
                             <!-- Contenido del Producto -->
                             <div class="product-card-body">
                                 <div class="product-card-top-meta mb-1">
-                                    {% if producto.categoria %}
-                                    <span class="badge-tag badge-category">{{ producto.categoria.nombre }}</span>
-                                    {% endif %}
                                     {% if producto.genero %}
                                     <span class="badge-tag badge-gender">{{ producto.get_genero_display }}</span>
                                     {% endif %}
@@ -222,7 +243,7 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
-    {% include 'componentes/footerprincipal.html' %}
+    {% include 'componentes/footerprincipal.html' with footer_solo_legal=True %}
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
