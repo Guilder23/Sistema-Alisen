@@ -8,15 +8,7 @@
 
     <!-- Mobile Top Actions (Search + Menu Toggle) -->
     <div class="mobile-navbar-actions">
-      <form class="mobile-navbar-search-form" action="{% url 'tienda' %}" method="get">
-        <div class="input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fas fa-search"></i></span>
-          </div>
-          <input class="form-control" type="search" name="buscar" placeholder="Buscar..." value="{{ buscar }}">
-        </div>
-      </form>
-      <a class="nav-icon-btn d-none d-sm-inline-flex js-cart-link" href="{% url 'carrito' %}" title="Carrito">
+      <a class="nav-icon-btn js-cart-link" href="{% url 'carrito' %}" title="Carrito">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-badge" id="mobileCartCount">0</span>
       </a>
@@ -61,12 +53,7 @@
       <ul class="navbar-nav ml-auto align-items-center">
         <li class="nav-item">
           <a class="nav-link nav-link-btn" href="{% url 'tienda' %}">
-            Tienda
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link nav-link-btn nav-link-mayorista" href="{% url 'tienda_mayorista' %}">
-            Mayorista
+            {% if 'mayorista' in request.path %}Tienda Minorista{% else %}Tienda{% endif %}
           </a>
         </li>
         <li class="nav-item">
@@ -90,6 +77,15 @@
         </li>
       </ul>
     </div>
+
+    <form class="mobile-navbar-search-form" action="{% url 'tienda' %}" method="get">
+      <div class="input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+        <input class="form-control" type="search" name="buscar" placeholder="¿Qué estás buscando?" value="{{ buscar }}">
+      </div>
+    </form>
   </div>
 </nav>
 
@@ -117,12 +113,6 @@
         <li>
           <a href="{% url 'tienda' %}" class="mobile-nav-link">
             <i class="fas fa-store"></i> <span>Tienda Minorista</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'tienda_mayorista' %}" class="mobile-nav-link highlight-mayorista">
-            <i class="fas fa-boxes"></i> <span>Tienda Mayorista (B2B)</span>
-            <span class="badge badge-success ml-auto">Mayor</span>
           </a>
         </li>
         <li>
@@ -163,34 +153,33 @@
   </div>
 </aside>
 
-<!-- BARRA DE NAVEGACIÓN INFERIOR MÓVIL (4 BOTONES MÁS USADOS) -->
+<!-- BARRA DE NAVEGACIÓN INFERIOR MÓVIL -->
 <nav class="mobile-bottom-nav d-lg-none" aria-label="Navegación principal móvil">
-  <a href="{% url 'index' %}" class="bottom-nav-item" id="bottomNavInicio" title="Inicio">
+  <a href="{% url 'nosotros' %}" class="bottom-nav-item{% if request.resolver_match.url_name == 'nosotros' %} active{% endif %}"{% if request.resolver_match.url_name == 'nosotros' %} aria-current="page"{% endif %} id="bottomNavNosotros" title="Nosotros">
+    <div class="bottom-nav-icon-wrap">
+      <i class="fas fa-circle-user"></i>
+    </div>
+    <span class="bottom-nav-label">Nosotros</span>
+  </a>
+
+  <a href="{% url 'index' %}" class="bottom-nav-item{% if request.resolver_match.url_name == 'index' %} active{% endif %}"{% if request.resolver_match.url_name == 'index' %} aria-current="page"{% endif %} id="bottomNavInicio" title="Inicio">
     <div class="bottom-nav-icon-wrap">
       <i class="fas fa-home"></i>
     </div>
     <span class="bottom-nav-label">Inicio</span>
   </a>
 
-  <a href="{% url 'tienda' %}" class="bottom-nav-item" id="bottomNavTienda" title="Tienda">
+  <a href="{% url 'tienda' %}" class="bottom-nav-item{% if request.resolver_match.url_name == 'tienda' or request.resolver_match.url_name == 'tienda_mayorista' or request.resolver_match.url_name == 'product_detail' or request.resolver_match.url_name == 'product_detail_mayorista' %} active{% endif %}"{% if request.resolver_match.url_name == 'tienda' or request.resolver_match.url_name == 'tienda_mayorista' or request.resolver_match.url_name == 'product_detail' or request.resolver_match.url_name == 'product_detail_mayorista' %} aria-current="page"{% endif %} id="bottomNavTienda" title="Tienda">
     <div class="bottom-nav-icon-wrap">
       <i class="fas fa-store"></i>
     </div>
-    <span class="bottom-nav-label">Tienda</span>
+    <span class="bottom-nav-label">{% if 'mayorista' in request.path %}Minorista{% else %}Tienda{% endif %}</span>
   </a>
 
-  <a href="{% url 'tienda_mayorista' %}" class="bottom-nav-item bottom-nav-mayorista" id="bottomNavMayorista" title="Mayorista">
+  <a href="{% url 'preguntas_frecuentes' %}" class="bottom-nav-item{% if request.resolver_match.url_name == 'preguntas_frecuentes' %} active{% endif %}"{% if request.resolver_match.url_name == 'preguntas_frecuentes' %} aria-current="page"{% endif %} id="bottomNavFaq" title="Preguntas frecuentes">
     <div class="bottom-nav-icon-wrap">
-      <i class="fas fa-boxes"></i>
+      <i class="fas fa-circle-question"></i>
     </div>
-    <span class="bottom-nav-label">Mayorista</span>
-  </a>
-
-  <a href="{% url 'carrito' %}" class="bottom-nav-item js-cart-link" id="bottomNavCarrito" title="Carrito">
-    <div class="bottom-nav-icon-wrap">
-      <i class="fas fa-shopping-cart"></i>
-      <span class="bottom-cart-badge" id="bottomCartCount">0</span>
-    </div>
-    <span class="bottom-nav-label">Carrito</span>
+    <span class="bottom-nav-label">FAQ</span>
   </a>
 </nav>

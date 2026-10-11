@@ -10,7 +10,11 @@
           <span class="footer-brand-title font-weight-bold">{{ tienda_nombre|default:'ALICEN' }}</span>
         </a>
         <p class="footer-description text-muted small">
-          Tu tienda virtual de confianza en Bolivia. Ofrecemos catálogo minorista y mayorista con los mejores precios, disponibilidad inmediata y envíos seguros a nivel nacional.
+          {% if 'mayorista' in request.path %}
+          Catálogo para compras por volumen, atención para negocios y envíos coordinados a nivel nacional.
+          {% else %}
+          Tu tienda virtual de confianza en Bolivia, con productos de calidad, atención cercana y envíos seguros a nivel nacional.
+          {% endif %}
         </p>
         <div class="footer-social-links mt-3">
           <a href="https://wa.me/59175999630" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="WhatsApp corporativo">
@@ -30,8 +34,7 @@
         <h6 class="footer-heading">Navegación</h6>
         <ul class="footer-links list-unstyled small">
           <li><a href="{% url 'index' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Inicio</a></li>
-          <li><a href="{% url 'tienda' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Tienda</a></li>
-          <li><a href="{% url 'tienda_mayorista' %}"><i class="fas fa-angle-right mr-1 text-success"></i> Mayorista</a></li>
+          <li><a href="{% url 'tienda' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> {% if 'mayorista' in request.path %}Tienda Minorista{% else %}Tienda{% endif %}</a></li>
           <li><a href="{% url 'carrito' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Mi Carrito</a></li>
           <li><a href="{% url 'login' %}"><i class="fas fa-angle-right mr-1 text-muted"></i> Acceso Sistema</a></li>
         </ul>
@@ -44,7 +47,6 @@
           <li><a href="{% url 'nosotros' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Quiénes Somos</a></li>
           <li><a href="{% url 'preguntas_frecuentes' %}"><i class="fas fa-angle-right mr-1 text-primary"></i> Preguntas Frecuentes</a></li>
           <li><a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20quiero%20hacer%20una%20consulta" target="_blank"><i class="fas fa-angle-right mr-1 text-success"></i> Contacto Directo</a></li>
-          <li><a href="{% url 'tienda_mayorista' %}"><i class="fas fa-angle-right mr-1 text-success"></i> Ventas por Lote</a></li>
         </ul>
       </div>
 
