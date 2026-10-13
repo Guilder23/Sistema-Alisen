@@ -98,6 +98,17 @@
                             <div class="stock-status-row"><i class="fas fa-check-circle"></i> Stock disponible para entrega inmediata</div>
                         </div>
 
+                        <!-- Acordeón de Descripción -->
+                        <div class="description-accordion-modern mb-3">
+                            <button class="description-toggle-btn" type="button" aria-expanded="false">
+                                <span class="description-toggle-label"><i class="fas fa-align-left mr-2 text-primary"></i>Descripción del producto</span>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </button>
+                            <div class="description-body-content">
+                                <p>{{ producto.descripcion|default:'No hay descripción disponible para este producto.' }}</p>
+                            </div>
+                        </div>
+
                         <!-- Sucursales Disponibles -->
                         {% if departamentos_disponibles %}
                         <div class="detail-locations-box mb-3">
@@ -143,16 +154,6 @@
                             </div>
                         </form>
 
-                        <!-- Acordeón de Descripción -->
-                        <div class="description-accordion-modern mb-3">
-                            <button class="description-toggle-btn" type="button" aria-expanded="false">
-                                <span class="description-toggle-label"><i class="fas fa-align-left mr-2 text-primary"></i>Descripción del producto</span>
-                                <i class="fas fa-chevron-down toggle-icon"></i>
-                            </button>
-                            <div class="description-body-content">
-                                <p>{{ producto.descripcion|default:'No hay descripción disponible para este producto.' }}</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

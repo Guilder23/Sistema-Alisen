@@ -14,7 +14,7 @@
     <!-- Estilos -->
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
-    <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}?v=20261013">
     <link rel="stylesheet" href="{% static 'css/inicio/nosotros.css' %}">
     <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
@@ -24,8 +24,10 @@
     <main class="about-main-wrapper">
         <section class="about-hero" aria-labelledby="aboutHeroTitle">
             <div class="about-hero-content">
-                <span class="about-hero-label">Conócenos</span>
-                <h1 id="aboutHeroTitle">Conectamos<br><span>Bolivia</span></h1>
+                <div class="about-hero-heading">
+                    <span class="about-hero-label">Conócenos</span>
+                    <h1 id="aboutHeroTitle">Conectamos<br><span>Bolivia</span></h1>
+                </div>
                 <p>En <strong>ALICEN</strong> trabajamos para ofrecerte productos de calidad,<br class="d-none d-md-block">
                     precios competitivos y una atención transparente.<br class="d-none d-md-block">
                     Atendemos a clientes, emprendedores, tiendas y empresas,<br class="d-none d-md-block">
@@ -140,22 +142,52 @@
                 </div>
                 <div class="about-store-grid">
                     <article class="about-store-card">
-                        <img src="{% static 'img/nosotros/imagen1.png' %}" alt="Vista urbana de Cochabamba" loading="lazy">
+                        <img src="{% static 'img/nosotros/Cochabamba.png' %}" alt="Vista urbana de Cochabamba" loading="lazy">
                         <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>Cochabamba</h3><span class="store-tag store-tag-blue">Casa Matriz</span></div>
                     </article>
                     <article class="about-store-card">
-                        <img src="{% static 'img/nosotros/imagen2.png' %}" alt="Vista urbana de La Paz" loading="lazy">
+                        <img src="{% static 'img/nosotros/LaPaz.png' %}" alt="Vista urbana de La Paz" loading="lazy">
                         <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>La Paz</h3><span class="store-tag store-tag-green">Sucursal</span></div>
                     </article>
                     <article class="about-store-card">
-                        <img src="{% static 'img/nosotros/imagen4.png' %}" alt="Vista urbana de El Alto" loading="lazy">
+                        <img src="{% static 'img/nosotros/ElAlto.png' %}" alt="Vista urbana de El Alto" loading="lazy">
                         <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>El Alto</h3><span class="store-tag store-tag-green">Sucursal</span></div>
                     </article>
                     <article class="about-store-card">
-                        <img src="{% static 'img/nosotros/imagen3.png' %}" alt="Vista urbana de Santa Cruz" loading="lazy">
+                        <img src="{% static 'img/nosotros/SantaCruz.png' %}" alt="Vista urbana de Santa Cruz" loading="lazy">
                         <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>Santa Cruz</h3><span class="store-tag store-tag-green">Sucursal</span></div>
                     </article>
                 </div>
+            </section>
+
+            <section class="about-shipping-section" aria-label="Envíos en Bolivia">
+                <header class="about-shipping-hero" aria-labelledby="aboutShippingTitle">
+                    <div class="about-shipping-copy">
+                        <span class="about-eyebrow">ALICEN EN TODO EL PAÍS</span>
+                        <h2 id="aboutShippingTitle">Realizamos envíos<br><span>a todo Bolivia</span></h2>
+                        <p>Tu pedido llega de forma segura por empresas de encomienda, transporte local y delivery.</p>
+                    </div>
+                    <img src="{% static 'img/Faq/BannerSuperior.png' %}" alt="Cobertura de envíos de Alicen en Bolivia" loading="lazy">
+                </header>
+
+                <div class="about-shipping-methods">
+                    <article class="about-shipping-card about-shipping-card-blue">
+                        <h3><span><i class="fas fa-box" aria-hidden="true"></i></span> Otros departamentos</h3>
+                        <img src="{% static 'img/Faq/bus.png' %}" alt="Envío de pedidos por empresas de encomienda y flotas" loading="lazy">
+                        <p>Enviamos por empresas de encomienda que tienen oficinas para enviar y recoger tu pedido, ya sea en bus o empresas de encomiendas que operan en Bolivia.</p>
+                    </article>
+                    <article class="about-shipping-card about-shipping-card-green">
+                        <h3><span><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span> Provincias</h3>
+                        <img src="{% static 'img/Faq/minibus.png' %}" alt="Transporte local hacia provincias" loading="lazy">
+                        <p>A provincias enviamos en líneas de transporte local que operan en tu zona.</p>
+                    </article>
+                    <article class="about-shipping-card about-shipping-card-gold">
+                        <h3><span><i class="fas fa-motorcycle" aria-hidden="true"></i></span> Delivery o envío a domicilio</h3>
+                        <img src="{% static 'img/Faq/moto.png' %}" alt="Servicio de delivery para entrega a domicilio" loading="lazy">
+                        <p>También puedes solicitar delivery o envío a domicilio en tu ciudad, donde tenemos tiendas físicas establecidas.</p>
+                    </article>
+                </div>
+
             </section>
 
             <section class="about-process" aria-labelledby="aboutProcessTitle">
@@ -186,10 +218,16 @@
                     </article>
                     <article class="about-process-step">
                         <div class="process-step-heading"><span class="process-number">4</span><i class="fas fa-truck process-icon" aria-hidden="true"></i><div><h3>Recibe tu paquete</h3><p>Coordinamos el despacho.</p></div></div>
-                        <div class="process-illustration process-delivery"><i class="fas fa-box-open" aria-hidden="true"></i><strong>ALICEN</strong><i class="fas fa-map-marker-alt" aria-hidden="true"></i></div>
+                        <div class="process-illustration process-delivery"><img src="{% static 'img/nosotros/Entrega.png' %}" alt="Entrega segura de un pedido" loading="lazy"></div>
                     </article>
                 </div>
             </section>
+
+            <div class="about-shipping-benefits" aria-label="Beneficios de nuestros envíos">
+                <article><span class="about-shipping-benefit-icon about-shipping-benefit-green"><i class="fas fa-shield-alt" aria-hidden="true"></i></span><div><h3>Envío seguro</h3><p>Tu pedido viaja bien protegido.</p></div></article>
+                <article><span class="about-shipping-benefit-icon about-shipping-benefit-blue"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span><div><h3>Cobertura nacional</h3><p>Llegamos a todos los departamentos y provincias.</p></div></article>
+                <article><span class="about-shipping-benefit-icon about-shipping-benefit-teal"><i class="far fa-clock" aria-hidden="true"></i></span><div><h3>Entrega confiable</h3><p>Con empresas de transporte y delivery confiables.</p></div></article>
+            </div>
         </div>
     </main>
 

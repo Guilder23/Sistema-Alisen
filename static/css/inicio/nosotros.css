@@ -10,7 +10,7 @@
 }
 
 .about-hero {
-    min-height: 340px;
+    min-height: 500px;
     display: grid;
     place-items: center;
     padding: 1.5rem 1rem;
@@ -24,7 +24,17 @@
 
 .about-hero-content {
     width: min(100%, 760px);
+    min-height: 452px;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    row-gap: 0.55rem;
     text-shadow: 0 2px 12px rgba(3, 17, 43, 0.5);
+}
+
+.about-hero-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .about-hero-label {
@@ -53,7 +63,8 @@
 }
 
 .about-hero p {
-    margin: 0.8rem auto 0.55rem;
+    align-self: end;
+    margin: 0 auto 0.25rem;
     color: #e7effb;
     font-size: 0.98rem;
     line-height: 1.35;
@@ -65,6 +76,7 @@
 
 .about-hero-actions {
     display: flex;
+    align-self: end;
     justify-content: center;
     gap: 0.65rem;
 }
@@ -170,7 +182,7 @@
 
 .about-purpose-row {
     display: grid;
-    height: 145px;
+    height: 165px;
     grid-template-rows: minmax(0, 1fr);
     grid-template-columns: minmax(0, 1.65fr) minmax(260px, 0.85fr);
     overflow: hidden;
@@ -418,6 +430,159 @@
 .about-stores,
 .about-process { margin-bottom: 0.6rem; }
 
+.about-shipping-section {
+    display: grid;
+    gap: 0.7rem;
+    margin-bottom: 0.6rem;
+}
+
+.about-shipping-hero {
+    display: grid;
+    min-height: 210px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.7rem 1rem;
+    overflow: hidden;
+    border: 1px solid #d9e8f5;
+    border-radius: 8px;
+    background: #e9f5ff;
+}
+
+.about-shipping-copy { padding: 0.5rem; }
+
+.about-shipping-copy h2 {
+    margin: 0.4rem 0 0.35rem;
+    color: #111b3c;
+    font-size: 2.35rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.about-shipping-copy h2 span { color: #0878e9; }
+
+.about-shipping-copy p {
+    max-width: 490px;
+    margin: 0;
+    color: #52647c;
+    font-size: 0.96rem;
+    line-height: 1.45;
+}
+
+.about-shipping-hero > img {
+    display: block;
+    width: 100%;
+    height: 180px;
+    border-radius: 6px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.about-shipping-methods,
+.about-shipping-benefits {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.about-shipping-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #deebf5;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(24, 56, 88, 0.035);
+}
+
+.about-shipping-card h3 {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.35rem 0.65rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.about-shipping-card h3 span {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #0878e9;
+}
+
+.about-shipping-card-blue h3 { background: #0878e9; }
+.about-shipping-card-green h3 { background: #0ba76b; }
+.about-shipping-card-gold h3 { background: #eea800; }
+.about-shipping-card-green h3 span { color: #0ba76b; }
+.about-shipping-card-gold h3 span { color: #e59b00; }
+
+.about-shipping-card > img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    background: #edf5fc;
+    object-fit: contain;
+}
+
+.about-shipping-card > p {
+    min-height: 76px;
+    margin: 0;
+    padding: 0.6rem 0.7rem;
+    color: #58677e;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.about-shipping-benefits > article {
+    display: flex;
+    min-height: 82px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.6rem;
+    border: 1px solid #deebf5;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.about-shipping-benefit-icon {
+    display: inline-flex;
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 1.4rem;
+}
+
+.about-shipping-benefit-green { background: #0ba76b; }
+.about-shipping-benefit-blue { background: #0878e9; }
+.about-shipping-benefit-teal { background: #0b9b8e; }
+
+.about-shipping-benefits h3 {
+    margin: 0 0 0.15rem;
+    color: #131e3d;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.about-shipping-benefits p {
+    margin: 0;
+    color: #68768b;
+    font-size: 0.78rem;
+    line-height: 1.3;
+}
+
 .about-store-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -432,7 +597,7 @@
 .about-store-card > img {
     display: block;
     width: 100%;
-    height: 105px;
+    height: 145px;
     object-fit: cover;
 }
 
@@ -555,6 +720,16 @@
 .payment-options span:first-child i { color: #14a364; }
 .payment-options span:nth-child(2) i { color: #0b9b8e; }
 
+.payment-options span {
+    border-color: #bbf7d0;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.payment-options i,
+.payment-options span:first-child i,
+.payment-options span:nth-child(2) i { color: #059669; }
+
 .process-illustration {
     display: flex;
     height: 72px;
@@ -570,12 +745,20 @@
 .process-confirm i:last-child { color: #13a56c; font-size: 1.7rem; }
 
 .process-delivery {
-    background: linear-gradient(110deg, #e7f6ff 0%, #f4fbff 60%, #d8efff 100%);
+    height: auto;
+    aspect-ratio: 3.2 / 1;
+    overflow: hidden;
+    padding: 0;
+    background: #e7f6ff;
 }
 
-.process-delivery i:first-child { color: #b8792e; }
-.process-delivery i:last-child { color: #1379dc; font-size: 1.35rem; }
-.process-delivery strong { color: #16284b; font-size: 0.9rem; }
+.process-delivery img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
 
 @media (min-width: 1200px) {
     .about-process-step:not(:last-child)::after {
@@ -602,18 +785,19 @@
     .about-purpose-row {
         height: auto;
         grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto 130px;
+        grid-template-rows: auto 150px;
     }
-    .about-purpose-row > img { height: 130px; max-height: 130px; }
+    .about-purpose-row > img { height: 150px; max-height: 150px; }
 }
 
 @media (max-width: 575.98px) {
     .about-hero {
-        min-height: 360px;
+        min-height: 480px;
         padding: 1.25rem 0.8rem;
         background-position: center;
     }
 
+    .about-hero-content { min-height: 440px; }
     .about-hero h1 { font-size: 2.15rem; }
     .about-hero p { max-width: 390px; font-size: 0.84rem; }
     .about-hero-actions { flex-direction: column; align-items: center; gap: 0.45rem; }
@@ -627,12 +811,12 @@
     .about-stat > i { font-size: 1.4rem; }
     .about-stat strong { font-size: 1rem; }
 
-    .about-purpose-row { height: auto; grid-template-columns: 1fr; grid-template-rows: auto 124px; }
+    .about-purpose-row { height: auto; grid-template-columns: 1fr; grid-template-rows: auto 144px; }
     .about-purpose-copy { padding: 0.8rem 0.9rem; }
     .about-purpose-icon { width: 36px; height: 36px; font-size: 1.05rem; }
     .about-purpose-copy h2 { font-size: 1.12rem; }
     .about-purpose-copy p { font-size: 0.74rem; }
-    .about-purpose-row > img { height: 124px; min-height: 124px; max-height: 124px; }
+    .about-purpose-row > img { height: 144px; min-height: 144px; max-height: 144px; }
 
     .about-values { grid-template-columns: 1fr; padding: 0.45rem; }
     .about-values-intro { grid-column: auto; }
@@ -645,7 +829,7 @@
     .about-operation-details { padding: 0.35rem 0.1rem 0.1rem; }
 
     .about-store-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
-    .about-store-card > img { height: 92px; }
+    .about-store-card > img { height: 104px; }
     .about-store-card > div { flex-wrap: wrap; gap: 0.25rem; padding: 0.35rem; }
     .about-store-card h3 { font-size: 0.8rem; }
     .store-tag { font-size: 0.6rem; }
@@ -655,6 +839,30 @@
     .process-step-heading { min-height: 60px; }
     .delivery-options span,
     .payment-options span { min-height: 60px; }
+}
+
+@media (max-width: 767.98px) {
+    .about-shipping-hero {
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
+        padding: 0.9rem;
+    }
+    .about-shipping-copy { padding: 0.25rem; }
+    .about-shipping-copy h2 { font-size: 2rem; }
+    .about-shipping-hero > img { height: 160px; }
+    .about-shipping-methods { grid-template-columns: 1fr; }
+    .about-shipping-card { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: 46px minmax(155px, auto); }
+    .about-shipping-card h3 { grid-column: 1 / -1; font-size: 0.9rem; }
+    .about-shipping-card > img { height: 100%; min-height: 155px; grid-column: 1; grid-row: 2; }
+    .about-shipping-card > p { display: flex; min-height: 0; align-items: center; grid-column: 2; grid-row: 2; padding: 0.6rem; }
+    .about-shipping-benefits { grid-template-columns: 1fr; }
+    .about-shipping-benefits > article { min-height: 76px; justify-content: flex-start; padding-left: 1rem; }
+}
+
+@media (max-width: 420px) {
+    .about-shipping-card { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+    .about-shipping-card h3 { font-size: 0.82rem; }
+    .about-shipping-card > p { font-size: 0.72rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
