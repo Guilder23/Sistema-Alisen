@@ -33,7 +33,7 @@ function obtenerPrecioModalidad(item, modalidad) {
 }
 
 function puedeUsarMayor(item) {
-    return (parseInt(item.unidades_por_caja, 10) || 1) > (parseInt(item.unidades_por_mayor, 10) || 3);
+    return parseFloat(item.precio_mayor || 0) > 0;
 }
 
 function cambiarModalidadReserva(item, modalidad) {

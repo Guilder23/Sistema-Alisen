@@ -84,11 +84,13 @@ def obtener_precio_modalidad_proforma(producto, modalidad):
 def validar_cantidad_modalidad_proforma(producto, modalidad, cantidad):
     unidades_por_caja = max(int(producto.unidades_por_caja or 1), 1)
     unidades_por_mayor = max(int(producto.unidades_por_mayor or 3), 2)
-    if modalidad == 'mayor' and unidades_por_caja > unidades_por_mayor:
-        if cantidad < unidades_por_mayor or cantidad >= unidades_por_caja:
+    if modalidad == 'mayor':
+        if parse_decimal(producto.precio_mayor) <= 0:
+            raise ValueError(f'El producto "{producto.nombre}" no tiene precio por mayor.')
+        if cantidad < unidades_por_mayor:
             raise ValueError(
-                f'Precio por mayor requiere entre {unidades_por_mayor} y '
-                f'{unidades_por_caja - 1} unidades para "{producto.nombre}".'
+                f'Precio por mayor requiere al menos {unidades_por_mayor} '
+                f'unidades para "{producto.nombre}".'
             )
     if modalidad == 'unidad' and unidades_por_caja > unidades_por_mayor and cantidad >= unidades_por_mayor:
         raise ValueError(

@@ -11,6 +11,7 @@ from apps.tiendas.models import Tienda
 from apps.usuarios.models import PerfilUsuario
 from apps.ventas.models import DetalleVenta, Venta
 from .models import PagoReserva, ReservaProducto
+from .views import validar_cantidad_modalidad_reserva
 
 
 User = get_user_model()
@@ -57,6 +58,24 @@ class ReservaProductoViewTests(TestCase):
             monto=Decimal('60.00'),
             registrado_por=self.user,
         )
+
+    def test_modalidad_mayor_no_depende_de_unidades_por_caja(self):
+        producto = Producto(
+            codigo='MAYOR-TEST',
+            nombre='Producto mayorista',
+            precio_mayor=Decimal('45.00'),
+            unidades_por_caja=1,
+            unidades_por_mayor=3,
+        )
+
+        validar_cantidad_modalidad_reserva(producto, 'mayor', 3)
+
+        with self.assertRaises(ValueError):
+            validar_cantidad_modalidad_reserva(producto, 'mayor', 2)
+
+        producto.precio_mayor = Decimal('0.00')
+        with self.assertRaises(ValueError):
+            validar_cantidad_modalidad_reserva(producto, 'mayor', 3)
 
     def test_listar_reservas_renders_without_assigning_read_only_property(self):
         self.client.force_login(self.user)
