@@ -1,13 +1,12 @@
 {% load static %}
-<footer class="footer-principal py-4 py-md-5{% if footer_solo_legal %} footer-principal-legal-only{% endif %}">
+<footer class="footer-principal py-4 py-md-5{% if footer_solo_legal %} footer-principal-legal-only{% endif %}{% if request.path == '/nosotros/' or request.path == '/preguntas-frecuentes/' %} footer-principal-about{% endif %}">
   <div class="container">
     {% if not footer_solo_legal %}
     <div class="row g-4 align-items-start">
       <!-- Columna 1: Marca & Descripción -->
       <div class="col-lg-4 col-md-6 mb-3 mb-lg-0">
         <a href="{% url 'index' %}" class="d-inline-flex align-items-center mb-3">
-          <img src="{% static 'img/logoAlmacen.png' %}" alt="Alicen Logo" class="footer-logo-principal mr-2">
-          <span class="footer-brand-title font-weight-bold">{{ tienda_nombre|default:'ALICEN' }}</span>
+          <img src="{% static 'img/logoAlmacen.png' %}" alt="Alicen Logo" class="footer-logo-principal">
         </a>
         <p class="footer-description text-muted small">
           {% if 'mayorista' in request.path %}
@@ -16,6 +15,7 @@
           Tu tienda virtual de confianza en Bolivia, con productos de calidad, atención cercana y envíos seguros a nivel nacional.
           {% endif %}
         </p>
+        {% if request.path == '/nosotros/' or request.path == '/preguntas-frecuentes/' %}
         <div class="footer-social-links mt-3">
           <a href="https://wa.me/59175999630" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="WhatsApp corporativo">
             <i class="fab fa-whatsapp"></i>
@@ -27,6 +27,7 @@
             <i class="fab fa-tiktok"></i>
           </a>
         </div>
+        {% endif %}
       </div>
 
       <!-- Columna 2: Enlaces Rápidos -->
@@ -62,18 +63,19 @@
             <i class="fas fa-boxes mr-2 text-primary" style="font-size: 1rem;"></i>
             <span>Mayorista: <a href="tel:+59171404806"><strong>+591 71404806</strong></a></span>
           </p>
-          <p class="mb-2 d-flex align-items-center">
-            <i class="fas fa-envelope mr-2 text-primary"></i>
-            <span>{{ tienda_email|default:'contacto@alicen.bo' }}</span>
-          </p>
-          <p class="mb-2 d-flex align-items-start">
-            <i class="fas fa-map-marker-alt mr-2 text-danger mt-1"></i>
-            <span>Av. Ayacucho entre Heroínas y General Acha, Galería Cochabamba, Local 21A, 1er piso</span>
-          </p>
-          <p class="mb-0 d-flex align-items-center">
-            <i class="fas fa-clock mr-2 text-warning"></i>
-            <span>Lunes a sábado: 10:00 am a 7:00 pm</span>
-          </p>
+          {% if request.path == '/nosotros/' or request.path == '/preguntas-frecuentes/' %}
+          <div class="footer-matriz-info">
+            <h6 class="footer-heading">Casa Matriz</h6>
+            <p class="mb-2 d-flex align-items-center">
+              <i class="fas fa-map-marker-alt mr-2 text-danger"></i>
+              <span>Av. Ayacucho entre Heroínas y General Acha, Galería Cochabamba, Local 21A, 1er piso</span>
+            </p>
+            <p class="mb-0 d-flex align-items-center">
+              <i class="fas fa-clock mr-2 text-warning"></i>
+              <span>Lunes a sábado: 10:00 am a 7:00 pm</span>
+            </p>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -81,12 +83,11 @@
 
     <!-- Copyright y Créditos -->
     <div class="footer-bottom mt-4 pt-3 d-flex flex-column flex-md-row justify-content-between align-items-center text-center text-md-left small text-muted">
-      <span>© 2026 {{ tienda_nombre|default:'ALICEN' }}. Todos los derechos reservados.</span>
+      <span>© 2026 Alicen. Todos los derechos reservados.</span>
       <span class="mt-2 mt-md-0">Comercio Seguro & Envíos a Nivel Nacional</span>
-      <div class="footer-legal-phones" aria-label="Números de contacto">
-        <a href="tel:+59175999630"><i class="fas fa-phone" aria-hidden="true"></i> Corporativo: +591 75999630</a>
-      </div>
+      {% if request.path == '/nosotros/' or request.path == '/preguntas-frecuentes/' %}
       <span class="footer-developed-by">Desarrollado por <strong>Appyaa</strong></span>
+      {% endif %}
     </div>
   </div>
 </footer>

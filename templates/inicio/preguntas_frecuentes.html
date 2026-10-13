@@ -14,7 +14,7 @@
     <!-- Estilos -->
     <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
     <link rel="stylesheet" href="{% static 'css/componentes/navbarprincipal.css' %}">
-    <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/footerprincipal.css' %}?v=20261013">
     <link rel="stylesheet" href="{% static 'css/inicio/preguntas_frecuentes.css' %}">
     <link rel="icon" href="{% static 'img/logoAlmacen.png' %}" type="image/png">
 </head>
@@ -22,42 +22,7 @@
     {% include 'componentes/navbarprincipal.html' %}
 
     <main class="faq-main-wrapper">
-        <section class="faq-shipping-hero" aria-labelledby="faqShippingTitle">
-            <div class="container faq-shipping-hero-inner">
-                <div class="faq-shipping-copy">
-                    <span class="faq-kicker"><i class="fas fa-truck" aria-hidden="true"></i> ALICEN EN TODO EL PAÍS</span>
-                    <h1 id="faqShippingTitle">Realizamos envíos<br><span>a todo Bolivia</span></h1>
-                    <p>Tu pedido llega de forma segura por empresas de encomienda, transporte local y delivery.</p>
-                </div>
-                <img src="{% static 'img/Faq/BannerSuperior.png' %}" alt="Cobertura de envíos de Alicen en Bolivia" fetchpriority="high">
-            </div>
-        </section>
-
         <div class="container faq-page-content">
-            <section class="faq-shipping-methods" aria-label="Opciones de envío">
-                <article class="faq-shipping-card faq-shipping-card-blue">
-                    <h2><span><i class="fas fa-box" aria-hidden="true"></i></span> Otros departamentos</h2>
-                    <img src="{% static 'img/Faq/bus.png' %}" alt="Envío de pedidos por empresas de encomienda y flotas" loading="lazy">
-                    <p>Enviamos por empresas de encomienda que tienen oficinas para enviar y recoger tu pedido, ya sea en bus o empresas de encomiendas que operan en Bolivia.</p>
-                </article>
-                <article class="faq-shipping-card faq-shipping-card-green">
-                    <h2><span><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span> Provincias</h2>
-                    <img src="{% static 'img/Faq/minibus.png' %}" alt="Transporte local hacia provincias" loading="lazy">
-                    <p>A provincias enviamos en líneas de transporte local que operan en tu zona.</p>
-                </article>
-                <article class="faq-shipping-card faq-shipping-card-gold">
-                    <h2><span><i class="fas fa-motorcycle" aria-hidden="true"></i></span> Delivery o envío a domicilio</h2>
-                    <img src="{% static 'img/Faq/moto.png' %}" alt="Servicio de delivery para entrega a domicilio" loading="lazy">
-                    <p>También puedes solicitar delivery o envío a domicilio en tu ciudad, donde tenemos tiendas físicas establecidas.</p>
-                </article>
-            </section>
-
-            <section class="faq-delivery-benefits" aria-label="Beneficios de nuestros envíos">
-                <article><span class="faq-benefit-icon faq-benefit-blue"><i class="fas fa-shield-alt" aria-hidden="true"></i></span><div><h2>Envío seguro</h2><p>Tu pedido viaja<br>bien protegido.</p></div></article>
-                <article><span class="faq-benefit-icon faq-benefit-red"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span><div><h2>Cobertura nacional</h2><p>Llegamos a todos los departamentos y provincias.</p></div></article>
-                <article><span class="faq-benefit-icon faq-benefit-blue"><i class="far fa-clock" aria-hidden="true"></i></span><div><h2>Entrega confiable</h2><p>Con empresas de transporte y delivery confiables.</p></div></article>
-            </section>
-
             <section class="faq-questions-section" aria-labelledby="faqQuestionsTitle">
                 <header class="faq-heading">
                     <div>
@@ -150,12 +115,6 @@
                 </div>
             </section>
 
-            <section class="faq-contact-box" aria-labelledby="faqContactTitle">
-                <span class="faq-contact-icon"><i class="fab fa-whatsapp" aria-hidden="true"></i></span>
-                <div><h2 id="faqContactTitle">¿Tienes otra consulta o necesitas ayuda con tu pedido?</h2><p>¡Estamos aquí para ayudarte! 💚 Escríbenos directamente por WhatsApp y con gusto resolveremos tus dudas para que puedas comprar de manera fácil, cómoda y segura.</p></div>
-                <a href="https://wa.me/{{ tienda_whatsapp|slice:'1:' }}?text=Hola%20tengo%20una%20consulta" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp" aria-hidden="true"></i> Escríbenos al WhatsApp</a>
-                <img class="faq-contact-agent" src="{% static 'img/Faq/Agente.png' %}" alt="Asesora de atención Alicen" loading="lazy">
-            </section>
         </div>
     </main>
 

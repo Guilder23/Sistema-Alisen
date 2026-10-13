@@ -18,6 +18,7 @@
     font-size: 1.15rem;
     letter-spacing: 0.05em;
     background: linear-gradient(135deg, #ffffff 40%, #93c5fd 100%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -57,6 +58,23 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.footer-principal-about .footer-social-links {
+    justify-content: center;
+}
+
+.footer-matriz-info {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.footer-matriz-info .footer-heading {
+    margin-bottom: 0.55rem;
+}
+
+.footer-matriz-info p {
+    justify-content: center;
 }
 
 .footer-social-btn {

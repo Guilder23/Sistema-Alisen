@@ -146,8 +146,8 @@
 .detail-price-box {
     background: #f8fafc;
     border: 1px solid var(--color-borde);
-    border-radius: var(--radio-lg);
-    padding: 1rem 1.25rem;
+    border-radius: var(--radio-md);
+    padding: 0.65rem 0.85rem;
 }
 
 .detail-price-old {
@@ -157,7 +157,7 @@
 }
 
 .detail-price-final {
-    font-size: 1.65rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: var(--color-texto);
     line-height: 1.1;
@@ -246,13 +246,13 @@
 
 .description-toggle-btn {
     width: 100%;
-    padding: 0.85rem 1rem;
+    padding: 0.65rem 0.85rem;
     background: #f8fafc;
     border: none;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     color: var(--color-texto);
     cursor: pointer;
     transition: var(--transicion);
@@ -282,13 +282,13 @@
 
 .description-body-content.open {
     max-height: 600px;
-    padding: 0.85rem 1rem;
+    padding: 0.65rem 0.85rem;
 }
 
 .description-body-content p {
     margin: 0;
-    font-size: 0.88rem;
-    line-height: 1.65;
+    font-size: 0.82rem;
+    line-height: 1.5;
     color: var(--color-texto-muted);
 }
 

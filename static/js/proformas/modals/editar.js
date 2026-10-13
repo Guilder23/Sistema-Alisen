@@ -105,7 +105,7 @@ function renderizarItemsProforma() {
                 </td>
                 <td>
                     <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn ${item.modalidad === 'unidad' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="unidad">Producto</button>
+                        <button type="button" class="btn ${item.modalidad === 'unidad' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="unidad">Unidad</button>
                         ${puedeUsarMayor(item) ? `<button type="button" class="btn ${item.modalidad === 'mayor' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="mayor">Mayor</button>` : ''}
                         ${item.en_oferta && item.precio_unidad_oferta > 0 ? `<button type="button" class="btn ${item.modalidad === 'oferta' ? 'btn-primary' : 'btn-outline-primary'} modalidad-item" data-index="${index}" data-modalidad="oferta">Oferta</button>` : ''}
                     </div>

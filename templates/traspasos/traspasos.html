@@ -32,18 +32,38 @@
         </button>
     </div>
 
-    <ul class="nav nav-tabs" id="traspasosTabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="enviados-tab" data-toggle="tab" href="#enviados" role="tab">
-                Enviados
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="recibidos-tab" data-toggle="tab" href="#recibidos" role="tab">
-                Recibidos
-            </a>
-        </li>
-    </ul>
+    <div class="traspasos-tabbar">
+        <ul class="nav nav-tabs" id="traspasosTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="enviados-tab" data-toggle="tab" href="#enviados" role="tab">
+                    Enviados
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="recibidos-tab" data-toggle="tab" href="#recibidos" role="tab">
+                    Recibidos
+                </a>
+            </li>
+        </ul>
+
+        <div class="traspasos-tools">
+            <label class="traspasos-search" for="traspasosSearch">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" id="traspasosSearch" placeholder="Buscar traspaso..." autocomplete="off">
+            </label>
+            <div class="traspasos-status-filters" role="group" aria-label="Filtrar traspasos por estado">
+                <button type="button" class="traspasos-filter-btn active" data-status-filter="all" title="Todos los estados" aria-label="Mostrar todos los estados" aria-pressed="true"><i class="fas fa-list" aria-hidden="true"></i></button>
+                <button type="button" class="traspasos-filter-btn" data-status-filter="pendiente" title="Pendientes" aria-label="Filtrar pendientes" aria-pressed="false"><i class="far fa-clock" aria-hidden="true"></i></button>
+                <button type="button" class="traspasos-filter-btn" data-status-filter="transito" title="En tránsito" aria-label="Filtrar en tránsito" aria-pressed="false"><i class="fas fa-truck" aria-hidden="true"></i></button>
+                <button type="button" class="traspasos-filter-btn" data-status-filter="recibido" title="Recibidos" aria-label="Filtrar recibidos" aria-pressed="false"><i class="fas fa-check" aria-hidden="true"></i></button>
+                <button type="button" class="traspasos-filter-btn" data-status-filter="rechazado" title="Rechazados" aria-label="Filtrar rechazados" aria-pressed="false"><i class="fas fa-times" aria-hidden="true"></i></button>
+            </div>
+            <div class="traspasos-status-filters" role="group" aria-label="Ordenar por fecha">
+                <button type="button" class="traspasos-filter-btn" data-sort-order="asc" title="Más antiguos primero" aria-label="Ordenar del más antiguo al más reciente" aria-pressed="false"><i class="fas fa-sort-amount-up-alt" aria-hidden="true"></i></button>
+                <button type="button" class="traspasos-filter-btn active" data-sort-order="desc" title="Más recientes primero" aria-label="Ordenar del más reciente al más antiguo" aria-pressed="true"><i class="fas fa-sort-amount-down" aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </div>
 
     <div class="tab-content" id="trasposContent">
         <!-- Tab Enviados -->
