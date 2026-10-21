@@ -41,6 +41,7 @@ urlpatterns = [
     path('depositos/', include('apps.depositos.urls')),
     path('tiendas-virtuales/', include('apps.tiendas_virtuales.urls')),
     path('proformas/', include('apps.proformas.urls')),
+    path('administrar-pagina/', include('apps.administrar_pagina.urls')),
     path('reservas/', include('apps.reservas.urls')),
     path('vendedores/', include('apps.vendedores.urls')),
     path('devoluciones/', include('apps.devoluciones.urls')),
@@ -51,4 +52,3 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-

@@ -1,0 +1,14 @@
+<div class="modal-header bg-danger text-white">
+    <h5 class="modal-title"><i class="fas fa-trash-alt mr-2"></i>Quitar tienda de la página</h5>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+</div>
+<form method="post" action="{% url 'administrar_pagina:eliminar_tienda_pagina' tienda_pagina.pk %}" data-modal-form data-confirm="¿Deseas quitar esta tienda de la página? Sus datos operativos se conservarán.">
+    {% csrf_token %}
+    <div class="modal-body">
+        <p>¿Deseas retirar <strong>{{ tienda_pagina.tienda.nombre }}</strong> de la página? La tienda y sus datos operativos no se eliminarán.</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt mr-1"></i> Quitar de la página</button>
+    </div>
+</form>

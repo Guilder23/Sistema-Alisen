@@ -10,7 +10,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="formCrearTienda" method="post" action="{% url 'tiendas:crear' %}">
+            <form id="formCrearTienda" method="post" enctype="multipart/form-data" action="{% url 'tiendas:crear' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row">

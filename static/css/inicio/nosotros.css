@@ -583,9 +583,37 @@
     gap: 0.6rem;
 }
 
+.about-stores-empty {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 1rem;
+    border: 1px dashed #cbd7e4;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #68768b;
+    text-align: center;
+}
+
 .about-store-card {
     min-width: 0;
     overflow: hidden;
+}
+
+.about-store-card-button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.about-store-card-button:hover,
+.about-store-card-button:focus-visible {
+    border-color: #1680e5;
+    box-shadow: 0 4px 14px rgba(24, 56, 88, 0.14);
+    outline: none;
 }
 
 .about-store-card > img {
@@ -606,6 +634,27 @@
 .about-store-card > div > i {
     color: #1479df;
     font-size: 1rem;
+}
+
+.about-store-card-info {
+    display: flex;
+    min-height: 38px;
+    align-items: center;
+    gap: 0.42rem;
+    padding: 0.35rem 0.55rem;
+}
+
+.about-store-card-info > i {
+    color: #1479df;
+    font-size: 1rem;
+}
+
+.about-store-card-name {
+    min-width: 0;
+    margin-right: auto;
+    color: #17233e;
+    font-size: 0.91rem;
+    font-weight: 800;
 }
 
 .about-store-card h3 {
@@ -825,6 +874,8 @@
     .about-store-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
     .about-store-card > img { height: 104px; }
     .about-store-card > div { flex-wrap: wrap; gap: 0.25rem; padding: 0.35rem; }
+    .about-store-card-info { flex-wrap: wrap; gap: 0.25rem; padding: 0.35rem; }
+    .about-store-card-name { font-size: 0.8rem; }
     .about-store-card h3 { font-size: 0.8rem; }
     .store-tag { font-size: 0.6rem; }
 

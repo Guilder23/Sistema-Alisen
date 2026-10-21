@@ -23,24 +23,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 slide.classList.toggle('is-active', isActive);
                 slide.setAttribute('aria-hidden', String(!isActive));
                 slide.inert = !isActive;
-                dots[slideIndex].classList.toggle('is-active', isActive);
-                dots[slideIndex].setAttribute('aria-current', String(isActive));
+                if (dots[slideIndex]) {
+                    dots[slideIndex].classList.toggle('is-active', isActive);
+                    dots[slideIndex].setAttribute('aria-current', String(isActive));
+                }
             });
         };
 
         const stopAutoplay = () => window.clearInterval(autoplayTimer);
         const startAutoplay = () => {
             stopAutoplay();
-            if (!reducedMotion && !document.hidden) {
+            if (slides.length > 1 && !reducedMotion && !document.hidden) {
                 autoplayTimer = window.setInterval(() => showSlide(activeSlide + 1), 5000);
             }
         };
 
-        previousButton.addEventListener('click', () => {
+        previousButton?.addEventListener('click', () => {
             showSlide(activeSlide - 1);
             startAutoplay();
         });
-        nextButton.addEventListener('click', () => {
+        nextButton?.addEventListener('click', () => {
             showSlide(activeSlide + 1);
             startAutoplay();
         });

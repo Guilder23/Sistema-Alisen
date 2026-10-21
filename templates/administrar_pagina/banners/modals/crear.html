@@ -1,0 +1,26 @@
+<div class="modal-header bg-primary text-white">
+    <h5 class="modal-title"><i class="fas fa-image mr-2"></i>Nuevo banner</h5>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+</div>
+<form method="post" action="{{ action }}" enctype="multipart/form-data" data-modal-form>
+    {% csrf_token %}
+    <div class="modal-body">
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+        <div class="form-group {% if field.field.widget.input_type == 'checkbox' %}form-check{% endif %}">
+            {% if field.field.widget.input_type == 'checkbox' %}
+                {{ field }} <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% else %}
+                <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                {{ field }}
+            {% endif %}
+            {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Crear banner</button>
+    </div>
+</form>

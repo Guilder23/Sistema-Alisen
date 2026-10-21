@@ -1,0 +1,17 @@
+<div class="modal-header bg-info text-white">
+    <h5 class="modal-title"><i class="fas fa-eye mr-2"></i>{{ banner.titulo }}</h5>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+</div>
+<div class="modal-body">
+    <img src="{{ banner.imagen.url }}" alt="{{ banner.texto_alternativo }}" class="banner-detalle mb-3">
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Texto alternativo</dt><dd class="col-sm-8">{{ banner.texto_alternativo }}</dd>
+        <dt class="col-sm-4">Enlace</dt><dd class="col-sm-8">{% if banner.enlace %}<a href="{{ banner.enlace }}" target="_blank" rel="noopener noreferrer">{{ banner.enlace }}</a>{% else %}Sin enlace{% endif %}</dd>
+        <dt class="col-sm-4">Orden</dt><dd class="col-sm-8">{{ banner.orden }}</dd>
+        <dt class="col-sm-4">Estado</dt><dd class="col-sm-8">{% if banner.publicado %}Publicado{% else %}Borrador{% endif %}</dd>
+    </dl>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+    <a href="{% url 'administrar_pagina:editar_banner' banner.pk %}" data-modal-url="{% url 'administrar_pagina:editar_banner' banner.pk %}" class="btn btn-warning"><i class="fas fa-edit mr-1"></i> Editar</a>
+</div>

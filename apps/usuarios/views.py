@@ -11,6 +11,8 @@ from django.core.paginator import Paginator
 from decimal import Decimal
 from apps.productos.models import Categoria, Producto
 from apps.subcategorias.models import Subcategoria
+from apps.administrar_pagina.models import Banner
+from apps.administrar_pagina.models import TiendaPagina
 from .models import PerfilUsuario
 
 
@@ -39,6 +41,7 @@ def index(request):
 
     productos = productos.order_by('-fecha_creacion')
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    banners = Banner.objects.filter(publicado=True).order_by('orden', 'id')
 
     for p in productos:
         if p.en_oferta and p.precio_unidad_oferta and p.precio_unidad:
@@ -57,6 +60,8 @@ def index(request):
         'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
+        'banners': banners,
+        'sin_banners_configurados': not Banner.objects.exists(),
     }
     return render(request, 'inicio/index.html', context)
 
@@ -441,6 +446,12 @@ def nosotros(request):
     buscar = request.GET.get('buscar', '').strip()
     categoria = request.GET.get('categoria', '').strip()
     categorias = Categoria.objects.filter(activo=True).order_by('nombre')
+    tiendas_publicadas = TiendaPagina.objects.filter(
+        publicado=True,
+        tienda__estado='activo',
+    ).select_related('tienda', 'tienda__almacen')
+    tienda_principal = tiendas_publicadas.filter(tienda__tipo='principal').first()
+    tiendas_sucursal = tiendas_publicadas.exclude(tienda__tipo='principal')
     context = {
         'categorias': categorias,
         'buscar': buscar,
@@ -451,6 +462,8 @@ def nosotros(request):
         'tienda_whatsapp': '+59168504229',
         'tienda_email': 'contacto@alicen.com',
         'tienda_direccion': 'La Paz, Bolivia',
+        'tienda_principal': tienda_principal,
+        'tiendas_sucursal': tiendas_sucursal,
     }
     return render(request, 'inicio/nosotros.html', context)
 

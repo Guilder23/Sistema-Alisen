@@ -1,0 +1,55 @@
+<div class="modal-header bg-primary text-white">
+    <h5 class="modal-title"><i class="fas fa-store mr-2"></i>{{ titulo }}</h5>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+</div>
+<form method="post" action="{{ action }}" enctype="multipart/form-data" data-modal-form>
+    {% csrf_token %}
+    <div class="modal-body tienda-formulario">
+        <p class="text-muted">Selecciona una tienda existente; dirección, tipo y mapa se reutilizan desde Gestión de tiendas.</p>
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-group">
+            <label for="{{ form.tienda.id_for_label }}">{{ form.tienda.label }} <span class="text-danger">*</span></label>
+            {{ form.tienda }}
+            {% for error in form.tienda.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <div id="tienda-seleccionada" class="alert alert-light border tienda-datos-seleccionada" hidden>
+            <img id="tienda-preview-foto" alt="" hidden>
+            <h6 id="tienda-preview-nombre" class="mb-2"></h6>
+            <p class="mb-1"><strong>Tipo:</strong> <span id="tienda-preview-tipo"></span></p>
+            <p class="mb-1"><strong>Dirección:</strong> <span id="tienda-preview-direccion"></span></p>
+            <p class="mb-1"><strong>Estado:</strong> <span id="tienda-preview-estado"></span></p>
+            <p class="mb-1"><strong>Descripción registrada:</strong> <span id="tienda-preview-descripcion"></span></p>
+            <a id="tienda-preview-maps" href="#" target="_blank" rel="noopener noreferrer" hidden>Ver ubicación registrada en Google Maps</a>
+        </div>
+        <div class="form-group">
+            <label for="{{ form.imagen.id_for_label }}">{{ form.imagen.label }}</label>
+            {{ form.imagen }}
+            <small class="form-text text-muted">Opcional. Si no cargas una foto, se conservará la de Gestión de tiendas.</small>
+            {% for error in form.imagen.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+            {{ form.descripcion }}
+            <small class="form-text text-muted">Opcional. Si queda vacío, se usará la descripción de Gestión de tiendas.</small>
+            {% for error in form.descripcion.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.orden.id_for_label }}">{{ form.orden.label }}</label>
+                {{ form.orden }}
+                {% for error in form.orden.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="form-group col-md-8 d-flex align-items-center pt-3">
+                <div class="form-check">
+                    {{ form.publicado }}
+                    <label class="form-check-label" for="{{ form.publicado.id_for_label }}">{{ form.publicado.label }}</label>
+                </div>
+            </div>
+        </div>
+        {{ tiendas_json|json_script:"tiendas-pagina-data" }}
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i> {{ boton }}</button>
+    </div>
+</form>

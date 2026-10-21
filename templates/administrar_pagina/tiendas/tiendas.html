@@ -1,0 +1,107 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Gestión de tiendas de página{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/administrar_pagina/tiendas/tiendas.css' %}">
+<link rel="stylesheet" href="{% static 'css/administrar_pagina/tiendas/modals/crear.css' %}">
+<link rel="stylesheet" href="{% static 'css/administrar_pagina/tiendas/modals/ver.css' %}">
+<link rel="stylesheet" href="{% static 'css/administrar_pagina/tiendas/modals/editar.css' %}">
+<link rel="stylesheet" href="{% static 'css/administrar_pagina/tiendas/modals/eliminar.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title"><i class="fas fa-store"></i> Gestión de tiendas</h1>
+            <p class="page-subtitle">Elige tiendas existentes y configura cómo se muestran en Nosotros.</p>
+        </div>
+        <div class="d-flex flex-wrap" style="gap:.5rem">
+            <a href="{% url 'administrar_pagina:listar_banners' %}" class="btn btn-outline-light">
+                <i class="fas fa-images"></i> Banners
+            </a>
+            <a href="{% url 'administrar_pagina:crear_tienda_pagina' %}" data-modal-url="{% url 'administrar_pagina:crear_tienda_pagina' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus"></i> Añadir tienda
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        La tienda marcada como <strong>Principal</strong> se muestra destacada. Las tiendas de tipo
+        <strong>Sucursal</strong> y <strong>Punto de Venta</strong> aparecen en tarjetas. Los datos de
+        dirección, tipo y Google Maps se toman de Gestión de tiendas.
+    </div>
+
+    <div class="card card-tabla">
+        <div class="table-responsive">
+            <table class="table table-sm tabla-tiendas-pagina mb-0">
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Tienda</th>
+                        <th>Tipo</th>
+                        <th>Ciudad</th>
+                        <th>Orden</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tienda_pagina in tiendas_pagina %}
+                    <tr>
+                        <td>
+                            {% if tienda_pagina.foto_publica %}
+                            <img src="{{ tienda_pagina.foto_publica.url }}" alt="{{ tienda_pagina.tienda.nombre }}" class="banner-miniatura">
+                            {% else %}
+                            <span class="text-muted">Sin foto</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ tienda_pagina.tienda.nombre }}</td>
+                        <td>{{ tienda_pagina.tipo_tienda }}</td>
+                        <td>{{ tienda_pagina.tienda.ciudad }}</td>
+                        <td>{{ tienda_pagina.orden }}</td>
+                        <td>
+                            {% if tienda_pagina.publicado and tienda_pagina.tienda.estado == 'activo' %}
+                            <span class="status-pill status-published">Publicada</span>
+                            {% else %}
+                            <span class="status-pill {% if tienda_pagina.tienda.estado != 'activo' %}status-inactive{% else %}status-draft{% endif %}">{% if tienda_pagina.tienda.estado != 'activo' %}Inactiva{% else %}Borrador{% endif %}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="table-actions">
+                                <a href="{% url 'administrar_pagina:ver_tienda_pagina' tienda_pagina.pk %}" data-modal-url="{% url 'administrar_pagina:ver_tienda_pagina' tienda_pagina.pk %}" class="btn btn-info btn-sm" title="Ver" aria-label="Ver"><i class="fas fa-eye"></i></a>
+                                <a href="{% url 'administrar_pagina:editar_tienda_pagina' tienda_pagina.pk %}" data-modal-url="{% url 'administrar_pagina:editar_tienda_pagina' tienda_pagina.pk %}" class="btn btn-warning btn-sm" title="Editar" aria-label="Editar"><i class="fas fa-edit"></i></a>
+                                <form method="post" action="{% url 'administrar_pagina:cambiar_publicacion_tienda' tienda_pagina.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn {% if tienda_pagina.publicado %}btn-secondary{% else %}btn-success{% endif %} btn-sm" title="{% if tienda_pagina.publicado %}Retirar{% else %}Publicar{% endif %}" aria-label="{% if tienda_pagina.publicado %}Retirar{% else %}Publicar{% endif %}">
+                                        <i class="fas {% if tienda_pagina.publicado %}fa-eye-slash{% else %}fa-globe{% endif %}"></i>
+                                    </button>
+                                </form>
+                                <a href="{% url 'administrar_pagina:eliminar_tienda_pagina' tienda_pagina.pk %}" data-modal-url="{% url 'administrar_pagina:eliminar_tienda_pagina' tienda_pagina.pk %}" class="btn btn-danger btn-sm" title="Quitar de la página" aria-label="Quitar de la página"><i class="fas fa-trash-alt"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">Todavía no has elegido tiendas para mostrar en la página.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="administrarPaginaModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="{% static 'js/administrar_pagina/tiendas/tiendas.js' %}"></script>
+<script src="{% static 'js/administrar_pagina/tiendas/modals/crear.js' %}"></script>
+<script src="{% static 'js/administrar_pagina/tiendas/modals/editar.js' %}"></script>
+<script src="{% static 'js/administrar_pagina/tiendas/modals/ver.js' %}"></script>
+<script src="{% static 'js/administrar_pagina/tiendas/modals/eliminar.js' %}"></script>
+{% endblock %}
