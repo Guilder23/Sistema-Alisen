@@ -162,18 +162,18 @@
     <span class="bottom-nav-label">Nosotros</span>
   </a>
 
-  <a href="{% url 'index' %}" class="bottom-nav-item{% if request.resolver_match.url_name == 'index' %} active{% endif %}"{% if request.resolver_match.url_name == 'index' %} aria-current="page"{% endif %} id="bottomNavInicio" title="Inicio">
+  <a href="{% if 'mayorista' in request.path %}{% url 'tienda_mayorista' %}{% else %}{% url 'index' %}{% endif %}" class="bottom-nav-item{% if request.resolver_match.url_name == 'index' %} active{% endif %}"{% if request.resolver_match.url_name == 'index' %} aria-current="page"{% endif %} id="bottomNavInicio" title="Inicio">
     <div class="bottom-nav-icon-wrap">
       <i class="fas fa-home"></i>
     </div>
     <span class="bottom-nav-label">Inicio</span>
   </a>
 
-  <a href="{% url 'tienda' %}" class="bottom-nav-item{% if request.resolver_match.url_name == 'tienda' or request.resolver_match.url_name == 'tienda_mayorista' or request.resolver_match.url_name == 'product_detail' or request.resolver_match.url_name == 'product_detail_mayorista' %} active{% endif %}"{% if request.resolver_match.url_name == 'tienda' or request.resolver_match.url_name == 'tienda_mayorista' or request.resolver_match.url_name == 'product_detail' or request.resolver_match.url_name == 'product_detail_mayorista' %} aria-current="page"{% endif %} id="bottomNavTienda" title="Tienda">
+  <a href="{% if 'mayorista' in request.path %}{% url 'tienda_mayorista' %}{% else %}{% url 'tienda' %}{% endif %}" class="bottom-nav-item{% if 'mayorista' in request.path %} bottom-nav-mayorista{% endif %}{% if request.resolver_match.url_name == 'tienda' or request.resolver_match.url_name == 'tienda_mayorista' or request.resolver_match.url_name == 'product_detail' or request.resolver_match.url_name == 'product_detail_mayorista' %} active{% endif %}"{% if request.resolver_match.url_name == 'tienda' or request.resolver_match.url_name == 'tienda_mayorista' or request.resolver_match.url_name == 'product_detail' or request.resolver_match.url_name == 'product_detail_mayorista' %} aria-current="page"{% endif %} id="bottomNavTienda" title="Tienda">
     <div class="bottom-nav-icon-wrap">
       <i class="fas fa-store"></i>
     </div>
-    <span class="bottom-nav-label">{% if 'mayorista' in request.path %}Minorista{% else %}Tienda{% endif %}</span>
+    <span class="bottom-nav-label">{% if 'mayorista' in request.path %}Mayorista{% else %}Tienda{% endif %}</span>
   </a>
 
   <a href="{% url 'preguntas_frecuentes' %}" class="bottom-nav-item{% if request.resolver_match.url_name == 'preguntas_frecuentes' %} active{% endif %}"{% if request.resolver_match.url_name == 'preguntas_frecuentes' %} aria-current="page"{% endif %} id="bottomNavFaq" title="Preguntas frecuentes">

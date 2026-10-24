@@ -58,34 +58,88 @@ document.addEventListener('DOMContentLoaded', function() {
         startAutoplay();
     }
 
-    // Carrusel de Categorías (botones atrás/adelante)
+    // Carrusel infinito de categorías: 1 2 3 1 2 3 ...
     const categoriesTrack = document.getElementById('categoriesTrack');
     const catPrevBtn = document.getElementById('catPrevBtn');
     const catNextBtn = document.getElementById('catNextBtn');
 
     if (categoriesTrack && catPrevBtn && catNextBtn) {
-        const getScrollStep = () => Math.max(categoriesTrack.clientWidth * 0.7, 150);
+        const originals = Array.from(categoriesTrack.querySelectorAll('.category-card-slide'));
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let setWidth = 0;
+        let looping = false;
+        let timer;
 
-        const updateNavButtons = () => {
-            const maxScroll = categoriesTrack.scrollWidth - categoriesTrack.clientWidth - 1;
-            const noOverflow = maxScroll <= 0;
-            catPrevBtn.classList.toggle('is-hidden', noOverflow || categoriesTrack.scrollLeft <= 1);
-            catNextBtn.classList.toggle('is-hidden', noOverflow || categoriesTrack.scrollLeft >= maxScroll);
+        const jump = (left) => categoriesTrack.scrollTo({ left, behavior: 'instant' });
+
+        const setup = () => {
+            categoriesTrack.querySelectorAll('[data-clone]').forEach(c => c.remove());
+            looping = false;
+            categoriesTrack.classList.remove('is-looping');
+            categoriesTrack.scrollLeft = 0;
+            if (originals.length < 2 || categoriesTrack.scrollWidth <= categoriesTrack.clientWidth + 1) {
+                catPrevBtn.classList.add('is-hidden');
+                catNextBtn.classList.add('is-hidden');
+                return;
+            }
+            const gap = parseFloat(getComputedStyle(categoriesTrack).columnGap) || 10;
+            setWidth = originals.reduce((sum, c) => sum + c.getBoundingClientRect().width + gap, 0);
+            const copies = Math.ceil(categoriesTrack.clientWidth / setWidth) + 1;
+            for (let i = 0; i < copies; i++) {
+                originals.forEach(card => {
+                    const clone = card.cloneNode(true);
+                    clone.dataset.clone = 'true';
+                    clone.setAttribute('aria-hidden', 'true');
+                    clone.tabIndex = -1;
+                    categoriesTrack.appendChild(clone);
+                });
+            }
+            categoriesTrack.classList.add('is-looping');
+            catPrevBtn.classList.remove('is-hidden');
+            catNextBtn.classList.remove('is-hidden');
+            looping = true;
         };
 
-        catPrevBtn.addEventListener('click', () => {
-            categoriesTrack.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
-        });
+        const step = () => {
+            const card = categoriesTrack.querySelector('.category-card-slide');
+            const gap = parseFloat(getComputedStyle(categoriesTrack).columnGap) || 10;
+            return card.getBoundingClientRect().width + gap;
+        };
 
-        catNextBtn.addEventListener('click', () => {
-            categoriesTrack.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
-        });
+        const normalize = () => {
+            if (!looping) return;
+            if (categoriesTrack.scrollLeft >= setWidth) jump(categoriesTrack.scrollLeft - setWidth);
+        };
 
-        categoriesTrack.addEventListener('scroll', updateNavButtons);
-        window.addEventListener('resize', updateNavButtons);
-        updateNavButtons();
+        const move = (dir) => {
+            if (!looping) return;
+            if (dir < 0 && categoriesTrack.scrollLeft < step()) jump(categoriesTrack.scrollLeft + setWidth);
+            categoriesTrack.scrollBy({ left: dir * step(), behavior: 'smooth' });
+        };
+
+        const stop = () => window.clearInterval(timer);
+        const start = () => {
+            stop();
+            if (looping && !reduced && !document.hidden) timer = window.setInterval(() => move(1), 2500);
+        };
+
+        catPrevBtn.addEventListener('click', () => { move(-1); start(); });
+        catNextBtn.addEventListener('click', () => { move(1); start(); });
+        categoriesTrack.addEventListener('scroll', () => {
+            window.clearTimeout(categoriesTrack._normTimer);
+            categoriesTrack._normTimer = window.setTimeout(normalize, 120);
+        }, { passive: true });
+        ['mouseenter', 'touchstart', 'focusin'].forEach(evt => categoriesTrack.addEventListener(evt, stop, { passive: true }));
+        ['mouseleave', 'touchend', 'focusout'].forEach(evt => categoriesTrack.addEventListener(evt, start, { passive: true }));
+        document.addEventListener('visibilitychange', start);
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(() => { setup(); start(); }, 200);
+        });
+        setup();
+        start();
     }
-
     const getCart = () => {
         try {
             return JSON.parse(localStorage.getItem('alicen_cart') || '{}');

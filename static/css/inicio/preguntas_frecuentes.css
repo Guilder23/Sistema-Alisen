@@ -198,9 +198,11 @@
 .faq-heading {
     display: flex;
     min-height: 132px;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    justify-content: center;
+    gap: 0.85rem;
+    text-align: center;
     padding: 1rem 1.3rem;
     background: #071b3d;
     color: #ffffff;
@@ -226,9 +228,10 @@
 
 .faq-search {
     display: flex;
-    width: min(100%, 360px);
+    width: min(100%, 420px);
     min-height: 42px;
-    flex: 0 0 330px;
+    flex: 0 0 auto;
+    margin: 0 auto;
     align-items: center;
     gap: 0.55rem;
     padding: 0 0.75rem;
@@ -430,7 +433,7 @@
     .faq-delivery-benefits { grid-template-columns: 1fr; }
     .faq-delivery-benefits > article { min-height: 78px; justify-content: flex-start; padding-left: 1rem; }
     .faq-benefit-icon { width: 52px; height: 52px; flex-basis: 52px; font-size: 1.5rem; }
-    .faq-heading { align-items: stretch; flex-direction: column; gap: 0.75rem; padding: 1rem; }
+    .faq-heading { align-items: center; flex-direction: column; gap: 0.75rem; padding: 1rem; }
     .faq-heading h2 { font-size: 1.6rem; }
     .faq-search { width: 100%; min-height: 40px; flex: 0 0 auto; }
     .faq-accordion-grid { grid-template-columns: 1fr; gap: 0; padding: 0.2rem 0.8rem 0.6rem; }

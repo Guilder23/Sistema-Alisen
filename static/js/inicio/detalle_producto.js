@@ -173,4 +173,70 @@ document.addEventListener('DOMContentLoaded', () => {
             updateGalleryCounter(activeIndex);
         }
     }
+
+    // Zoom de la imagen principal: hover en PC, toque y arrastre en celular
+    (function initProductZoom() {
+    const wrap = document.getElementById('galleryMainWrap');
+    if (!wrap) return;
+
+    const getImage = () => wrap.querySelector('.gallery-main-img');
+    const setOrigin = (img, clientX, clientY) => {
+        const rect = wrap.getBoundingClientRect();
+        const x = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
+        const y = Math.min(100, Math.max(0, ((clientY - rect.top) / rect.height) * 100));
+        img.style.transformOrigin = `${x}% ${y}%`;
+    };
+    const resetZoom = () => {
+        wrap.classList.remove('is-zoomed', 'is-panning');
+        const img = getImage();
+        if (img) img.style.transformOrigin = '50% 50%';
+    };
+
+    // Mouse (PC)
+    wrap.addEventListener('mouseenter', (e) => {
+        if (e.pointerType === 'touch') return;
+        const img = getImage();
+        if (!img) return;
+        setOrigin(img, e.clientX, e.clientY);
+        wrap.classList.add('is-zoomed');
+    });
+    wrap.addEventListener('mousemove', (e) => {
+        const img = getImage();
+        if (img && wrap.classList.contains('is-zoomed')) setOrigin(img, e.clientX, e.clientY);
+    });
+    wrap.addEventListener('mouseleave', resetZoom);
+
+    // Táctil (celular): tocar alterna el zoom y arrastrar mueve la imagen ampliada
+    let moved = false;
+    wrap.addEventListener('touchstart', (e) => {
+        moved = false;
+        if (wrap.classList.contains('is-zoomed') && e.touches.length === 1) {
+            wrap.classList.add('is-panning');
+        }
+    }, { passive: true });
+    wrap.addEventListener('touchmove', (e) => {
+        const img = getImage();
+        if (!img || !wrap.classList.contains('is-zoomed') || e.touches.length !== 1) return;
+        moved = true;
+        setOrigin(img, e.touches[0].clientX, e.touches[0].clientY);
+        e.preventDefault();
+    }, { passive: false });
+    wrap.addEventListener('touchend', (e) => {
+        wrap.classList.remove('is-panning');
+        const img = getImage();
+        if (moved || !img || !e.target.closest('.gallery-main-img')) return;
+        e.preventDefault();
+        if (wrap.classList.contains('is-zoomed')) {
+            resetZoom();
+        } else {
+            const touch = e.changedTouches[0];
+            setOrigin(img, touch.clientX, touch.clientY);
+            wrap.classList.add('is-zoomed');
+        }
+    });
+
+    // Al cambiar de miniatura se reinicia el zoom
+    const thumbs = document.getElementById('galleryThumbs');
+    thumbs?.addEventListener('click', resetZoom);
+    })();
 });
