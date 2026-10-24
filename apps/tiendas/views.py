@@ -140,6 +140,7 @@ def obtener_tienda(request, pk):
         'ciudad': tienda.ciudad,
         'departamento': tienda.departamento,
         'coordenadas': tienda.coordenadas or '',
+        'foto_url': tienda.foto.url if tienda.foto else '',
         'telefono': tienda.telefono or '',
         'estado': tienda.estado,
         'estado_display': tienda.get_estado_display(),

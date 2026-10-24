@@ -1,0 +1,19 @@
+<div class="modal-header bg-info text-white">
+    <h5 class="modal-title"><i class="fas fa-store mr-2"></i>{{ tienda_pagina.tienda.nombre }}</h5>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+</div>
+<div class="modal-body">
+    {% if tienda_pagina.foto_publica %}<img src="{{ tienda_pagina.foto_publica.url }}" alt="{{ tienda_pagina.tienda.nombre }}" class="tienda-foto-detalle mb-3">{% endif %}
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Tipo</dt><dd class="col-sm-8">{{ tienda_pagina.tipo_tienda }}</dd>
+        <dt class="col-sm-4">Dirección</dt><dd class="col-sm-8">{{ tienda_pagina.direccion_publica }}</dd>
+        <dt class="col-sm-4">Descripción</dt><dd class="col-sm-8">{{ tienda_pagina.descripcion_publica|default:'Sin descripción' }}</dd>
+        <dt class="col-sm-4">Google Maps</dt><dd class="col-sm-8">{% if tienda_pagina.enlace_google_maps %}<a href="{{ tienda_pagina.enlace_google_maps }}" target="_blank" rel="noopener noreferrer">Ver ubicación</a>{% else %}Sin enlace{% endif %}</dd>
+        <dt class="col-sm-4">Orden</dt><dd class="col-sm-8">{{ tienda_pagina.orden }}</dd>
+        <dt class="col-sm-4">Publicación</dt><dd class="col-sm-8">{% if tienda_pagina.publicado %}Publicada{% else %}Borrador{% endif %}</dd>
+    </dl>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+    <a href="{% url 'administrar_pagina:editar_tienda_pagina' tienda_pagina.pk %}" data-modal-url="{% url 'administrar_pagina:editar_tienda_pagina' tienda_pagina.pk %}" class="btn btn-warning"><i class="fas fa-edit mr-1"></i> Editar</a>
+</div>

@@ -22,9 +22,15 @@
     {% include 'componentes/navbarprincipal.html' %}
 
     <main class="index-main">
+        {% if banners or sin_banners_configurados %}
         <section class="home-carousel" id="homeCarousel" aria-label="Promociones principales">
             <div class="home-carousel-viewport">
                 <div class="home-carousel-track">
+                    {% for banner in banners %}
+                    <a class="home-carousel-slide{% if forloop.first %} is-active{% endif %}" href="{% if banner.enlace %}{{ banner.enlace }}{% else %}{% url 'tienda' %}{% endif %}" aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"{% if not forloop.first %} inert{% endif %}>
+                        <img src="{{ banner.imagen.url }}" alt="{{ banner.texto_alternativo }}" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+                    </a>
+                    {% empty %}
                     <a class="home-carousel-slide is-active" href="{% url 'tienda' %}" aria-hidden="false">
                         <img src="{% static 'img/Carrusel/carrusel1.png' %}" alt="Todo lo que buscas en un solo lugar, compra al detalle o por mayor" fetchpriority="high">
                     </a>
@@ -34,20 +40,30 @@
                     <a class="home-carousel-slide" href="{% url 'tienda' %}" aria-hidden="true" inert>
                         <img src="{% static 'img/Carrusel/carrusel3.png' %}" alt="Innovación y aventura, equípate para lo extraordinario" loading="lazy">
                     </a>
+                    {% endfor %}
                 </div>
+                {% if banners|length > 1 or sin_banners_configurados %}
                 <button type="button" class="home-carousel-arrow home-carousel-prev" aria-label="Imagen anterior">
                     <i class="fas fa-chevron-left" aria-hidden="true"></i>
                 </button>
                 <button type="button" class="home-carousel-arrow home-carousel-next" aria-label="Imagen siguiente">
                     <i class="fas fa-chevron-right" aria-hidden="true"></i>
                 </button>
+                {% endif %}
             </div>
+            {% if banners|length > 1 or sin_banners_configurados %}
             <div class="home-carousel-dots" role="group" aria-label="Seleccionar promoción">
+                {% for banner in banners %}
+                <button type="button"{% if forloop.first %} class="is-active" aria-current="true"{% else %} aria-current="false"{% endif %} aria-label="Mostrar promoción {{ forloop.counter }}"></button>
+                {% empty %}
                 <button type="button" class="is-active" aria-label="Mostrar promoción 1" aria-current="true"></button>
                 <button type="button" aria-label="Mostrar promoción 2" aria-current="false"></button>
                 <button type="button" aria-label="Mostrar promoción 3" aria-current="false"></button>
+                {% endfor %}
             </div>
+            {% endif %}
         </section>
+        {% endif %}
 
         <!-- Sección de Categorías Directa -->
         <section class="categories-section py-3 py-md-4" id="categorias">

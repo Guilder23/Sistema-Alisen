@@ -1,0 +1,15 @@
+<div class="modal-header bg-danger text-white">
+    <h5 class="modal-title"><i class="fas fa-trash-alt mr-2"></i>Eliminar banner</h5>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+</div>
+<form method="post" action="{% url 'administrar_pagina:eliminar_banner' banner.pk %}" data-modal-form data-confirm="¿Deseas eliminar este banner? Esta acción no se puede deshacer.">
+    {% csrf_token %}
+    <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar <strong>{{ banner.titulo }}</strong>?</p>
+        <img src="{{ banner.imagen.url }}" alt="{{ banner.texto_alternativo }}" class="banner-vista-previa">
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt mr-1"></i> Eliminar</button>
+    </div>
+</form>

@@ -115,23 +115,35 @@
                 <div class="about-operation-store">
                     <div class="about-section-heading">
                         <span class="about-heading-icon"><i class="fas fa-store" aria-hidden="true"></i></span>
-                        <div><h2 id="aboutOperationTitle">Nuestro centro de operación</h2><p>Tienda física - Casa Matriz</p></div>
+                        <div><h2 id="aboutOperationTitle">Nuestro centro de operación</h2><p>{% if tienda_principal %}{{ tienda_principal.tipo_tienda }} - {{ tienda_principal.tienda.nombre }}{% else %}Tienda física - Casa Matriz{% endif %}</p></div>
                     </div>
+                    {% if tienda_principal and tienda_principal.foto_publica %}
+                    <img class="about-operation-image" src="{{ tienda_principal.foto_publica.url }}" alt="{{ tienda_principal.tienda.nombre }}" loading="lazy">
+                    {% else %}
                     <img class="about-operation-image" src="{% static 'img/nosotros/operacion.png' %}" alt="Interior de la tienda Alicen Casa Matriz" loading="lazy">
+                    {% endif %}
                 </div>
                 <div class="about-operation-details">
                     <article class="about-contact-item">
                         <span class="about-contact-icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span>
-                        <div><h3>Dirección</h3><p>Av. Ayacucho entre Heroínas y General Acha<br>GALERÍA COCHABAMBA<br>Local 21A, 1er piso</p></div>
+                        <div><h3>Dirección</h3><p>{% if tienda_principal %}{{ tienda_principal.tienda.direccion }}<br>{{ tienda_principal.tienda.ciudad }}, {{ tienda_principal.tienda.departamento }}{% else %}Av. Ayacucho entre Heroínas y General Acha<br>GALERÍA COCHABAMBA<br>Local 21A, 1er piso{% endif %}</p></div>
                     </article>
+                    {% if not tienda_principal %}
                     <article class="about-contact-item">
                         <span class="about-contact-icon about-contact-icon-gold"><i class="far fa-clock" aria-hidden="true"></i></span>
                         <div><h3>Horario de atención</h3><p>Lunes a sábado<br>10:00 am a 7:00 pm</p></div>
                     </article>
+                    {% endif %}
+                    {% if tienda_principal and tienda_principal.enlace_google_maps %}
+                    <a class="about-map-link" href="{{ tienda_principal.enlace_google_maps }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i> Ver en Google Maps <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    {% elif not tienda_principal %}
                     <a class="about-map-link" href="https://maps.app.goo.gl/AexTuzzzauEvykfU8" target="_blank" rel="noopener noreferrer">
                         <i class="fas fa-map-marker-alt" aria-hidden="true"></i> Ver en Google Maps <i class="fas fa-chevron-right" aria-hidden="true"></i>
                     </a>
-                    <p class="about-operation-note"><i class="fas fa-quote-left" aria-hidden="true"></i> Conectamos a Bolivia con productos de calidad, atención cercana y oportunidades para crecer. Acompañamos a familias y emprendedores con opciones para cada necesidad, precios competitivos y compras seguras, al detalle o por mayor.</p>
+                    {% endif %}
+                    <p class="about-operation-note"><i class="fas fa-quote-left" aria-hidden="true"></i> {% if tienda_principal and tienda_principal.descripcion_publica %}{{ tienda_principal.descripcion_publica }}{% else %}Conectamos a Bolivia con productos de calidad, atención cercana y oportunidades para crecer. Acompañamos a familias y emprendedores con opciones para cada necesidad, precios competitivos y compras seguras, al detalle o por mayor.{% endif %}</p>
                 </div>
             </section>
 
@@ -141,22 +153,26 @@
                     <div><h2 id="aboutStoresTitle">Nuestras tiendas en Bolivia</h2><p>También nos encuentras en:</p></div>
                 </div>
                 <div class="about-store-grid">
-                    <article class="about-store-card">
-                        <img src="{% static 'img/nosotros/Cochabamba.png' %}" alt="Vista urbana de Cochabamba" loading="lazy">
-                        <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>Cochabamba</h3><span class="store-tag store-tag-blue">Casa Matriz</span></div>
-                    </article>
-                    <article class="about-store-card">
-                        <img src="{% static 'img/nosotros/LaPaz.png' %}" alt="Vista urbana de La Paz" loading="lazy">
-                        <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>La Paz</h3><span class="store-tag store-tag-green">Sucursal</span></div>
-                    </article>
-                    <article class="about-store-card">
-                        <img src="{% static 'img/nosotros/ElAlto.png' %}" alt="Vista urbana de El Alto" loading="lazy">
-                        <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>El Alto</h3><span class="store-tag store-tag-green">Sucursal</span></div>
-                    </article>
-                    <article class="about-store-card">
-                        <img src="{% static 'img/nosotros/SantaCruz.png' %}" alt="Vista urbana de Santa Cruz" loading="lazy">
-                        <div><i class="fas fa-map-marker-alt" aria-hidden="true"></i><h3>Santa Cruz</h3><span class="store-tag store-tag-green">Sucursal</span></div>
-                    </article>
+                    {% for tienda_pagina in tiendas_sucursal %}
+                    <button type="button" class="about-store-card about-store-card-button" data-toggle="modal" data-target="#modalTiendaPublica" data-tienda-nombre="{{ tienda_pagina.tienda.nombre }}" data-tienda-descripcion="{{ tienda_pagina.descripcion_publica|default:'Visítanos en esta ubicación.' }}" data-tienda-direccion="{{ tienda_pagina.direccion_publica }}" data-tienda-maps="{{ tienda_pagina.enlace_google_maps }}">
+                        {% if tienda_pagina.foto_publica %}
+                        <img src="{{ tienda_pagina.foto_publica.url }}" alt="{{ tienda_pagina.tienda.nombre }}" loading="lazy">
+                        {% elif 'Cochabamba' in tienda_pagina.tienda.ciudad %}
+                        <img src="{% static 'img/nosotros/Cochabamba.png' %}" alt="Vista urbana de {{ tienda_pagina.tienda.ciudad }}" loading="lazy">
+                        {% elif 'La Paz' in tienda_pagina.tienda.ciudad %}
+                        <img src="{% static 'img/nosotros/LaPaz.png' %}" alt="Vista urbana de {{ tienda_pagina.tienda.ciudad }}" loading="lazy">
+                        {% elif 'El Alto' in tienda_pagina.tienda.ciudad %}
+                        <img src="{% static 'img/nosotros/ElAlto.png' %}" alt="Vista urbana de {{ tienda_pagina.tienda.ciudad }}" loading="lazy">
+                        {% elif 'Santa Cruz' in tienda_pagina.tienda.ciudad %}
+                        <img src="{% static 'img/nosotros/SantaCruz.png' %}" alt="Vista urbana de {{ tienda_pagina.tienda.ciudad }}" loading="lazy">
+                        {% else %}
+                        <img src="{% static 'img/nosotros/fondo.png' %}" alt="{{ tienda_pagina.tienda.nombre }}" loading="lazy">
+                        {% endif %}
+                        <span class="about-store-card-info"><i class="fas fa-map-marker-alt" aria-hidden="true"></i><span class="about-store-card-name">{{ tienda_pagina.tienda.nombre }}</span><span class="store-tag {% if tienda_pagina.tienda.tipo == 'punto_venta' %}store-tag-blue{% else %}store-tag-green{% endif %}">{{ tienda_pagina.tipo_tienda }}</span></span>
+                    </button>
+                    {% empty %}
+                    <p class="about-stores-empty">Pronto encontrarás aquí nuestras sucursales y puntos de venta.</p>
+                    {% endfor %}
                 </div>
             </section>
 
@@ -230,6 +246,27 @@
         </div>
     </main>
 
+    <div class="modal fade" id="modalTiendaPublica" tabindex="-1" role="dialog" aria-labelledby="modalTiendaPublicaTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTiendaPublicaTitulo"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalTiendaPublicaDireccion" class="text-muted mb-2"></p>
+                    <p id="modalTiendaPublicaDescripcion" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <a id="modalTiendaPublicaMaps" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-map-marker-alt mr-1" aria-hidden="true"></i> Ver ubicación en Google Maps
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {% include 'componentes/footerprincipal.html' %}
 
     <!-- Scripts -->
@@ -237,5 +274,6 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/componentes/navbarprincipal.js' %}"></script>
+    <script src="{% static 'js/inicio/nosotros.js' %}"></script>
 </body>
 </html>

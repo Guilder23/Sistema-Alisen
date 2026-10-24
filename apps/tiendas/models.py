@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from urllib.parse import quote, urlsplit
 
 class Tienda(models.Model):
     """Modelo para gestión de tiendas físicas"""
@@ -37,6 +38,13 @@ class Tienda(models.Model):
         verbose_name='Link Google Maps',
         help_text='Pega aquí el enlace de Google Maps de la ubicación',
     )
+    foto = models.ImageField(
+        upload_to='tiendas/',
+        blank=True,
+        null=True,
+        verbose_name='Foto para la página',
+        help_text='Imagen de la tienda que se mostrará en la página Nosotros.',
+    )
     telefono = models.CharField(
         max_length=20,
         blank=True,
@@ -72,3 +80,13 @@ class Tienda(models.Model):
     def nombre_almacen(self):
         """Retorna el nombre del almacén asociado"""
         return self.almacen.nombre if self.almacen else 'Sin almacén'
+
+    @property
+    def enlace_google_maps(self):
+        ubicacion = (self.coordenadas or '').strip()
+        if not ubicacion:
+            return ''
+        parsed = urlsplit(ubicacion)
+        if parsed.scheme in {'http', 'https'} and parsed.netloc:
+            return ubicacion
+        return f'https://www.google.com/maps/search/?api=1&query={quote(ubicacion)}'

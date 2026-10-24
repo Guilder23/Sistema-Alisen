@@ -244,6 +244,32 @@
                 <span class="sidebar-section-title">ADMINISTRACIÓN</span>
             </li>
 
+            <li class="sidebar-item sidebar-item-with-submenu">
+                <a
+                    href="{% url 'administrar_pagina:listar_banners' %}"
+                    class="sidebar-link sidebar-link-toggle {% if 'administrar_pagina' in request.resolver_match.app_names %}active{% endif %}"
+                    title="Administrar página"
+                    data-submenu-toggle="submenuAdministrarPagina"
+                    aria-expanded="{% if 'administrar_pagina' in request.resolver_match.app_names %}true{% else %}false{% endif %}"
+                >
+                    <i class="fas fa-file-image"></i>
+                    <span>Administrar página</span>
+                    <i class="fas fa-chevron-down submenu-chevron"></i>
+                </a>
+                <ul id="submenuAdministrarPagina" class="sidebar-submenu {% if 'administrar_pagina' in request.resolver_match.app_names %}open{% endif %}">
+                    <li class="sidebar-submenu-item">
+                        <a href="{% url 'administrar_pagina:listar_banners' %}" class="sidebar-submenu-link {% if request.resolver_match.url_name == 'listar_banners' or 'banner' in request.resolver_match.url_name %}active{% endif %}">
+                            Gestión de banners
+                        </a>
+                    </li>
+                    <li class="sidebar-submenu-item">
+                        <a href="{% url 'administrar_pagina:listar_tiendas_pagina' %}" class="sidebar-submenu-link {% if 'tienda_pagina' in request.resolver_match.url_name or request.resolver_match.url_name == 'listar_tiendas_pagina' %}active{% endif %}">
+                            Gestión de tiendas
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <!-- Usuarios - Solo Administradores -->
             {% if user.is_superuser %}
             <li class="sidebar-item">
