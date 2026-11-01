@@ -264,28 +264,6 @@ def generar_pdf_venta_completo(venta):
         fontName='Helvetica'
     )
     
-# ===== SECCIÓN 0: HEADER CON LOGO =====
-
-# Crear logo
-    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logoAlmacen.png')
-
-    if os.path.exists(logo_path):
-        try:
-            logo = _cargar_imagen_pdf_desde_ruta(
-                logo_path,
-                width=1.1 * inch,
-                height=1.1 * inch
-            )
-
-            if not logo:
-                logo = Paragraph("<b>ALMAZEN</b>", style_empresa_nombre)
-
-        except Exception:
-            logo = Paragraph("<b>ALMAZEN</b>", style_empresa_nombre)
-
-    else:
-        logo = Paragraph("<b>ALMAZEN</b>", style_empresa_nombre)
-
 # ===== DATOS GENERALES =====
 
     titulo = "COMPROBANTE DE VENTA"
@@ -343,8 +321,10 @@ def generar_pdf_venta_completo(venta):
     )
 
 # ===== CELDAS =====
-    logo_cell = logo
-    title_cell = Paragraph(titulo, style_titulo_small)
+    title_cell = [
+        Spacer(1, 0.55 * inch),
+        Paragraph(titulo, style_titulo_small),
+    ]
     info_cell = Paragraph(info_general, style_encabezado)
 
 # =========================================================
@@ -355,7 +335,7 @@ def generar_pdf_venta_completo(venta):
 
     header_top = Table(
         [[
-            logo_cell,
+            '',
             title_cell,
             ''
         ]],
@@ -367,13 +347,6 @@ def generar_pdf_venta_completo(venta):
     )
 
     header_top.setStyle(TableStyle([
-
-        # ===== LOGO =====
-        ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (0, 0), 0),
-        ('RIGHTPADDING', (0, 0), (0, 0), 10),
-        ('TOPPADDING', (0, 0), (0, 0), 0),
-        ('BOTTOMPADDING', (0, 0), (0, 0), 0),
 
         # ===== TÍTULO =====
         ('VALIGN', (1, 0), (1, 0), 'MIDDLE'),
@@ -445,22 +418,22 @@ def generar_pdf_venta_completo(venta):
 
     ancho_tabla = doc.width
     col_widths = [
-        ancho_tabla * 0.12,  # Foto
-        ancho_tabla * 0.11,  # Código
-        ancho_tabla * 0.22,  # Detalle Producto
-        ancho_tabla * 0.10,  # Origen
-        ancho_tabla * 0.16,  # Detalle
+        ancho_tabla * 0.09,  # Foto
+        ancho_tabla * 0.10,  # Código
+        ancho_tabla * 0.18,  # Nombre
+        ancho_tabla * 0.09,  # Origen
+        ancho_tabla * 0.10,  # Detalle
         ancho_tabla * 0.08,  # Cantidad
         ancho_tabla * 0.09,  # P. Unitario
         ancho_tabla * 0.09,  # Subtotal bruto
         ancho_tabla * 0.09,  # Descuento
-        ancho_tabla * 0.10,  # Subtotal real
+        ancho_tabla * 0.09,  # Subtotal real
     ]
 
     datos_tabla = [[
         Paragraph('Foto', style_header_cell),
         Paragraph('Codigo', style_header_cell),
-        Paragraph('Detalle Producto', style_header_cell),
+        Paragraph('Nombre', style_header_cell),
         Paragraph('Origen', style_header_cell),
         Paragraph('Detalle', style_header_cell),
         Paragraph('Cantidad', style_header_cell),
@@ -486,7 +459,7 @@ def generar_pdf_venta_completo(venta):
 
         # 1) Leer desde el storage del ImageField
         try:
-            img = _cargar_imagen_pdf_desde_file(foto, width=0.50 * inch, height=0.50 * inch)
+            img =             _cargar_imagen_pdf_desde_file(foto, width=0.35 * inch, height=0.35 * inch)
             if img:
                 imagen_cache[producto_id] = img
                 return img
@@ -505,7 +478,7 @@ def generar_pdf_venta_completo(venta):
             posibles_rutas.append(os.path.join(settings.MEDIA_ROOT, foto.name))
 
         for ruta_foto in posibles_rutas:
-            img = _cargar_imagen_pdf_desde_ruta(ruta_foto, width=0.50 * inch, height=0.50 * inch)
+            img = _cargar_imagen_pdf_desde_ruta(ruta_foto, width=0.35 * inch, height=0.35 * inch)
             if img:
                 imagen_cache[producto_id] = img
                 return img
@@ -531,14 +504,14 @@ def generar_pdf_venta_completo(venta):
         foto = resolver_imagen_producto(detalle.producto)
 
         codigo = str(detalle.producto.codigo or 'N/A')[:15]
-        descripcion = str(detalle.producto.descripcion or '-')
+        nombre_producto = str(detalle.producto.nombre or '-')
         origen = str(obtener_label_tipo_vendedor_pdf(tipo_vendedor) or '-')
         detalle_texto = str(detalle_linea or '-')
 
         datos_tabla.append([
             foto,
             Paragraph(escape(codigo), style_cell_left),
-            Paragraph(escape(descripcion), style_cell_left),
+            Paragraph(escape(nombre_producto), style_cell_left),
             Paragraph(escape(origen), style_cell_center),
             Paragraph(escape(detalle_texto), style_cell_left),
             Paragraph(str(cantidad), style_cell_center),
@@ -563,7 +536,7 @@ def generar_pdf_venta_completo(venta):
 
         # Alineaciones cuerpo
         ('ALIGN', (0, 1), (0, -1), 'CENTER'),   # Foto
-        ('ALIGN', (1, 1), (2, -1), 'LEFT'),     # Código, Detalle Producto
+        ('ALIGN', (1, 1), (2, -1), 'LEFT'),     # Código, Nombre
         ('ALIGN', (3, 1), (3, -1), 'CENTER'),   # Origen
         ('ALIGN', (4, 1), (4, -1), 'LEFT'),     # Detalle
         ('ALIGN', (5, 1), (5, -1), 'CENTER'),   # Cantidad
@@ -842,7 +815,8 @@ def generar_pdf_venta_completo(venta):
     try:
         doc.build(elements)
         buffer.seek(0)
-        return buffer
+        from .pdf_template import aplicar_plantilla_comprobante
+        return aplicar_plantilla_comprobante(buffer)
     except Exception as e:
         raise Exception(f"Error al construir PDF: {str(e)}")
 

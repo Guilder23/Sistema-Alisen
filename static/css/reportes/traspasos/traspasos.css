@@ -3,6 +3,18 @@
     margin-top: 0.5rem;
 }
 
+.page-header .page-title {
+    color: #2c3e50 !important;
+}
+
+.page-header .page-title i {
+    color: #4e73df !important;
+}
+
+.page-header .page-subtitle {
+    color: #6c757d !important;
+}
+
 .resumen-row {
     margin-top: 1rem;
 }

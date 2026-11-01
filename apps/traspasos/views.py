@@ -684,22 +684,6 @@ def generar_pdf_traspaso(request, id):
     table_value_style = ParagraphStyle('TableValue', parent=styles['Normal'], fontName='Helvetica', fontSize=9, textColor=colors.HexColor('#0f172a'))
     table_quantity_style = ParagraphStyle('TableQuantity', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#0f172a'), alignment=TA_RIGHT)
 
-    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logoAlmacen.png')
-    logo = None
-    if os.path.exists(logo_path):
-        try:
-            logo = RLImage(logo_path, width=0.75*inch, height=0.75*inch)
-        except Exception:
-            logo = None
-
-    company_name = Paragraph('ALMAZEN', ParagraphStyle('CompanyTitle', parent=styles['Heading1'], fontSize=18, textColor=colors.HexColor('#111827'), fontName='Helvetica-Bold'))
-    company_tagline = Paragraph('Importadora por mayor y menor', ParagraphStyle('CompanyTagline', parent=styles['Normal'], fontSize=8, textColor=colors.HexColor('#4b5563'), italic=True))
-
-    intro_table = Table([[logo or '', [company_name, company_tagline]]], colWidths=[0.9*inch, 5.6*inch])
-    intro_table.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'MIDDLE'), ('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 0), ('BOTTOMPADDING', (0, 0), (-1, -1), 0), ('TOPPADDING', (0, 0), (-1, -1), 0)]))
-    elements.append(intro_table)
-    elements.append(Spacer(1, 0.08*inch))
-
     elements.append(Paragraph('COMPROBANTE DE TRASPASO', ParagraphStyle('DocTitle', parent=styles['Heading1'], fontSize=18, alignment=TA_CENTER, textColor=colors.HexColor('#111827'), fontName='Helvetica-Bold')))
     elements.append(Spacer(1, 0.18*inch))
 
@@ -856,6 +840,8 @@ def generar_pdf_traspaso(request, id):
     doc.build(elements)
     buffer.seek(0)
 
+    from apps.ventas.pdf_template import aplicar_plantilla_comprobante
+    buffer = aplicar_plantilla_comprobante(buffer, desplazamiento_vertical=-65)
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="traspaso_{traspaso.codigo}.pdf"'
     return response

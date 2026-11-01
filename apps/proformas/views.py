@@ -27,6 +27,122 @@ from apps.inventario.models import Inventario
 from apps.productos.models import Producto
 
 
+def _generar_pdf_proforma_diseno(proforma):
+    from reportlab.pdfgen.canvas import Canvas
+    from reportlab.lib.utils import ImageReader
+    from apps.ventas.pdf_template import aplicar_plantilla_comprobante
+
+    buffer = BytesIO()
+    canvas = Canvas(buffer, pagesize=letter)
+    azul = colors.HexColor('#0b2947')
+    gris = colors.HexColor('#9aa8b5')
+    ancho_tabla = 582
+    x_tabla = 15
+    y_tabla = 535
+    alto_fila = 38
+    columnas = [58, 112, 64, 59, 58, 73, 74, 84]
+    encabezados = [
+        'Foto', 'Producto', 'Modalidad', 'Cantidad',
+        'Precio', 'Subtotal', 'Descuento', 'Subtotal real',
+    ]
+
+    canvas.setFillColor(azul)
+    canvas.setFont('Helvetica-Bold', 19)
+    canvas.drawCentredString(306, 680, f'Proforma {proforma.codigo}')
+    canvas.setStrokeColor(colors.HexColor('#5b6876'))
+    canvas.line(188, 666, 424, 666)
+    canvas.setStrokeColor(colors.HexColor('#f4b51b'))
+    canvas.line(277, 666, 327, 666)
+
+    canvas.setFont('Helvetica-Bold', 9)
+    datos = [
+        f'Fecha: {proforma.fecha_elaboracion.strftime("%d/%m/%Y %H:%M")}',
+        f'Cliente: {proforma.cliente}',
+        f'NIT: {proforma.nit or "-"}',
+        f'Teléfono: {proforma.telefono or "-"}',
+        f'Razón social: {proforma.razon_social or "-"}',
+    ]
+    for indice, dato in enumerate(datos):
+        canvas.drawString(18, 638 - (indice * 12), dato)
+
+    canvas.setFont('Helvetica-Bold', 7.5)
+    x_actual = x_tabla
+    for encabezado, ancho in zip(encabezados, columnas):
+        canvas.setFillColor(azul)
+        canvas.rect(x_actual, y_tabla, ancho, alto_fila, fill=1, stroke=0)
+        canvas.setFillColor(colors.white)
+        canvas.drawCentredString(x_actual + ancho / 2, y_tabla + 19, encabezado)
+        x_actual += ancho
+
+    items = list(proforma.items.select_related('producto').all())
+    canvas.setFont('Helvetica', 7.5)
+    for indice, item in enumerate(items[:6]):
+        y = y_tabla - alto_fila * (indice + 1)
+        x_actual = x_tabla
+        canvas.setFillColor(colors.white)
+        canvas.setStrokeColor(gris)
+        for ancho in columnas:
+            canvas.rect(x_actual, y, ancho, alto_fila, fill=1, stroke=1)
+            x_actual += ancho
+
+        foto = getattr(item.producto, 'foto', None)
+        if foto:
+            try:
+                foto.open('rb')
+                canvas.drawImage(
+                    ImageReader(foto.file),
+                    x_tabla + 10,
+                    y + 8,
+                    width=28,
+                    height=23,
+                    preserveAspectRatio=True,
+                    anchor='c',
+                    mask='auto',
+                )
+            except (AttributeError, OSError, ValueError):
+                pass
+
+        canvas.setFillColor(azul)
+        nombre = str(item.producto.nombre or '-')[:28]
+        if len(nombre) > 18:
+            canvas.drawString(x_tabla + columnas[0] + 5, y + 27, nombre[:18])
+            canvas.drawString(x_tabla + columnas[0] + 5, y + 16, nombre[18:])
+        else:
+            canvas.drawString(x_tabla + columnas[0] + 5, y + 21, nombre)
+
+        valores = [
+            item.get_modalidad_display(),
+            item.cantidad,
+            f'{item.precio_unitario:,.2f}',
+            f'{item.subtotal:,.2f}',
+            f'- {item.descuento:,.2f}',
+            f'{item.subtotal_neto:,.2f}',
+        ]
+        x_actual = x_tabla + columnas[0] + columnas[1]
+        for valor, ancho in zip(valores, columnas[2:]):
+            canvas.drawCentredString(x_actual + ancho / 2, y + 21, str(valor))
+            x_actual += ancho
+
+    canvas.setFillColor(azul)
+    filas = min(len(items), 6) + 1
+    y_final_tabla = y_tabla - (alto_fila * filas)
+    y_subtotal = y_final_tabla - 12
+    y_descuento = y_subtotal - 21
+    y_total = y_descuento - 28
+    canvas.setFont('Helvetica', 10)
+    canvas.drawString(400, y_subtotal, 'Subtotal:')
+    canvas.drawRightString(594, y_subtotal, f'{proforma.subtotal:,.2f}')
+    canvas.drawString(400, y_descuento, 'Descuento:')
+    canvas.drawRightString(594, y_descuento, f'{proforma.descuento:,.2f}')
+    canvas.setFont('Helvetica-Bold', 13)
+    canvas.drawRightString(594, y_total, f'Total:       {proforma.total:,.2f}')
+    canvas.setFont('Helvetica-Bold', 9)
+    canvas.drawString(18, y_total - 28, f'Comentario: {proforma.comentario or "-"}')
+    canvas.save()
+    buffer.seek(0)
+    return aplicar_plantilla_comprobante(buffer)
+
+
 def generar_codigo_proforma():
     contador = Proforma.objects.count() + 1
     return f'PROF-{contador:05d}'
@@ -284,6 +400,13 @@ def generar_pdf_proforma(request, id):
         return redirect('dashboard')
     proforma = get_object_or_404(proformas_accesibles(request), pk=id)
 
+    return FileResponse(
+        _generar_pdf_proforma_diseno(proforma),
+        as_attachment=True,
+        filename=f'{proforma.codigo}.pdf'.replace('/', '-'),
+        content_type='application/pdf',
+    )
+
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.75 * inch, bottomMargin=0.75 * inch)
     styles = getSampleStyleSheet()
@@ -397,6 +520,8 @@ def generar_pdf_proforma(request, id):
     doc.build(elements)
     buffer.seek(0)
 
+    from apps.ventas.pdf_template import aplicar_plantilla_comprobante
+    buffer = aplicar_plantilla_comprobante(buffer)
     file_name = f'{proforma.codigo}.pdf'.replace('/', '-')
     return FileResponse(buffer, as_attachment=True, filename=file_name, content_type='application/pdf')
 
